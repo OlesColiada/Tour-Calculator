@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>Калькулятор вартості туру</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root{
+  --ink:#1c2b2e;
+  --paper:#f1ede2;
+  --paper-dim:#e7e1d1;
+  --teal:#0f4c4c;
+  --teal-deep:#0a3535;
+  --gold:#c69a2e;
+  --gold-dim:#e4c877;
+  --line:#c9c1a8;
+  --red:#a3402f;
+  --white:#fffdf8;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;padding:0 0 80px 0;}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px;}
+
+header{background:var(--teal-deep);color:var(--white);padding:36px 0 26px 0;border-bottom:4px solid var(--gold);}
+header .wrap{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:14px;}
+h1{font-family:'Fraunces',serif;font-weight:700;font-size:34px;margin:0;letter-spacing:.2px;}
+header p{margin:6px 0 0 0;color:#cfe3df;font-size:14px;letter-spacing:.3px;}
+.stamp{font-family:'JetBrains Mono',monospace;font-size:12px;border:1.5px solid var(--gold-dim);color:var(--gold-dim);padding:6px 12px;border-radius:2px;transform:rotate(-2deg);letter-spacing:1px;}
+.storage-note{font-size:11.5px;color:#9fb; opacity:.75;margin-top:4px;}
+
+.tabbar{display:flex;gap:10px;flex-wrap:wrap;margin:26px 0 0 0;align-items:center;}
+.tab{position:relative;background:var(--white);border:1.5px solid var(--line);border-radius:3px 10px 10px 3px;padding:9px 34px 9px 16px;font-family:'JetBrains Mono',monospace;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .15s ease;}
+.tab::before{content:'';position:absolute;left:-5px;top:50%;transform:translateY(-50%);width:9px;height:9px;border-radius:50%;background:var(--paper);border:1.5px solid var(--line);}
+.tab.active{background:var(--teal);color:var(--white);border-color:var(--teal-deep);box-shadow:2px 3px 0 var(--gold);}
+.tab.active::before{border-color:var(--teal-deep);background:var(--gold);}
+.tab .rm{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.55;line-height:1;}
+.tab .rm:hover{opacity:1;color:var(--red);}
+.tab input{background:transparent;border:none;outline:none;font-family:'JetBrains Mono',monospace;font-size:13px;color:inherit;width:auto;min-width:40px;}
+.addtab{border:1.5px dashed var(--line);background:transparent;color:var(--teal);border-radius:8px;padding:9px 16px;font-family:'JetBrains Mono',monospace;font-size:13px;cursor:pointer;}
+.addtab:hover{background:var(--paper-dim);}
+
+.save-bar{display:flex;gap:10px;align-items:center;margin:16px 0 0 0;}
+.saved-panel{background:var(--white);border:1px solid var(--line);border-radius:4px;margin-top:14px;padding:18px 20px;}
+table.saved-table{width:100%;border-collapse:collapse;font-size:13px;}
+table.saved-table th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#7a7360;padding:6px 8px;border-bottom:2px solid var(--line);font-weight:600;}
+table.saved-table td{padding:8px;border-bottom:1px solid var(--paper-dim);vertical-align:middle;}
+table.saved-table td.price{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--teal-deep);text-align:right;}
+.saved-empty{font-size:13px;color:#9a927a;padding:8px 0;}
+.saved-actions{display:flex;gap:6px;}
+.saved-actions button{font-size:12px;padding:5px 10px;border-radius:4px;cursor:pointer;font-family:'JetBrains Mono',monospace;}
+.btn-open{background:var(--teal);color:var(--white);border:none;}
+.btn-open:hover{background:var(--teal-deep);}
+.btn-del{background:transparent;border:1px solid var(--line);color:var(--red);}
+.btn-del:hover{background:#f6e9e6;}
+
+.card{background:var(--white);border:1px solid var(--line);border-radius:4px;margin-top:22px;padding:22px 24px;}
+.card h2{font-family:'Fraunces',serif;font-size:20px;margin:0 0 4px 0;color:var(--teal-deep);}
+.card .sub{font-size:12.5px;color:#6b6455;margin-bottom:16px;}
+
+.meta-row{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:6px;}
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:#7a7360;font-weight:600;}
+.field input,.field select{border:1px solid var(--line);border-radius:3px;padding:8px 10px;font-family:'JetBrains Mono',monospace;font-size:13.5px;background:var(--paper);color:var(--ink);width:160px;}
+.field input:focus,.field select:focus{outline:2px solid var(--teal);outline-offset:1px;background:var(--white);}
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+input[type=number]{-moz-appearance:textfield;appearance:textfield;}
+
+table.items{width:100%;border-collapse:collapse;margin-top:10px;}
+table.items th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#7a7360;padding:6px 8px;border-bottom:2px solid var(--line);font-weight:600;}
+table.items td{padding:5px 8px;border-bottom:1px solid var(--paper-dim);}
+table.items input[type=text]{width:100%;border:1px solid transparent;background:transparent;font-family:'Inter',sans-serif;font-size:13.5px;padding:6px 6px;border-radius:3px;}
+table.items input[type=text]:hover,table.items input[type=text]:focus{border-color:var(--line);background:var(--paper);}
+table.items input[type=number]{width:110px;border:1px solid var(--line);background:var(--paper);font-family:'JetBrains Mono',monospace;font-size:13.5px;padding:6px 8px;border-radius:3px;text-align:right;}
+table.items input[type=number]:focus{outline:2px solid var(--teal);outline-offset:0;background:var(--white);}
+.del-btn{background:none;border:none;color:#a99;cursor:pointer;font-size:16px;padding:2px 8px;}
+.del-btn:hover{color:var(--red);}
+.add-row{margin-top:10px;background:none;border:1.5px dashed var(--line);color:var(--teal);padding:7px 14px;border-radius:5px;font-size:12.5px;font-family:'JetBrains Mono',monospace;cursor:pointer;}
+.add-row:hover{background:var(--paper-dim);}
+.grp-total{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--teal-deep);}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
+@media(max-width:880px){.two-col{grid-template-columns:1fr;}}
+
+/* city picker */
+.picker-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;}
+.city-list{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;max-height:180px;overflow-y:auto;padding:10px;background:var(--paper);border-radius:5px;border:1px solid var(--paper-dim);}
+.city-chip-option{display:flex;align-items:center;gap:6px;background:var(--white);border:1px solid var(--line);border-radius:14px;padding:5px 10px 5px 8px;font-size:12.5px;cursor:pointer;user-select:none;}
+.city-chip-option:hover{border-color:var(--teal);}
+.city-chip-option.checked{background:var(--teal);color:var(--white);border-color:var(--teal-deep);}
+.city-chip-option .cost{font-family:'JetBrains Mono',monospace;opacity:.75;font-size:11.5px;}
+.cost-display{font-family:'JetBrains Mono',monospace;opacity:.8;font-size:11.5px;}
+.edit-pencil{background:none;border:none;cursor:pointer;font-size:11px;opacity:.45;padding:0 2px;color:inherit;}
+.edit-pencil:hover{opacity:1;}
+.chip-cost-edit{width:64px;border:1px solid var(--gold);border-radius:3px;padding:3px 6px;font-family:'JetBrains Mono',monospace;font-size:12px;text-align:right;background:var(--white);}
+.city-chip-option.checked .chip-cost-edit{background:var(--white);color:var(--ink);}
+.city-chip-option.checked .edit-pencil{color:var(--white);}
+.add-city-form{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px;}
+.add-city-form input{border:1px solid var(--line);border-radius:3px;padding:6px 9px;font-size:12.5px;font-family:'Inter',sans-serif;}
+.add-city-form input.cost-inp{width:90px;font-family:'JetBrains Mono',monospace;text-align:right;}
+.add-city-form input.name-inp{width:150px;}
+.mini-btn{background:var(--teal);color:var(--white);border:none;border-radius:4px;padding:7px 12px;font-size:12px;cursor:pointer;font-family:'JetBrains Mono',monospace;}
+.mini-btn:hover{background:var(--teal-deep);}
+.mini-btn.ghost{background:transparent;color:var(--teal);border:1px solid var(--line);}
+
+.selected-strip{margin-top:10px;}
+.sel-chip{display:inline-flex;align-items:center;gap:8px;background:var(--gold-dim);border-radius:14px;padding:6px 8px 6px 12px;font-size:12.5px;margin:0 8px 8px 0;}
+.sel-chip .rm2{cursor:pointer;opacity:.6;font-weight:700;}
+.sel-chip .rm2:hover{opacity:1;color:var(--red);}
+.sel-chip select, .sel-chip input{border:1px solid var(--line);border-radius:3px;font-size:12px;padding:3px 5px;font-family:'JetBrains Mono',monospace;background:var(--white);}
+.sel-chip input.days-inp{width:44px;text-align:center;}
+
+.subtotal-line{display:flex;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid var(--paper-dim);font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--teal-deep);font-size:13.5px;}
+
+.escort-block{display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--paper-dim);}
+
+.day-row{display:flex;gap:10px;align-items:center;margin-bottom:8px;flex-wrap:wrap;}
+.day-label{font-family:'JetBrains Mono',monospace;font-size:12px;color:#7a7360;width:150px;flex-shrink:0;}
+.day-city{flex:1;min-width:160px;border:1px solid var(--line);border-radius:3px;padding:7px 10px;font-family:'Inter',sans-serif;font-size:13px;background:var(--paper);}
+.day-city:focus{outline:2px solid var(--teal);outline-offset:1px;background:var(--white);}
+.day-night{border:1px solid var(--line);border-radius:3px;padding:7px 10px;font-size:12.5px;font-family:'Inter',sans-serif;background:var(--paper);width:190px;}
+.day-timeline-wrap{overflow-x:auto;background:var(--paper);border:1px solid var(--paper-dim);border-radius:6px;padding:10px 6px;}
+
+/* results */
+.breakdown{width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:13.5px;}
+.breakdown td{padding:9px 6px;border-bottom:1px solid var(--paper-dim);}
+.breakdown td:first-child{font-family:'Inter',sans-serif;color:var(--ink);}
+.breakdown td:last-child{text-align:right;}
+.breakdown tr.total td{font-weight:700;background:var(--gold-dim);color:var(--teal-deep);font-size:15px;}
+.breakdown tr.sep td{border-top:2px solid var(--line);padding-top:14px;}
+
+table.items select.itscope{border:1px solid var(--line);border-radius:3px;padding:6px 8px;font-size:12px;font-family:'Inter',sans-serif;background:var(--paper);}
+table.items tr.item-disabled{opacity:.45;}
+table.items input.itenabled{width:16px;height:16px;cursor:pointer;}
+
+.lock-banner{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;background:var(--gold-dim);border:1px solid var(--gold);border-radius:5px;padding:12px 16px;margin-top:20px;font-size:13px;color:var(--teal-deep);}
+.locked-overlay{pointer-events:none;opacity:.55;user-select:none;filter:grayscale(.2);}
+.share-row{display:flex;gap:10px;flex-wrap:wrap;}
+
+.size-table-wrap{overflow-x:auto;margin-top:8px;}
+table.size-table{width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:13px;min-width:560px;}
+table.size-table th{background:var(--teal-deep);color:var(--white);padding:9px 10px;font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;font-weight:600;text-align:right;}
+table.size-table th:first-child{text-align:left;}
+table.size-table td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--paper-dim);}
+table.size-table td:first-child{text-align:left;font-family:'Inter',sans-serif;font-weight:600;color:var(--teal-deep);}
+table.size-table tr.price-row td{font-weight:700;background:var(--gold-dim);color:var(--teal-deep);}
+
+footer{text-align:center;color:#8a8368;font-size:12px;margin-top:40px;}
+
+.auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--teal-deep);padding:20px;}
+.auth-card{background:var(--white);border-radius:6px;padding:36px 34px;width:100%;max-width:380px;box-shadow:0 10px 40px rgba(0,0,0,.25);border-top:4px solid var(--gold);}
+.auth-card h1{font-family:'Fraunces',serif;color:var(--teal-deep);margin:0 0 8px 0;}
+.auth-sub{font-size:13px;color:#6b6455;margin-bottom:20px;}
+.auth-error{background:#f6e9e6;color:var(--red);font-size:12.5px;padding:9px 12px;border-radius:4px;margin-top:12px;}
+.auth-note{font-size:12px;color:#8a8368;margin-top:14px;text-align:center;line-height:1.5;}
+</style>
+</head>
+<body>
+
+<div id="authScreen" class="auth-screen">
+  <div class="auth-card">
+    <h1 style="font-size:26px;">Прорахунок вартості туру</h1>
+    <p class="auth-sub">Увійдіть, щоб отримати доступ до спільної бази маршрутів команди.</p>
+    <div class="field" style="width:100%;">
+      <label>Email</label>
+      <input type="email" id="authEmail" placeholder="you@company.com" autocomplete="username">
+    </div>
+    <div class="field" style="width:100%;margin-top:10px;">
+      <label>Пароль</label>
+      <input type="password" id="authPassword" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <div id="authError" class="auth-error" style="display:none;"></div>
+    <button class="mini-btn" id="authLoginBtn" style="width:100%;margin-top:16px;padding:11px;">Увійти</button>
+    <button class="mini-btn ghost" id="authSignupBtn" style="width:100%;margin-top:8px;padding:11px;">Створити акаунт</button>
+    <div id="authNote" class="auth-note"></div>
+  </div>
+</div>
+
+<div id="appRoot" style="display:none;">
+<header>
+  <div class="wrap">
+    <div>
+      <h1>Прорахунок вартості туру</h1>
+      <p>Розрахунок вартості туру по маршрутах з урахуванням оплачуваних та безкоштовних місць</p>
+      <div class="storage-note" id="storageNote"></div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+      <div class="stamp">ГРУПОВІ ТУРИ · КАЛЬКУЛЯЦІЯ</div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#cfe3df;">
+        <span id="authUserEmail"></span>
+        <button class="mini-btn ghost" id="logoutBtn" style="padding:5px 10px;font-size:11.5px;">Вийти</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="tabbar" id="tabbar"></div>
+  <div class="save-bar">
+    <button class="mini-btn" id="saveRouteBtn">💾 Зберегти маршрут</button>
+    <button class="mini-btn ghost" id="toggleSavedBtn">📚 База маршрутів (<span id="savedCount">0</span>)</button>
+  </div>
+  <div id="savedPanel"></div>
+  <div id="routeBody"></div>
+</div>
+
+<footer>Список міст та вартість парковок зберігаються між сесіями (спільна база для всіх маршрутів)</footer>
+</div>
+
+<script>
+const EURO_COUNTRIES = ["Австрія","Бельгія","Болгарія","Велика Британія","Угорщина","Німеччина",
+"Греція","Данія","Естонія","Ірландія","Ісландія","Іспанія","Італія","Латвія","Литва",
+"Люксембург","Мальта","Нідерланди","Норвегія","Польща","Португалія","Румунія","Словаччина",
+"Словенія","Україна","Фінляндія","Франція","Хорватія","Чехія","Швейцарія","Швеція"];
+
+const ESCORT_RATES = [0,40,50,75,100];
+let editingCostKey = null; // e.g. "parking:Берлін" or "excursion:Берлін" — only one cost field editable at a time
+
+const CITY_COUNTRY_MAP = {
+  "відень":"Австрія","зальцбург":"Австрія","інсбрук":"Австрія","грац":"Австрія",
+  "брюссель":"Бельгія","антверпен":"Бельгія","гент":"Бельгія","брюгге":"Бельгія",
+  "софія":"Болгарія","пловдив":"Болгарія","варна":"Болгарія","бургас":"Болгарія",
+  "лондон":"Велика Британія","манчестер":"Велика Британія","ліверпуль":"Велика Британія","единбург":"Велика Британія","глазго":"Велика Британія",
+  "будапешт":"Угорщина","дебрецен":"Угорщина","сегед":"Угорщина",
+  "берлін":"Німеччина","мюнхен":"Німеччина","гамбург":"Німеччина","кельн":"Німеччина","франкфурт":"Німеччина","дюссельдорф":"Німеччина","штутгарт":"Німеччина","дрезден":"Німеччина","лейпциг":"Німеччина","нюрнберг":"Німеччина",
+  "афіни":"Греція","салоніки":"Греція","патри":"Греція",
+  "копенгаген":"Данія","орхус":"Данія","оденсе":"Данія",
+  "таллінн":"Естонія","тарту":"Естонія",
+  "дублін":"Ірландія","корк":"Ірландія","голуей":"Ірландія",
+  "рейк'явік":"Ісландія","рейкявік":"Ісландія",
+  "мадрид":"Іспанія","барселона":"Іспанія","валенсія":"Іспанія","севілья":"Іспанія","малага":"Іспанія",
+  "рим":"Італія","мілан":"Італія","венеція":"Італія","флоренція":"Італія","неаполь":"Італія","турин":"Італія","болонья":"Італія",
+  "рига":"Латвія","даугавпілс":"Латвія",
+  "вільнюс":"Литва","каунас":"Литва","клайпеда":"Литва",
+  "люксембург":"Люксембург",
+  "валлетта":"Мальта",
+  "амстердам":"Нідерланди","роттердам":"Нідерланди","гаага":"Нідерланди","утрехт":"Нідерланди","ейндговен":"Нідерланди",
+  "осло":"Норвегія","берген":"Норвегія","тронгейм":"Норвегія",
+  "варшава":"Польща","краків":"Польща","вроцлав":"Польща","гданськ":"Польща","познань":"Польща","лодзь":"Польща","катовіце":"Польща",
+  "лісабон":"Португалія","порту":"Португалія","брага":"Португалія",
+  "бухарест":"Румунія","клуж-напока":"Румунія","тімішоара":"Румунія",
+  "братислава":"Словаччина","кошице":"Словаччина",
+  "любляна":"Словенія","марібор":"Словенія",
+  "київ":"Україна","львів":"Україна","одеса":"Україна","харків":"Україна","дніпро":"Україна",
+  "гельсінкі":"Фінляндія","тампере":"Фінляндія","турку":"Фінляндія",
+  "париж":"Франція","ліон":"Франція","марсель":"Франція","ніцца":"Франція","тулуза":"Франція","бордо":"Франція","страсбург":"Франція",
+  "загреб":"Хорватія","спліт":"Хорватія","дубровник":"Хорватія",
+  "прага":"Чехія","брно":"Чехія","острава":"Чехія",
+  "цюрих":"Швейцарія","женева":"Швейцарія","берн":"Швейцарія","базель":"Швейцарія","лозанна":"Швейцарія",
+  "стокгольм":"Швеція","гетеборг":"Швеція","мальме":"Швеція",
+};
+
+function correctCountryFor(cityName){
+  return CITY_COUNTRY_MAP[cityName.trim().toLowerCase()] || null;
+}
+
+let cityRegistry = {}; // { country: [{id, name, cost, guideCost}] }
+let storageAvailable = false;
+let currentSession = null; // { access_token, refresh_token, user }
+
+/* ---------- SUPABASE ---------- */
+const SUPABASE_URL = 'https://hnjpeehetftvqpkzuurt.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_yld6uDl3qBhenusY_GKkcg_Kcm9Wi7O';
+
+function sbHeaders(extra){
+  return Object.assign({
+    'apikey': SUPABASE_KEY,
+    'Authorization': 'Bearer ' + (currentSession ? currentSession.access_token : SUPABASE_KEY),
+    'Content-Type': 'application/json',
+  }, extra || {});
+}
+async function sbGet(path){
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {headers: sbHeaders()});
+  if(!res.ok) throw new Error('Supabase GET ' + res.status);
+  return res.json();
+}
+async function sbInsert(table, rows){
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: sbHeaders({'Prefer':'return=representation'}),
+    body: JSON.stringify(rows),
+  });
+  if(!res.ok) throw new Error('Supabase INSERT ' + res.status);
+  return res.json();
+}
+async function sbUpdate(table, matchQuery, patch){
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${matchQuery}`, {
+    method: 'PATCH',
+    headers: sbHeaders({'Prefer':'return=minimal'}),
+    body: JSON.stringify(patch),
+  });
+  if(!res.ok) throw new Error('Supabase UPDATE ' + res.status);
+}
+async function sbDelete(table, matchQuery){
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${matchQuery}`, {
+    method: 'DELETE',
+    headers: sbHeaders(),
+  });
+  if(!res.ok) throw new Error('Supabase DELETE ' + res.status);
+}
+
+/* ---------- SUPABASE AUTH ---------- */
+function saveSessionLocally(session){
+  try{ localStorage.setItem('tour-calc-session', JSON.stringify(session)); }catch(e){ /* unavailable — stays in-memory for this page load */ }
+}
+function loadSessionLocally(){
+  try{ const raw = localStorage.getItem('tour-calc-session'); return raw ? JSON.parse(raw) : null; }catch(e){ return null; }
+}
+function clearSessionLocally(){
+  try{ localStorage.removeItem('tour-calc-session'); }catch(e){ /* ignore */ }
+}
+
+async function authSignIn(email, password){
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+    method: 'POST',
+    headers: {'apikey': SUPABASE_KEY, 'Content-Type':'application/json'},
+    body: JSON.stringify({email, password}),
+  });
+  const data = await res.json();
+  if(!res.ok) throw new Error(data.error_description || data.msg || 'Помилка входу');
+  return data;
+}
+async function authSignUp(email, password){
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+    method: 'POST',
+    headers: {'apikey': SUPABASE_KEY, 'Content-Type':'application/json'},
+    body: JSON.stringify({email, password}),
+  });
+  const data = await res.json();
+  if(!res.ok) throw new Error(data.error_description || data.msg || 'Помилка реєстрації');
+  return data;
+}
+async function authRefresh(refresh_token){
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+    method: 'POST',
+    headers: {'apikey': SUPABASE_KEY, 'Content-Type':'application/json'},
+    body: JSON.stringify({refresh_token}),
+  });
+  const data = await res.json();
+  if(!res.ok) throw new Error('Сесія недійсна');
+  return data;
+}
+async function authSignOut(){
+  try{
+    await fetch(`${SUPABASE_URL}/auth/v1/logout`, { method: 'POST', headers: sbHeaders() });
+  }catch(e){ /* ignore */ }
+  currentSession = null;
+  clearSessionLocally();
+  document.getElementById('appRoot').style.display = 'none';
+  document.getElementById('authScreen').style.display = 'flex';
+  document.getElementById('authEmail').value = '';
+  document.getElementById('authPassword').value = '';
+}
+
+async function startApp(session){
+  currentSession = session;
+  saveSessionLocally(session);
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('appRoot').style.display = 'block';
+  const emailEl = document.getElementById('authUserEmail');
+  if(emailEl) emailEl.textContent = session.user && session.user.email ? session.user.email : '';
+  await init();
+}
+
+async function loadRegistry(){
+  const reg = {};
+  EURO_COUNTRIES.forEach(c=>reg[c]=[]);
+  try{
+    const rows = await sbGet('cities?select=*&order=name.asc');
+    rows.forEach(r=>{
+      if(!reg[r.country]) reg[r.country]=[];
+      reg[r.country].push({id:r.id, name:r.name, cost:Number(r.parking_cost)||0, guideCost:Number(r.guide_cost)||0});
+    });
+    storageAvailable = true;
+  }catch(e){
+    storageAvailable = false;
+  }
+  cityRegistry = reg;
+  document.getElementById('storageNote').textContent = storageAvailable
+    ? 'База міст, вартостей парковок та екскурсоводів — спільна хмарна база (Supabase), доступна з будь-якого пристрою.'
+    : 'Немає звʼязку зі спільною базою (Supabase) — список міст діє лише під час поточної сесії в цьому браузері.';
+}
+
+async function addCityToRegistry(country, name, parkingCost, guideCostVal){
+  let id = null;
+  try{
+    const inserted = await sbInsert('cities', [{country, name, parking_cost:parkingCost, guide_cost:guideCostVal}]);
+    id = inserted[0].id;
+  }catch(e){ /* keep local-only if offline */ }
+  cityRegistry[country].push({id, name, cost:parkingCost, guideCost:guideCostVal});
+}
+
+async function updateCityField(entry, field, value){
+  entry[field] = value;
+  if(!entry.id) return;
+  const column = field==='cost' ? 'parking_cost' : 'guide_cost';
+  try{ await sbUpdate('cities', `id=eq.${entry.id}`, {[column]: value}); }catch(e){ /* silent */ }
+}
+
+let routes = [];
+let activeId = null;
+let uid = 1;
+let savedRoutes = [];
+let savedPanelOpen = false;
+
+async function loadSavedRoutes(){
+  try{
+    const rows = await sbGet('saved_routes?select=*&order=saved_at.desc');
+    savedRoutes = rows.map(r=>({
+      savedId: r.saved_id,
+      savedAt: new Date(r.saved_at).toLocaleString('uk-UA'),
+      name: r.name,
+      snapshot: r.snapshot,
+      price30: Number(r.price30)||0,
+      days: r.days,
+    }));
+  }catch(e){
+    savedRoutes = [];
+  }
+}
+function snapshotRoute(route){
+  const clone = JSON.parse(JSON.stringify(route));
+  delete clone.id;
+  return clone;
+}
+async function saveCurrentRoute(){
+  const route = getRoute(activeId);
+  const computed = computeRoute(route);
+  const price30 = priceForCounts(computed.groupTotal, computed.personTotal, 30, 0, route.profit, route.agency);
+  const savedId = 's' + Date.now() + Math.floor(Math.random()*1000);
+  const row = {saved_id: savedId, name: route.name, snapshot: snapshotRoute(route), price30, days: route.days};
+  try{
+    await sbInsert('saved_routes', [row]);
+  }catch(e){ /* silent — will just not persist if offline */ }
+  await loadSavedRoutes();
+  renderSavedBar();
+  if(savedPanelOpen) renderSavedPanel();
+}
+function openSavedRoute(savedId){
+  const entry = savedRoutes.find(s=>s.savedId===savedId);
+  if(!entry) return;
+  const nr = newRoute(entry.name + ' (копія)');
+  Object.assign(nr, JSON.parse(JSON.stringify(entry.snapshot)));
+  nr.id = uid++;
+  nr.name = entry.name + ' (копія)';
+  nr.locked = true;
+  routes.push(nr);
+  activeId = nr.id;
+  savedPanelOpen = false;
+  renderSavedPanel();
+  renderAll();
+}
+async function deleteSavedRoute(savedId){
+  try{ await sbDelete('saved_routes', `saved_id=eq.${savedId}`); }catch(e){ /* silent */ }
+  savedRoutes = savedRoutes.filter(s=>s.savedId!==savedId);
+  renderSavedBar();
+  renderSavedPanel();
+}
+function renderSavedBar(){
+  const c = document.getElementById('savedCount');
+  if(c) c.textContent = savedRoutes.length;
+}
+function renderSavedPanel(){
+  const panel = document.getElementById('savedPanel');
+  if(!savedPanelOpen){ panel.innerHTML=''; return; }
+  const rows = savedRoutes.map(s=>`
+    <tr>
+      <td>${escapeHtml(s.name)}</td>
+      <td>${escapeHtml(s.savedAt)}</td>
+      <td>${s.days}</td>
+      <td class="price">${fmt(s.price30)}</td>
+      <td><div class="saved-actions">
+        <button class="btn-open" data-open="${s.savedId}">Відкрити</button>
+        <button class="btn-del" data-del="${s.savedId}">Видалити</button>
+      </div></td>
+    </tr>`).join('');
+  panel.innerHTML = `
+    <div class="saved-panel">
+      <h2 style="font-family:'Fraunces',serif;font-size:18px;margin:0 0 10px 0;color:var(--teal-deep);">База прорахованих маршрутів</h2>
+      ${savedRoutes.length ? `
+      <table class="saved-table">
+        <thead><tr><th>Маршрут</th><th>Збережено</th><th>Днів</th><th>Ціна/особу (30 чол)</th><th></th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>` : `<div class="saved-empty">Ще немає збережених маршрутів. Натисніть «💾 Зберегти маршрут», щоб додати поточний до бази.</div>`}
+    </div>
+  `;
+  panel.querySelectorAll('[data-open]').forEach(btn=>btn.addEventListener('click', e=>openSavedRoute(e.target.dataset.open)));
+  panel.querySelectorAll('[data-del]').forEach(btn=>btn.addEventListener('click', e=>deleteSavedRoute(e.target.dataset.del)));
+}
+
+function newRoute(name){
+  const id = uid++;
+  return {
+    id, name: name || 'Новий маршрут', days: 0,
+    dayPlan: [],
+    road: { km: 0, pricePerKm: 0 },
+    parkingSelected: [],
+    excursionSelected: [],
+    escortRate: 0,
+    hotels: [],
+    additional: [
+      {name:'Страховка', cost:0, scope:'person', enabled:false, autoSync:true},
+      {name:'Навушники', cost:0, scope:'person', enabled:false},
+    ],
+    profit: 0,
+    agency: 0,
+    parkingCountryView: EURO_COUNTRIES[0],
+    excursionCountryView: EURO_COUNTRIES[0],
+    system: { type: '10+1', customPaying: 10, customFree: 1 },
+    locked: false,
+  };
+}
+
+function setDayCount(route, count){
+  count = Math.max(0, Math.floor(Number(count)||0));
+  const old = route.dayPlan;
+  const next = [];
+  for(let i=0;i<count;i++) next.push(old[i] || {city:'', nightType:'hotel'});
+  route.dayPlan = next;
+  route.days = count;
+}
+
+function nightTransfersCount(route){
+  const n = route.dayPlan.length;
+  if(n<2) return 0;
+  return route.dayPlan.slice(0, n-1).filter(d=>d.nightType==='transfer').length;
+}
+
+function fmt(n){
+  if(!isFinite(n)) return '—';
+  return '€' + n.toLocaleString('en-US',{minimumFractionDigits:1,maximumFractionDigits:1});
+}
+function getRoute(id){ return routes.find(r=>r.id===id); }
+function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+/* ---------- TABS ---------- */
+function renderTabs(){
+  const bar = document.getElementById('tabbar');
+  bar.innerHTML = '';
+  routes.forEach(r=>{
+    const tab = document.createElement('div');
+    tab.className = 'tab' + (r.id===activeId ? ' active' : '');
+    tab.innerHTML = `<input type="text" value="${escapeHtml(r.name)}" data-id="${r.id}" class="tabname"/><span class="rm" data-id="${r.id}">✕</span>`;
+    tab.addEventListener('click',(e)=>{
+      if(e.target.classList.contains('rm')||e.target.classList.contains('tabname')) return;
+      activeId = r.id; renderAll();
+    });
+    bar.appendChild(tab);
+  });
+  const addBtn = document.createElement('button');
+  addBtn.className='addtab'; addBtn.textContent='+ Маршрут';
+  addBtn.onclick = ()=>{
+    const nr = newRoute('Маршрут ' + uid);
+    routes.push(nr); activeId = nr.id; renderAll();
+  };
+  bar.appendChild(addBtn);
+  bar.querySelectorAll('.tabname').forEach(inp=>{
+    inp.addEventListener('input', e=>{ getRoute(Number(e.target.dataset.id)).name = e.target.value; });
+    inp.addEventListener('click', e=>e.stopPropagation());
+  });
+  bar.querySelectorAll('.rm').forEach(x=>{
+    x.addEventListener('click', e=>{
+      e.stopPropagation();
+      const id = Number(e.target.dataset.id);
+      if(routes.length===1) return;
+      routes = routes.filter(r=>r.id!==id);
+      if(activeId===id) activeId = routes[0].id;
+      renderAll();
+    });
+  });
+}
+
+/* ---------- DAY-BY-DAY ROUTE PLAN ---------- */
+function dayPlanRows(route){
+  const n = route.dayPlan.length;
+  if(n===0) return '<div style="font-size:12.5px;color:#9a927a;padding:6px 0;">Вкажіть к-ть днів, щоб розписати маршрут.</div>';
+  return route.dayPlan.map((d,i)=>{
+    const isLast = i===n-1;
+    return `
+    <div class="day-row">
+      <span class="day-label">День ${i+1}${isLast?' · приїзд додому':''}</span>
+      <input type="text" class="day-city" data-i="${i}" placeholder="Місто" value="${escapeHtml(d.city)}">
+      ${isLast ? '' : `
+      <select class="day-night" data-i="${i}">
+        <option value="hotel" ${d.nightType!=='transfer'?'selected':''}>🏨 Готель</option>
+        <option value="transfer" ${d.nightType==='transfer'?'selected':''}>🚌 Нічний переїзд</option>
+      </select>`}
+    </div>`;
+  }).join('');
+}
+
+function escapeXml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function routeTimelineSVG(route){
+  const days = route.dayPlan;
+  const n = days.length;
+  if(n===0) return '<div style="font-size:12.5px;color:#9a927a;">Візуалізація зʼявиться після додавання днів.</div>';
+  const dayWidth = 120;
+  const width = Math.max(560, (n-1)*dayWidth + 80);
+  const height = 110;
+  const y = 46;
+  let svg = `<svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;">`;
+  for(let i=0;i<n-1;i++){
+    const x1 = 40+i*dayWidth, x2 = 40+(i+1)*dayWidth;
+    const transfer = days[i].nightType==='transfer';
+    svg += `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${transfer?'#c69a2e':'#0f4c4c'}" stroke-width="3" ${transfer?'stroke-dasharray="7,6"':''}/>`;
+    const midx = (x1+x2)/2;
+    svg += `<text x="${midx}" y="${y-12}" font-size="10.5" text-anchor="middle" fill="${transfer?'#a3402f':'#0a3535'}" font-family="'JetBrains Mono',monospace">${transfer?'нічний переїзд':'готель'}</text>`;
+  }
+  days.forEach((d,i)=>{
+    const x = 40+i*dayWidth;
+    const isLast = i===n-1;
+    svg += `<circle cx="${x}" cy="${y}" r="9" fill="${isLast?'#c69a2e':'#0f4c4c'}" stroke="#fffdf8" stroke-width="2"/>`;
+    svg += `<text x="${x}" y="${y+26}" font-size="12" font-weight="600" text-anchor="middle" fill="#1c2b2e" font-family="'Inter',sans-serif">${escapeXml(d.city || ('День '+(i+1)))}</text>`;
+    svg += `<text x="${x}" y="${y+42}" font-size="10" text-anchor="middle" fill="#7a7360" font-family="'JetBrains Mono',monospace">День ${i+1}</text>`;
+  });
+  svg += `</svg>`;
+  return svg;
+}
+
+function dayPlanSection(route){
+  return `
+    <div class="meta-row">
+      <div class="field"><label>К-ть днів</label><input type="text" inputmode="numeric" id="daysInput" value="${route.days}"/></div>
+      <div class="field"><label>К-ть нічних переїздів</label><input type="text" disabled id="nightTransfersDisplay" value="${nightTransfersCount(route)}"/></div>
+    </div>
+    <div class="sub" style="margin-top:14px;">Короткий опис кожного дня (місто) — в кінці кожного дня, крім дня приїзду додому, оберіть готель або нічний переїзд.</div>
+    <div id="dayRows">${dayPlanRows(route)}</div>
+    <div class="sub" style="margin-top:20px;">Візуалізація маршруту</div>
+    <div id="dayTimeline" class="day-timeline-wrap">${routeTimelineSVG(route)}</div>
+  `;
+}
+function hotelsTable(route){
+  const rows = route.hotels.map((h,i)=>`
+    <tr>
+      <td><input type="text" value="${escapeHtml(h.name)}" data-i="${i}" class="hotelname"/></td>
+      <td><select class="hotelcountry" data-i="${i}">${EURO_COUNTRIES.map(c=>`<option value="${c}" ${c===h.country?'selected':''}>${c}</option>`).join('')}</select></td>
+      <td><input type="text" inputmode="decimal" value="${String(h.cost).replace('.',',')}" data-i="${i}" class="hotelcost"/></td>
+      <td><input type="text" inputmode="decimal" value="${String(h.citytax).replace('.',',')}" data-i="${i}" class="hotelcitytax"/></td>
+      <td><button class="hotel-del-btn" data-i="${i}">✕</button></td>
+    </tr>`).join('') || `<tr><td colspan="5" style="color:#9a927a;font-size:12.5px;">Готелів ще не додано</td></tr>`;
+  const total = route.hotels.reduce((s,h)=>s+Number(h.cost||0)+Number(h.citytax||0),0);
+  return `
+    <table class="items">
+      <thead><tr><th>Готель</th><th style="width:160px;">Країна</th><th style="width:120px;">Вартість/особу €</th><th style="width:120px;">Сітітакс/особу €</th><th style="width:30px;"></th></tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot><tr><td class="grp-total">Разом на учасника (готелі)</td><td></td><td></td><td class="grp-total" id="hotelsTotal" style="text-align:right;">${fmt(total)}</td><td></td></tr></tfoot>
+    </table>
+    <button class="add-row" id="hotelsAddRow">+ додати готель</button>
+  `;
+}
+
+/* ---------- GENERIC ADDITIONAL COSTS LIST (with per-item scope + opt-in toggle) ---------- */
+function additionalRowHtml(it, i){
+  const enabled = it.enabled !== false;
+  return `
+    <tr class="${enabled?'':'item-disabled'}">
+      <td><input type="checkbox" class="itenabled" data-i="${i}" ${enabled?'checked':''} title="Включити в розрахунок"></td>
+      <td><input type="text" value="${escapeHtml(it.name)}" data-i="${i}" class="itname"/></td>
+      <td><input type="text" inputmode="decimal" value="${String(it.cost).replace('.',',')}" data-i="${i}" class="itcost"/></td>
+      <td><select class="itscope" data-i="${i}">
+        <option value="group" ${it.scope!=='person'?'selected':''}>на групу</option>
+        <option value="person" ${it.scope==='person'?'selected':''}>на учасника</option>
+      </select></td>
+      <td><button class="del-btn" data-i="${i}">✕</button></td>
+    </tr>`;
+}
+
+function itemsTable(route){
+  const items = route.additional;
+  let rows = items.map((it,i)=>additionalRowHtml(it,i)).join('');
+  const groupTotal = items.filter(it=>it.enabled!==false && it.scope!=='person').reduce((s,it)=>s+Number(it.cost||0),0);
+  const personTotal = items.filter(it=>it.enabled!==false && it.scope==='person').reduce((s,it)=>s+Number(it.cost||0),0);
+  return `
+    <div class="sub" style="margin-top:0;">Позначка «✓» — витрата включається в розрахунок. Без позначки пункт лишається доступним, але не додається до вартості (доплата за бажанням).</div>
+    <table class="items">
+      <thead><tr><th style="width:34px;"></th><th>Стаття витрат</th><th style="width:110px;">€ EUR</th><th style="width:110px;">Тип</th><th style="width:30px;"></th></tr></thead>
+      <tbody id="additionalRows">${rows}</tbody>
+      <tfoot>
+        <tr><td></td><td class="grp-total">Разом на групу</td><td class="grp-total" id="additionalGroupTotal" style="text-align:right;">${fmt(groupTotal)}</td><td></td><td></td></tr>
+        <tr><td></td><td class="grp-total">Разом на учасника</td><td class="grp-total" id="additionalPersonTotal" style="text-align:right;">${fmt(personTotal)}</td><td></td><td></td></tr>
+      </tfoot>
+    </table>
+    <button class="add-row" id="additionalAddRow">+ додати пункт</button>
+  `;
+}
+
+/* ---------- PARKING PICKER ---------- */
+function parkingCost(cityName){
+  for(const country in cityRegistry){
+    const found = cityRegistry[country].find(c=>c.name===cityName);
+    if(found) return Number(found.cost||0);
+  }
+  return 0;
+}
+function findCityCountry(cityName){
+  for(const country in cityRegistry){
+    if(cityRegistry[country].some(c=>c.name===cityName)) return country;
+  }
+  return null;
+}
+
+function buildParkingCityChips(route, country){
+  const cities = cityRegistry[country] || [];
+  return cities.map(c=>{
+    const checked = route.parkingSelected.includes(c.name);
+    const editing = editingCostKey === 'parking:'+c.name;
+    const costControl = editing
+      ? `<input type="text" inputmode="decimal" class="chip-cost-edit" data-type="parking" data-city="${escapeHtml(c.name)}" value="${String(c.cost).replace('.',',')}">`
+      : `<span class="cost-display">${fmt(c.cost)}</span><button type="button" class="edit-pencil" data-type="parking" data-city="${escapeHtml(c.name)}" title="Виправити вартість парковки">✎</button>`;
+    return `<div class="city-chip-option ${checked?'checked':''}">
+      <span class="city-label" data-city="${escapeHtml(c.name)}" data-mode="parking">${escapeHtml(c.name)}</span>
+      ${costControl}
+    </div>`;
+  }).join('') || '<span style="font-size:12.5px;color:#9a927a;">У цій країні ще немає міст — додайте нижче.</span>';
+}
+
+function buildParkingSelectedChips(route){
+  return route.parkingSelected.map(name=>{
+    const cost = parkingCost(name);
+    const exists = findCityCountry(name)!==null;
+    return `<span class="sel-chip">${escapeHtml(name)} · ${exists?fmt(cost):'видалено з бази'}<span class="rm2" data-remove-parking="${escapeHtml(name)}">✕</span></span>`;
+  }).join('') || '<span style="font-size:12.5px;color:#9a927a;">Ще нічого не обрано</span>';
+}
+
+function parkingSection(route){
+  const country = route.parkingCountryView;
+  const countryOptions = EURO_COUNTRIES.map(c=>`<option value="${c}" ${c===country?'selected':''}>${c}</option>`).join('');
+  const total = route.parkingSelected.reduce((s,n)=>s+parkingCost(n),0);
+
+  return `
+    <div class="picker-row">
+      <div class="field"><label>Країна</label><select id="parkingCountrySel">${countryOptions}</select></div>
+    </div>
+    <div class="city-list" id="parkingCityList">${buildParkingCityChips(route,country)}</div>
+    <div class="add-city-form">
+      <input type="text" class="name-inp" id="parkingNewCity" placeholder="Нове місто">
+      <input type="text" inputmode="decimal" class="cost-inp" id="parkingNewCost" placeholder="€">
+      <button class="mini-btn" id="parkingAddCityBtn">+ додати місто в «${escapeHtml(country)}»</button>
+    </div>
+    <div class="add-city-msg" id="parkingAddMsg" style="display:none;color:var(--red);font-size:12px;margin-top:6px;"></div>
+    <div class="selected-strip"><strong style="font-size:12px;color:#7a7360;">Обрано для маршруту:</strong><br/><span id="parkingSelectedStrip">${buildParkingSelectedChips(route)}</span></div>
+    <div class="subtotal-line"><span>Разом парковки</span><span id="parkingTotalValue">${fmt(total)}</span></div>
+  `;
+}
+
+/* ---------- EXCURSION GUIDE PICKER (mirrors parking) ---------- */
+function guideCost(cityName){
+  for(const country in cityRegistry){
+    const found = cityRegistry[country].find(c=>c.name===cityName);
+    if(found) return Number(found.guideCost||0);
+  }
+  return 0;
+}
+
+function buildExcursionCityChips(route, country){
+  const cities = cityRegistry[country] || [];
+  return cities.map(c=>{
+    const checked = route.excursionSelected.includes(c.name);
+    const editing = editingCostKey === 'excursion:'+c.name;
+    const costControl = editing
+      ? `<input type="text" inputmode="decimal" class="chip-cost-edit" data-type="excursion" data-city="${escapeHtml(c.name)}" value="${String(c.guideCost).replace('.',',')}">`
+      : `<span class="cost-display">${fmt(c.guideCost)}</span><button type="button" class="edit-pencil" data-type="excursion" data-city="${escapeHtml(c.name)}" title="Виправити вартість екскурсовода">✎</button>`;
+    return `<div class="city-chip-option ${checked?'checked':''}">
+      <span class="city-label" data-city="${escapeHtml(c.name)}" data-mode="excursion">${escapeHtml(c.name)}</span>
+      ${costControl}
+    </div>`;
+  }).join('') || '<span style="font-size:12.5px;color:#9a927a;">У цій країні ще немає міст — додайте нижче.</span>';
+}
+
+function buildExcursionSelectedChips(route){
+  return route.excursionSelected.map(name=>{
+    const rate = guideCost(name);
+    const exists = findCityCountry(name)!==null;
+    return `<span class="sel-chip">${escapeHtml(name)} · ${exists?fmt(rate):'видалено з бази'}
+      <span class="rm2" data-remove-excursion="${escapeHtml(name)}">✕</span></span>`;
+  }).join('') || '<span style="font-size:12.5px;color:#9a927a;">Ще не обрано жодного екскурсовода</span>';
+}
+
+function excursionSection(route){
+  const country = route.excursionCountryView;
+  const countryOptions = EURO_COUNTRIES.map(c=>`<option value="${c}" ${c===country?'selected':''}>${c}</option>`).join('');
+  const total = route.excursionSelected.reduce((s,n)=>s+guideCost(n),0);
+
+  return `
+    <div class="picker-row">
+      <div class="field"><label>Країна</label><select id="excursionCountrySel">${countryOptions}</select></div>
+    </div>
+    <div class="city-list" id="excursionCityList">${buildExcursionCityChips(route,country)}</div>
+    <div class="add-city-form">
+      <input type="text" class="name-inp" id="excursionNewCity" placeholder="Нове місто">
+      <input type="text" inputmode="decimal" class="cost-inp" id="excursionNewCost" placeholder="€">
+      <button class="mini-btn" id="excursionAddCityBtn">+ додати місто в «${escapeHtml(country)}»</button>
+    </div>
+    <div class="add-city-msg" id="excursionAddMsg" style="display:none;color:var(--red);font-size:12px;margin-top:6px;"></div>
+    <div class="selected-strip"><strong style="font-size:12px;color:#7a7360;">Екскурсоводи по маршруту:</strong><br/><span id="excursionSelectedStrip">${buildExcursionSelectedChips(route)}</span></div>
+    <div class="subtotal-line"><span>Разом екскурсоводи</span><span id="excursionTotalValue">${fmt(total)}</span></div>
+  `;
+}
+
+/* ---------- COMPUTE ---------- */
+function computeRoute(route){
+  const roadTotal = Number(route.road.km||0) * Number(route.road.pricePerKm||0);
+  const parkingTotal = route.parkingSelected.reduce((s,n)=>s+parkingCost(n),0);
+  const guidesTotal = route.excursionSelected.reduce((s,n)=>s+guideCost(n),0);
+  const escortTotal = Number(route.escortRate||0) * Number(route.days||0);
+  const additionalGroupTotal = route.additional.filter(it=>it.enabled!==false && it.scope!=='person').reduce((s,it)=>s+Number(it.cost||0),0);
+  const additionalPersonTotal = route.additional.filter(it=>it.enabled!==false && it.scope==='person').reduce((s,it)=>s+Number(it.cost||0),0);
+  const hotelsTotal = route.hotels.reduce((s,h)=>s+Number(h.cost||0)+Number(h.citytax||0),0);
+  const personTotal = additionalPersonTotal + hotelsTotal;
+  const groupTotal = roadTotal + parkingTotal + guidesTotal + escortTotal + additionalGroupTotal;
+
+  return {roadTotal,parkingTotal,guidesTotal,escortTotal,additionalGroupTotal,hotelsTotal,groupTotal,personTotal};
+}
+
+function priceForCounts(groupTotal, personTotal, P, F, profit, agency){
+  const T = P + F;
+  const base = (P>0?groupTotal/P:0) + (P>0?personTotal*T/P:0);
+  return base + Number(profit||0) + Number(agency||0);
+}
+
+const GROUP_SIZE_OPTIONS = [30,35,40,45,50,55,60];
+
+function systemRatio(route){
+  const s = route.system;
+  if(s.type==='10+1') return {unit:10, free:1};
+  if(s.type==='12+1') return {unit:12, free:1};
+  if(s.type==='15+1') return {unit:15, free:1};
+  return {unit: Math.max(1,Number(s.customPaying)||1), free: Math.max(0,Number(s.customFree)||0)};
+}
+
+function standardSizeTable(route){
+  const r = computeRoute(route);
+  const cells = GROUP_SIZE_OPTIONS.map(size=>({size, price: priceForCounts(r.groupTotal, r.personTotal, size, 0, route.profit, route.agency)}));
+  return `
+    <table class="size-table">
+      <thead><tr><th>Розмір групи</th>${cells.map(c=>`<th>${c.size} чол</th>`).join('')}</tr></thead>
+      <tbody><tr class="price-row"><td>Ціна на особу</td>${cells.map(c=>`<td>${fmt(c.price)}</td>`).join('')}</tr></tbody>
+    </table>
+  `;
+}
+
+function systemSizeTable(route){
+  const r = computeRoute(route);
+  const s = route.system;
+  if(s.type==='custom'){
+    const P = Math.max(0, Number(s.customPaying)||0);
+    const F = Math.max(0, Number(s.customFree)||0);
+    const price = priceForCounts(r.groupTotal, r.personTotal, P, F, route.profit, route.agency);
+    return `
+      <table class="size-table">
+        <thead><tr><th>Оплачуваних</th><th>Безкоштовних</th><th>Ціна на особу</th></tr></thead>
+        <tbody><tr class="price-row"><td>${P}</td><td>${F}</td><td>${fmt(price)}</td></tr></tbody>
+      </table>
+    `;
+  }
+  const {unit, free} = systemRatio(route);
+  const cells = GROUP_SIZE_OPTIONS.map(size=>{
+    const F = unit>0 ? Math.floor(size/unit)*free : 0;
+    return {size, F, price: priceForCounts(r.groupTotal, r.personTotal, size, F, route.profit, route.agency)};
+  });
+  return `
+    <table class="size-table">
+      <thead><tr><th>Розмір групи</th>${cells.map(c=>`<th>${c.size} чол</th>`).join('')}</tr></thead>
+      <tbody>
+        <tr><td>Безкоштовних місць</td>${cells.map(c=>`<td>${c.F}</td>`).join('')}</tr>
+        <tr class="price-row"><td>Ціна на особу</td>${cells.map(c=>`<td>${fmt(c.price)}</td>`).join('')}</tr>
+      </tbody>
+    </table>
+  `;
+}
+
+function resultsCard(route){
+  const r = computeRoute(route);
+  const s = route.system;
+  return `
+    <table class="breakdown">
+      <tr><td>Групові витрати (дорога + парковки + екскурсоводи + супровід + додаткові на групу) — всього</td><td>${fmt(r.groupTotal)}</td></tr>
+      <tr><td>&nbsp;&nbsp;у т.ч. дорога</td><td>${fmt(r.roadTotal)}</td></tr>
+      <tr><td>&nbsp;&nbsp;у т.ч. парковки</td><td>${fmt(r.parkingTotal)}</td></tr>
+      <tr><td>&nbsp;&nbsp;у т.ч. екскурсоводи</td><td>${fmt(r.guidesTotal)}</td></tr>
+      <tr><td>&nbsp;&nbsp;у т.ч. супровід</td><td>${fmt(r.escortTotal)}</td></tr>
+      <tr><td>&nbsp;&nbsp;у т.ч. додаткові витрати на групу</td><td>${fmt(r.additionalGroupTotal)}</td></tr>
+      <tr class="sep"><td>Витрати на учасника (готелі + сітітакс + додаткові «на учасника») — на 1 людину</td><td>${fmt(r.personTotal)}</td></tr>
+      <tr><td>&nbsp;&nbsp;у т.ч. готелі (вартість + сітітакс)</td><td>${fmt(r.hotelsTotal)}</td></tr>
+    </table>
+
+    <div class="meta-row" style="margin-top:20px;">
+      <div class="field"><label>Комісія оператора, €/особу</label><input type="text" inputmode="decimal" id="profitInput" value="${String(route.profit).replace('.',',')}"/></div>
+      <div class="field"><label>Комісія агента, €/особу</label><input type="text" inputmode="decimal" id="agencyInput" value="${String(route.agency).replace('.',',')}"/></div>
+    </div>
+
+    <div class="sub" style="margin-top:22px;">Ціна на особу для звичайної групи (без безкоштовних місць)</div>
+    <div class="size-table-wrap" id="standardSizeTableWrap">${standardSizeTable(route)}</div>
+
+    <div class="sub" style="margin-top:26px;">Розрахунок за системою «безкоштовних місць»</div>
+    <div class="meta-row">
+      <div class="field"><label>Система</label>
+        <select id="systemTypeSel">
+          <option value="10+1" ${s.type==='10+1'?'selected':''}>10+1</option>
+          <option value="12+1" ${s.type==='12+1'?'selected':''}>12+1</option>
+          <option value="15+1" ${s.type==='15+1'?'selected':''}>15+1</option>
+          <option value="custom" ${s.type==='custom'?'selected':''}>Довільна</option>
+        </select>
+      </div>
+      ${s.type==='custom' ? `
+      <div class="field"><label>К-ть оплачуваних</label><input type="text" inputmode="numeric" id="systemCustomPaying" value="${s.customPaying}"/></div>
+      <div class="field"><label>К-ть безкоштовних</label><input type="text" inputmode="numeric" id="systemCustomFree" value="${s.customFree}"/></div>
+      ` : ''}
+    </div>
+    <div class="size-table-wrap" id="systemSizeTableWrap">${systemSizeTable(route)}</div>
+  `;
+}
+
+/* ---------- PRINT & SHARE ---------- */
+function buildRouteSummaryText(route){
+  const r = computeRoute(route);
+  const lines = [];
+  lines.push(`Маршрут: ${route.name}`);
+  lines.push(`К-ть днів: ${route.days}`);
+  lines.push('');
+  lines.push('План по днях:');
+  route.dayPlan.forEach((d,i)=>{
+    const isLast = i===route.dayPlan.length-1;
+    const night = isLast ? '' : (d.nightType==='transfer' ? ' — нічний переїзд' : ' — готель');
+    lines.push(`  День ${i+1}: ${d.city || '—'}${night}`);
+  });
+  lines.push('');
+  lines.push('Ціна на особу (звичайна група, без безкоштовних місць):');
+  GROUP_SIZE_OPTIONS.forEach(size=>{
+    const price = priceForCounts(r.groupTotal, r.personTotal, size, 0, route.profit, route.agency);
+    lines.push(`  ${size} чол: ${fmt(price)}`);
+  });
+  const {unit, free} = systemRatio(route);
+  if(route.system.type!=='custom'){
+    lines.push('');
+    lines.push(`Ціна на особу (система ${route.system.type}):`);
+    GROUP_SIZE_OPTIONS.forEach(size=>{
+      const F = unit>0 ? Math.floor(size/unit)*free : 0;
+      const price = priceForCounts(r.groupTotal, r.personTotal, size, F, route.profit, route.agency);
+      lines.push(`  ${size} чол (${F} безкошт.): ${fmt(price)}`);
+    });
+  } else {
+    const P = Math.max(0,Number(route.system.customPaying)||0);
+    const F = Math.max(0,Number(route.system.customFree)||0);
+    const price = priceForCounts(r.groupTotal, r.personTotal, P, F, route.profit, route.agency);
+    lines.push('');
+    lines.push(`Ціна на особу (довільна система, ${P} оплачуваних + ${F} безкоштовних): ${fmt(price)}`);
+  }
+  return lines.join('\n');
+}
+
+function printRoute(route){
+  const summary = buildRouteSummaryText(route);
+  const win = window.open('', '_blank');
+  if(!win) return;
+  win.document.write(`<!DOCTYPE html><html lang="uk"><head><meta charset="UTF-8"><title>${escapeHtml(route.name)}</title>
+    <style>
+      body{font-family:Georgia,serif;padding:40px;color:#1c2b2e;white-space:pre-wrap;line-height:1.6;font-size:14px;}
+      h1{font-size:22px;border-bottom:2px solid #c69a2e;padding-bottom:10px;}
+    </style></head><body><h1>${escapeHtml(route.name)}</h1><div>${escapeHtml(summary)}</div></body></html>`);
+  win.document.close();
+  win.focus();
+  setTimeout(()=>win.print(), 300);
+}
+
+function shareRoute(route, channel){
+  const summary = buildRouteSummaryText(route);
+  const encoded = encodeURIComponent(summary);
+  if(channel==='email'){
+    window.open(`mailto:?subject=${encodeURIComponent('Маршрут: '+route.name)}&body=${encoded}`, '_blank');
+  } else if(channel==='viber'){
+    window.open(`viber://forward?text=${encoded}`, '_blank');
+  } else if(channel==='telegram'){
+    window.open(`https://t.me/share/url?url=&text=${encoded}`, '_blank');
+  } else if(channel==='whatsapp'){
+    window.open(`https://wa.me/?text=${encoded}`, '_blank');
+  }
+}
+function renderRouteBody(){
+  const route = getRoute(activeId);
+  const el = document.getElementById('routeBody');
+  el.innerHTML = `
+    ${route.locked ? `
+    <div class="lock-banner">
+      <span>🔒 Цей маршрут завантажено з бази — редагування заблоковано, щоб не зіпсувати збережений розрахунок.</span>
+      <button class="mini-btn" id="unlockBtn">✏️ Корекція</button>
+    </div>` : ''}
+    <div id="editableArea" class="${route.locked?'locked-overlay':''}">
+    <div class="card">
+      <h2>${escapeHtml(route.name)}</h2>
+      <div class="sub">Маршрут по днях</div>
+      ${dayPlanSection(route)}
+    </div>
+
+    <div class="card">
+      <h2>Дорога</h2>
+      <div class="sub">Кілометраж маршруту та вартість за кілометр</div>
+      <div class="meta-row">
+        <div class="field"><label>Кілометраж (км)</label><input type="text" inputmode="decimal" id="roadKm" value="${route.road.km}"/></div>
+        <div class="field"><label>Вартість 1 км (€/км)</label><input type="text" inputmode="decimal" id="roadPrice" value="${String(route.road.pricePerKm).replace('.',',')}"/></div>
+        <div class="field"><label>Разом дорога</label><input type="text" disabled id="roadTotalDisplay" value="${fmt(Number(route.road.km||0)*Number(route.road.pricePerKm||0))}" style="font-weight:700;color:var(--teal-deep);"/></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Готелі</h2>
+      <div class="sub">Додайте готелі по маршруту — країна, вартість на учасника та сітітакс на учасника (за замовчуванням 0).</div>
+      ${hotelsTable(route)}
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <h2>Парковки</h2>
+        <div class="sub">Оберіть міста по маршруту — вартість підсумовується. Нові міста додаються в спільну базу.</div>
+        ${parkingSection(route)}
+      </div>
+      <div class="card">
+        <h2>Екскурсоводи</h2>
+        <div class="sub">Оберіть міста, де потрібен екскурсовод — це оплата за проведення екскурсії (фіксована сума за місто, збережена в базі).</div>
+        ${excursionSection(route)}
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Додаткові витрати</h2>
+      <div class="sub">Супровід рахується автоматично (ставка × к-ть днів туру). Для решти пунктів вкажіть, чи це витрата на всю групу, чи на кожного учасника.</div>
+      <div class="escort-block">
+        <div class="field"><label>Супровід, €/доба</label>
+          <select id="escortRateSel">${ESCORT_RATES.map(r=>`<option value="${r}" ${Number(route.escortRate)===r?'selected':''}>${r===0?'Без супроводу':r+' €/доба'}</option>`).join('')}</select>
+        </div>
+        <div class="field"><label>К-ть днів туру</label><input type="text" disabled id="escortDaysDisplay" value="${route.days}"></div>
+        <div class="field"><label>Разом супровід</label><input type="text" disabled id="escortTotalDisplay" value="${fmt(Number(route.escortRate||0)*Number(route.days||0))}" style="font-weight:700;color:var(--teal-deep);"></div>
+      </div>
+      ${itemsTable(route)}
+    </div>
+
+    <div class="card">
+      <h2>Підсумкова вартість</h2>
+      <div class="sub">Собівартість і ціна туру на особу для різних розмірів групи</div>
+      <div id="resultsContainer">${resultsCard(route)}</div>
+    </div>
+    </div>
+
+    <div class="card">
+      <h2>Друк і надсилання</h2>
+      <div class="sub">Сформувати текстовий підсумок маршруту для друку або надсилання клієнту.</div>
+      <div class="share-row">
+        <button class="mini-btn" id="printRouteBtn">🖨️ Друк</button>
+        <button class="mini-btn ghost" id="emailShareBtn">✉️ Email</button>
+        <button class="mini-btn ghost" id="viberShareBtn">📱 Viber</button>
+        <button class="mini-btn ghost" id="telegramShareBtn">✈️ Telegram</button>
+        <button class="mini-btn ghost" id="whatsappShareBtn">💬 WhatsApp</button>
+      </div>
+    </div>
+  `;
+
+  wireEvents(route);
+}
+
+function wireEvents(route){
+  const el = document.getElementById('routeBody');
+
+  document.getElementById('daysInput').addEventListener('input', e=>{
+    updateDayCount(route, e.target.value);
+  });
+  el.querySelectorAll('.day-city').forEach(inp=>inp.addEventListener('input', e=>{
+    route.dayPlan[Number(e.target.dataset.i)].city = e.target.value;
+    updateDayTimeline(route);
+  }));
+  el.querySelectorAll('.day-night').forEach(sel=>sel.addEventListener('change', e=>{
+    route.dayPlan[Number(e.target.dataset.i)].nightType = e.target.value;
+    updateDayTimeline(route);
+  }));
+  document.getElementById('roadKm').addEventListener('input', e=>{
+    route.road.km = Number(e.target.value.replace(',','.'))||0;
+    updateRoadTotal(route);
+  });
+  document.getElementById('roadPrice').addEventListener('input', e=>{
+    route.road.pricePerKm = Number(e.target.value.replace(',','.'))||0;
+    updateRoadTotal(route);
+  });
+  document.getElementById('escortRateSel').addEventListener('change', e=>{
+    route.escortRate = Number(e.target.value)||0;
+    updateEscortTotal(route);
+  });
+
+  // hotels
+  el.querySelectorAll('.hotelname').forEach(inp=>inp.addEventListener('input', e=>{
+    route.hotels[Number(e.target.dataset.i)].name = e.target.value;
+  }));
+  el.querySelectorAll('.hotelcountry').forEach(sel=>sel.addEventListener('change', e=>{
+    route.hotels[Number(e.target.dataset.i)].country = e.target.value;
+  }));
+  el.querySelectorAll('.hotelcost').forEach(inp=>inp.addEventListener('input', e=>{
+    route.hotels[Number(e.target.dataset.i)].cost = Number(e.target.value.replace(',','.'))||0;
+    updateHotelsTotal(route);
+  }));
+  el.querySelectorAll('.hotelcitytax').forEach(inp=>inp.addEventListener('input', e=>{
+    route.hotels[Number(e.target.dataset.i)].citytax = Number(e.target.value.replace(',','.'))||0;
+    updateHotelsTotal(route);
+  }));
+  el.querySelectorAll('.hotel-del-btn').forEach(btn=>btn.addEventListener('click', e=>{
+    route.hotels.splice(Number(e.target.dataset.i),1);
+    renderRouteBody();
+  }));
+  const hotelsAddBtn = document.getElementById('hotelsAddRow');
+  if(hotelsAddBtn) hotelsAddBtn.addEventListener('click', ()=>{
+    route.hotels.push({name:'Готель ' + (route.hotels.length+1), country: EURO_COUNTRIES[0], cost:0, citytax:0});
+    renderRouteBody();
+  });
+
+  // additional cost items (with scope + opt-in)
+  wireAdditionalRowEvents(route);
+  const addRowBtn = document.getElementById('additionalAddRow');
+  if(addRowBtn) addRowBtn.addEventListener('click', ()=>{
+    route.additional.push({name:'Новий пункт', cost:0, scope:'group', enabled:true});
+    renderRouteBody();
+  });
+
+  // parking
+  const parkingSel = document.getElementById('parkingCountrySel');
+  if(parkingSel) parkingSel.addEventListener('change', e=>{ route.parkingCountryView = e.target.value; editingCostKey=null; renderRouteBody(); });
+  el.querySelectorAll('.city-label[data-mode="parking"]').forEach(label=>label.addEventListener('click', e=>{
+    const city = label.dataset.city;
+    const idx = route.parkingSelected.indexOf(city);
+    if(idx>=0) route.parkingSelected.splice(idx,1); else route.parkingSelected.push(city);
+    renderRouteBody();
+  }));
+  el.querySelectorAll('[data-remove-parking]').forEach(x=>x.addEventListener('click', e=>{
+    const city = e.target.dataset.removeParking;
+    route.parkingSelected = route.parkingSelected.filter(c=>c!==city);
+    renderRouteBody();
+  }));
+  const parkingAddBtn = document.getElementById('parkingAddCityBtn');
+  if(parkingAddBtn) parkingAddBtn.addEventListener('click', async ()=>{
+    const nameInp = document.getElementById('parkingNewCity');
+    const costInp = document.getElementById('parkingNewCost');
+    const msg = document.getElementById('parkingAddMsg');
+    const name = nameInp.value.trim();
+    if(!name) return;
+    const country = route.parkingCountryView;
+    const correct = correctCountryFor(name);
+    if(correct && correct!==country){
+      msg.textContent = 'Вибери коректну країну';
+      msg.style.display = 'block';
+      return;
+    }
+    msg.style.display = 'none';
+    if(!cityRegistry[country].some(c=>c.name===name)){
+      await addCityToRegistry(country, name, Number(String(costInp.value).replace(',','.'))||0, 0);
+    }
+    if(!route.parkingSelected.includes(name)) route.parkingSelected.push(name);
+    renderRouteBody();
+  });
+
+  // excursion guides (mirrors parking)
+  const excursionSel = document.getElementById('excursionCountrySel');
+  if(excursionSel) excursionSel.addEventListener('change', e=>{ route.excursionCountryView = e.target.value; editingCostKey=null; renderRouteBody(); });
+  el.querySelectorAll('.city-label[data-mode="excursion"]').forEach(label=>label.addEventListener('click', e=>{
+    const city = label.dataset.city;
+    const idx = route.excursionSelected.indexOf(city);
+    if(idx>=0) route.excursionSelected.splice(idx,1);
+    else route.excursionSelected.push(city);
+    renderRouteBody();
+  }));
+  el.querySelectorAll('[data-remove-excursion]').forEach(x=>x.addEventListener('click', e=>{
+    const city = e.target.dataset.removeExcursion;
+    route.excursionSelected = route.excursionSelected.filter(c=>c!==city);
+    renderRouteBody();
+  }));
+  const excursionAddBtn = document.getElementById('excursionAddCityBtn');
+  if(excursionAddBtn) excursionAddBtn.addEventListener('click', async ()=>{
+    const nameInp = document.getElementById('excursionNewCity');
+    const costInp = document.getElementById('excursionNewCost');
+    const msg = document.getElementById('excursionAddMsg');
+    const name = nameInp.value.trim();
+    if(!name) return;
+    const country = route.excursionCountryView;
+    const correct = correctCountryFor(name);
+    if(correct && correct!==country){
+      msg.textContent = 'Вибери коректну країну';
+      msg.style.display = 'block';
+      return;
+    }
+    msg.style.display = 'none';
+    if(!cityRegistry[country].some(c=>c.name===name)){
+      await addCityToRegistry(country, name, 0, Number(String(costInp.value).replace(',','.'))||0);
+    }
+    if(!route.excursionSelected.includes(name)) route.excursionSelected.push(name);
+    renderRouteBody();
+  });
+
+  // hidden cost-correction (pencil) — shared for parking + excursion
+  el.querySelectorAll('.edit-pencil').forEach(btn=>btn.addEventListener('click', e=>{
+    e.stopPropagation();
+    editingCostKey = btn.dataset.type + ':' + btn.dataset.city;
+    renderRouteBody();
+  }));
+  el.querySelectorAll('.chip-cost-edit').forEach(inp=>{
+    inp.addEventListener('click', e=>e.stopPropagation());
+    inp.addEventListener('input', e=>{
+      e.stopPropagation();
+      const type = e.target.dataset.type, city = e.target.dataset.city;
+      const country = findCityCountry(city);
+      if(!country) return;
+      const entry = cityRegistry[country].find(c=>c.name===city);
+      if(!entry) return;
+      const val = Number(e.target.value.replace(',','.'))||0;
+      if(type==='parking'){ entry.cost = val; updateParkingTotals(route); }
+      else { entry.guideCost = val; updateExcursionTotals(route); }
+    });
+    inp.addEventListener('blur', async e=>{
+      const type = e.target.dataset.type, city = e.target.dataset.city;
+      const country = findCityCountry(city);
+      if(country){
+        const entry = cityRegistry[country].find(c=>c.name===city);
+        if(entry){
+          const field = type==='parking' ? 'cost' : 'guideCost';
+          await updateCityField(entry, field, entry[field]);
+        }
+      }
+      editingCostKey = null;
+      renderRouteBody();
+    });
+    inp.addEventListener('keydown', e=>{ if(e.key==='Enter') e.target.blur(); });
+  });
+  if(editingCostKey){
+    const active = Array.from(el.querySelectorAll('.chip-cost-edit')).find(i=>i.dataset.type+':'+i.dataset.city===editingCostKey);
+    if(active){ active.focus(); active.select(); }
+  }
+
+  wireResultsEvents(route);
+
+  const unlockBtn = document.getElementById('unlockBtn');
+  if(unlockBtn) unlockBtn.addEventListener('click', ()=>{
+    route.locked = false;
+    renderRouteBody();
+  });
+  const printBtn = document.getElementById('printRouteBtn');
+  if(printBtn) printBtn.addEventListener('click', ()=>printRoute(route));
+  const emailBtn = document.getElementById('emailShareBtn');
+  if(emailBtn) emailBtn.addEventListener('click', ()=>shareRoute(route,'email'));
+  const viberBtn = document.getElementById('viberShareBtn');
+  if(viberBtn) viberBtn.addEventListener('click', ()=>shareRoute(route,'viber'));
+  const telegramBtn = document.getElementById('telegramShareBtn');
+  if(telegramBtn) telegramBtn.addEventListener('click', ()=>shareRoute(route,'telegram'));
+  const whatsappBtn = document.getElementById('whatsappShareBtn');
+  if(whatsappBtn) whatsappBtn.addEventListener('click', ()=>shareRoute(route,'whatsapp'));
+}
+
+function wireAdditionalRowEvents(route){
+  document.querySelectorAll('.itenabled').forEach(cb=>cb.addEventListener('change', e=>{
+    const i=Number(e.target.dataset.i);
+    route.additional[i].enabled = e.target.checked;
+    renderRouteBody();
+  }));
+  document.querySelectorAll('.itname').forEach(inp=>inp.addEventListener('input', e=>{
+    const i=Number(e.target.dataset.i);
+    route.additional[i].name = e.target.value;
+  }));
+  document.querySelectorAll('.itcost').forEach(inp=>inp.addEventListener('input', e=>{
+    const i=Number(e.target.dataset.i);
+    route.additional[i].cost = Number(e.target.value.replace(',','.'))||0;
+    route.additional[i].autoSync = false;
+    updateAdditionalTotals(route);
+  }));
+  document.querySelectorAll('.itscope').forEach(sel=>sel.addEventListener('change', e=>{
+    const i=Number(e.target.dataset.i);
+    route.additional[i].scope = e.target.value;
+    updateAdditionalTotals(route);
+  }));
+  document.querySelectorAll('.del-btn').forEach(btn=>btn.addEventListener('click', e=>{
+    route.additional.splice(Number(e.target.dataset.i),1);
+    renderRouteBody();
+  }));
+}
+
+function wireDayRowEvents(route){
+  document.querySelectorAll('.day-city').forEach(inp=>inp.addEventListener('input', e=>{
+    route.dayPlan[Number(e.target.dataset.i)].city = e.target.value;
+    updateDayTimeline(route);
+  }));
+  document.querySelectorAll('.day-night').forEach(sel=>sel.addEventListener('change', e=>{
+    route.dayPlan[Number(e.target.dataset.i)].nightType = e.target.value;
+    updateDayTimeline(route);
+  }));
+}
+
+function updateDayCount(route, val){
+  setDayCount(route, val);
+  const rowsEl = document.getElementById('dayRows');
+  if(rowsEl){ rowsEl.innerHTML = dayPlanRows(route); wireDayRowEvents(route); }
+  const escortDaysEl = document.getElementById('escortDaysDisplay');
+  if(escortDaysEl) escortDaysEl.value = route.days;
+  syncAutoAdditionalItems(route);
+  updateEscortTotal(route);
+  updateDayTimeline(route);
+}
+
+function syncAutoAdditionalItems(route){
+  let changed = false;
+  route.additional.forEach(it=>{
+    if(it.autoSync){ it.cost = route.days; changed = true; }
+  });
+  if(changed){
+    const rowsEl = document.getElementById('additionalRows');
+    if(rowsEl){
+      rowsEl.innerHTML = route.additional.map((it,i)=>additionalRowHtml(it,i)).join('');
+      wireAdditionalRowEvents(route);
+    }
+    updateAdditionalTotals(route);
+  }
+}
+
+function updateDayTimeline(route){
+  const wrap = document.getElementById('dayTimeline');
+  if(wrap) wrap.innerHTML = routeTimelineSVG(route);
+  const nt = document.getElementById('nightTransfersDisplay');
+  if(nt) nt.value = nightTransfersCount(route);
+  refreshResults();
+}
+
+function updateSizeTables(route){
+  const std = document.getElementById('standardSizeTableWrap');
+  if(std) std.innerHTML = standardSizeTable(route);
+  const sys = document.getElementById('systemSizeTableWrap');
+  if(sys) sys.innerHTML = systemSizeTable(route);
+}
+
+function updateHotelsTotal(route){
+  const totalEl = document.getElementById('hotelsTotal');
+  const total = route.hotels.reduce((s,h)=>s+Number(h.cost||0)+Number(h.citytax||0),0);
+  if(totalEl) totalEl.textContent = fmt(total);
+  refreshResults();
+}
+
+function updateAdditionalTotals(route){
+  const groupEl = document.getElementById('additionalGroupTotal');
+  const personEl = document.getElementById('additionalPersonTotal');
+  const groupTotal = route.additional.filter(it=>it.enabled!==false && it.scope!=='person').reduce((s,it)=>s+Number(it.cost||0),0);
+  const personTotal = route.additional.filter(it=>it.enabled!==false && it.scope==='person').reduce((s,it)=>s+Number(it.cost||0),0);
+  if(groupEl) groupEl.textContent = fmt(groupTotal);
+  if(personEl) personEl.textContent = fmt(personTotal);
+  refreshResults();
+}
+
+function updateExcursionTotals(route){
+  const totalEl = document.getElementById('excursionTotalValue');
+  const total = route.excursionSelected.reduce((s,n)=>s+guideCost(n),0);
+  if(totalEl) totalEl.textContent = fmt(total);
+  const stripEl = document.getElementById('excursionSelectedStrip');
+  if(stripEl){
+    stripEl.innerHTML = buildExcursionSelectedChips(route);
+    stripEl.querySelectorAll('[data-remove-excursion]').forEach(x=>x.addEventListener('click', e=>{
+      const city = e.target.dataset.removeExcursion;
+      route.excursionSelected = route.excursionSelected.filter(c=>c!==city);
+      renderRouteBody();
+    }));
+  }
+  refreshResults();
+}
+
+function updateEscortTotal(route){
+  const disp = document.getElementById('escortTotalDisplay');
+  if(disp) disp.value = fmt(Number(route.escortRate||0)*Number(route.days||0));
+  refreshResults();
+}
+
+function updateParkingTotals(route){
+  const totalEl = document.getElementById('parkingTotalValue');
+  const total = route.parkingSelected.reduce((s,n)=>s+parkingCost(n),0);
+  if(totalEl) totalEl.textContent = fmt(total);
+  const stripEl = document.getElementById('parkingSelectedStrip');
+  if(stripEl) stripEl.innerHTML = buildParkingSelectedChips(route);
+  stripEl && stripEl.querySelectorAll('[data-remove-parking]').forEach(x=>x.addEventListener('click', e=>{
+    const city = e.target.dataset.removeParking;
+    route.parkingSelected = route.parkingSelected.filter(c=>c!==city);
+    renderRouteBody();
+  }));
+  refreshResults();
+}
+
+function updateRoadTotal(route){
+  const disp = document.getElementById('roadTotalDisplay');
+  if(disp) disp.value = fmt(Number(route.road.km||0)*Number(route.road.pricePerKm||0));
+  refreshResults();
+}
+
+function refreshResults(){
+  const route = getRoute(activeId);
+  const container = document.getElementById('resultsContainer');
+  if(container) container.innerHTML = resultsCard(route);
+  wireResultsEvents(route);
+}
+
+function wireResultsEvents(route){
+  const profitInp = document.getElementById('profitInput');
+  if(profitInp) profitInp.addEventListener('input', e=>{
+    route.profit = Number(e.target.value.replace(',','.'))||0;
+    updateSizeTables(route);
+  });
+  const agencyInp = document.getElementById('agencyInput');
+  if(agencyInp) agencyInp.addEventListener('input', e=>{
+    route.agency = Number(e.target.value.replace(',','.'))||0;
+    updateSizeTables(route);
+  });
+  const systemSel = document.getElementById('systemTypeSel');
+  if(systemSel) systemSel.addEventListener('change', e=>{
+    route.system.type = e.target.value;
+    renderRouteBody();
+  });
+  const customPayingInp = document.getElementById('systemCustomPaying');
+  if(customPayingInp) customPayingInp.addEventListener('input', e=>{
+    route.system.customPaying = Number(e.target.value)||1;
+    updateSizeTables(route);
+  });
+  const customFreeInp = document.getElementById('systemCustomFree');
+  if(customFreeInp) customFreeInp.addEventListener('input', e=>{
+    route.system.customFree = Number(e.target.value)||0;
+    updateSizeTables(route);
+  });
+}
+
+function renderAll(){
+  renderTabs();
+  renderRouteBody();
+}
+
+async function init(){
+  await loadRegistry();
+  await loadSavedRoutes();
+  routes.push(newRoute('Маршрут 1'));
+  activeId = routes[0].id;
+  renderAll();
+  renderSavedBar();
+
+  document.getElementById('saveRouteBtn').addEventListener('click', saveCurrentRoute);
+  document.getElementById('toggleSavedBtn').addEventListener('click', ()=>{
+    savedPanelOpen = !savedPanelOpen;
+    renderSavedPanel();
+  });
+  document.getElementById('logoutBtn').addEventListener('click', authSignOut);
+}
+
+/* ---------- BOOTSTRAP: auth gate before app ---------- */
+function showAuthError(msg){
+  const el = document.getElementById('authError');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+function clearAuthError(){
+  const el = document.getElementById('authError');
+  el.style.display = 'none';
+  el.textContent = '';
+}
+
+async function bootstrap(){
+  const saved = loadSessionLocally();
+  if(saved && saved.refresh_token){
+    try{
+      const refreshed = await authRefresh(saved.refresh_token);
+      await startApp(refreshed);
+      return;
+    }catch(e){
+      clearSessionLocally();
+    }
+  }
+  // show login screen
+  document.getElementById('authNote').textContent = 'Немає акаунту? Заповніть email і пароль та натисніть «Створити акаунт».';
+
+  document.getElementById('authLoginBtn').addEventListener('click', async ()=>{
+    clearAuthError();
+    const email = document.getElementById('authEmail').value.trim();
+    const password = document.getElementById('authPassword').value;
+    if(!email || !password){ showAuthError('Вкажіть email і пароль.'); return; }
+    try{
+      const session = await authSignIn(email, password);
+      await startApp(session);
+    }catch(e){
+      showAuthError(e.message || 'Не вдалося увійти.');
+    }
+  });
+
+  document.getElementById('authSignupBtn').addEventListener('click', async ()=>{
+    clearAuthError();
+    const email = document.getElementById('authEmail').value.trim();
+    const password = document.getElementById('authPassword').value;
+    if(!email || !password){ showAuthError('Вкажіть email і пароль.'); return; }
+    if(password.length < 6){ showAuthError('Пароль має бути не менше 6 символів.'); return; }
+    try{
+      const data = await authSignUp(email, password);
+      if(data.access_token){
+        await startApp(data);
+      } else {
+        document.getElementById('authNote').textContent = 'Акаунт створено. Якщо у проєкті увімкнено підтвердження email — перевірте пошту, потім увійдіть кнопкою «Увійти».';
+      }
+    }catch(e){
+      showAuthError(e.message || 'Не вдалося зареєструватися.');
+    }
+  });
+}
+bootstrap();
+</script>
+
+</body>
+</html>
