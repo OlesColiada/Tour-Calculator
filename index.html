@@ -154,7 +154,17 @@ table.size-table td{padding:9px 10px;text-align:right;border-bottom:1px solid va
 table.size-table td:first-child{text-align:left;font-family:'Inter',sans-serif;font-weight:600;color:var(--teal-deep);}
 table.size-table tr.price-row td{font-weight:700;background:var(--gold-dim);color:var(--teal-deep);}
 
-footer{text-align:center;color:#8a8368;font-size:12px;margin-top:40px;}
+.header-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px;}
+
+.rate-badge{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.22);border-radius:6px;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--white);min-width:230px;}
+.rate-badge-row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:5px;color:#cfe3df;}
+.rate-badge-row strong{color:var(--white);font-weight:700;}
+.rate-badge-row input{width:44px;border:1px solid var(--gold-dim);border-radius:3px;padding:2px 4px;font-family:'JetBrains Mono',monospace;font-size:11.5px;text-align:right;background:var(--white);color:var(--ink);margin-right:3px;}
+.rate-badge-date{font-size:10px;color:#9fc2bc;margin-bottom:8px;}
+.rate-badge .mini-btn.ghost{color:var(--gold-dim);border-color:rgba(255,255,255,.3);width:100%;font-size:10.5px;padding:5px 10px;}
+.rate-badge .mini-btn.ghost:hover{background:rgba(255,255,255,.1);}
+
+.uah-amt{opacity:.68;font-size:.88em;margin-left:4px;}
 
 .dirty-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);display:none;flex-shrink:0;}
 
@@ -166,6 +176,8 @@ footer{text-align:center;color:#8a8368;font-size:12px;margin-top:40px;}
 .modal-title{font-family:'Fraunces',serif;font-size:19px;margin:0 0 8px 0;color:var(--teal-deep);}
 .modal-message{font-size:13.5px;color:#4a4438;margin-bottom:20px;line-height:1.55;}
 .modal-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+
+footer{text-align:center;color:#8a8368;font-size:12px;margin-top:40px;}
 </style>
 </head>
 <body>
@@ -180,7 +192,24 @@ footer{text-align:center;color:#8a8368;font-size:12px;margin-top:40px;}
         <div class="storage-note" id="storageNote"></div>
       </div>
     </div>
-    <div class="stamp">ГРУПОВІ ТУРИ · КАЛЬКУЛЯЦІЯ</div>
+    <div class="header-right">
+      <div class="stamp">ГРУПОВІ ТУРИ · КАЛЬКУЛЯЦІЯ</div>
+      <div class="rate-badge" id="rateBadge">
+        <div class="rate-badge-row"><span>Курс НБУ (EUR)</span><strong id="nbuRateValue">…</strong></div>
+        <div class="rate-badge-row">
+          <span>Надбавка
+            <span class="unit-toggle">
+              <button type="button" class="unit-btn" data-ratemarkupmode="percent" style="background:var(--teal);color:var(--white);border-color:var(--teal-deep);">%</button>
+              <button type="button" class="unit-btn" data-ratemarkupmode="fixed">₴</button>
+            </span>
+          </span>
+          <span id="rateMarkupFieldWrap"><input type="text" inputmode="decimal" id="rateMarkupInput" value="3">%</span>
+        </div>
+        <div class="rate-badge-row"><span>Робочий курс</span><strong id="workingRateValue">—</strong></div>
+        <div class="rate-badge-date" id="rateDateText"></div>
+        <button type="button" class="mini-btn ghost" id="rateRefreshBtn">↻ Оновити курс</button>
+      </div>
+    </div>
   </div>
 </header>
 
@@ -211,6 +240,114 @@ const EURO_COUNTRIES = ["Австрія","Бельгія","Болгарія","В
 "Словенія","Україна","Фінляндія","Франція","Хорватія","Чехія","Швейцарія","Швеція"];
 
 const ESCORT_RATES = [0,40,50,75,100];
+
+/* ---------- NBU EXCHANGE RATE (EUR->UAH), with an editable bank/commission markup ---------- */
+let nbuRate = null;       // official NBU rate, UAH per 1 EUR
+let nbuRateDate = null;   // as returned by NBU ("dd.mm.yyyy")
+let nbuRateError = false;
+let rateMarkupMode = 'percent'; // 'percent' | 'fixed'
+let rateMarkupPercent = 3;      // % buffer for bank fees/commissions
+let rateMarkupFixed = 0.50;    // flat UAH (kopecks-precision) added directly to the NBU rate
+
+function round2(n){
+  return Math.round((Number(n)||0)*100)/100;
+}
+
+function workingRate(){
+  if(nbuRate==null) return null;
+  if(rateMarkupMode==='fixed'){
+    return round2(nbuRate + (Number(rateMarkupFixed)||0));
+  }
+  return round2(nbuRate * (1 + (Number(rateMarkupPercent)||0)/100));
+}
+
+// €X.X plus a muted (₴Y.YY) conversion at the current working rate, if known. Returns HTML.
+function fmtBoth(eur){
+  const base = fmt(eur);
+  const wr = workingRate();
+  if(wr==null) return base;
+  const uah = round2(eur*wr);
+  return `${base}<span class="uah-amt">(₴${uah.toLocaleString('uk-UA',{minimumFractionDigits:2,maximumFractionDigits:2})})</span>`;
+}
+
+async function fetchNbuRate(){
+  try{
+    const res = await fetch('https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=EUR&json');
+    if(!res.ok) throw new Error('NBU HTTP '+res.status);
+    const data = await res.json();
+    if(Array.isArray(data) && data[0] && data[0].rate){
+      nbuRate = round2(data[0].rate);
+      nbuRateDate = data[0].exchangedate || null;
+      nbuRateError = false;
+    } else {
+      throw new Error('Unexpected NBU response');
+    }
+  }catch(e){
+    nbuRateError = true;
+  }
+  renderRateBadge();
+  refreshAllPriceDisplays();
+}
+
+function renderRateBadge(){
+  const val = document.getElementById('nbuRateValue');
+  const working = document.getElementById('workingRateValue');
+  const dateEl = document.getElementById('rateDateText');
+  if(nbuRate==null){
+    if(val) val.textContent = nbuRateError ? 'немає звʼязку' : '…';
+    if(working) working.textContent = '—';
+    if(dateEl) dateEl.textContent = '';
+    return;
+  }
+  if(val) val.textContent = nbuRate.toFixed(2) + ' ₴';
+  const wr = workingRate();
+  if(working) working.textContent = wr.toFixed(2) + ' ₴';
+  if(dateEl) dateEl.textContent = 'станом на ' + nbuRateDate;
+}
+
+// The markup field itself swaps between a %-input and a ₴-input depending on mode.
+// Rebuilt only on a mode-toggle click (not on every keystroke), so typing never loses focus.
+function rateMarkupFieldHtml(){
+  if(rateMarkupMode==='fixed'){
+    return `<input type="text" inputmode="decimal" id="rateMarkupFixedInput" value="${round2(rateMarkupFixed).toFixed(2).replace('.',',')}">₴`;
+  }
+  return `<input type="text" inputmode="decimal" id="rateMarkupInput" value="${String(rateMarkupPercent).replace('.',',')}">%`;
+}
+
+function wireRateMarkupField(){
+  const pInp = document.getElementById('rateMarkupInput');
+  if(pInp) pInp.addEventListener('input', e=>{
+    rateMarkupPercent = Number(e.target.value.replace(',','.'))||0;
+    renderRateBadge();
+    refreshAllPriceDisplays();
+  });
+  const fInp = document.getElementById('rateMarkupFixedInput');
+  if(fInp) fInp.addEventListener('input', e=>{
+    rateMarkupFixed = Number(e.target.value.replace(',','.'))||0;
+    renderRateBadge();
+    refreshAllPriceDisplays();
+  });
+}
+
+function renderRateMarkupField(){
+  const wrap = document.getElementById('rateMarkupFieldWrap');
+  if(wrap){ wrap.innerHTML = rateMarkupFieldHtml(); wireRateMarkupField(); }
+  document.querySelectorAll('[data-ratemarkupmode]').forEach(btn=>{
+    const active = btn.dataset.ratemarkupmode===rateMarkupMode;
+    btn.style.background = active ? 'var(--teal)' : '';
+    btn.style.color = active ? 'var(--white)' : '';
+    btn.style.borderColor = active ? 'var(--teal-deep)' : '';
+  });
+}
+
+// Only the price-per-person outputs use fmtBoth(), so a rate/markup change only needs to
+// recompute the results card and the base-group numbers — not the whole route body (which would
+// also rebuild whatever field the user might currently be typing in elsewhere).
+function refreshAllPriceDisplays(){
+  if(routes.length && activeId!=null){
+    refreshResults();
+  }
+}
 let editingCostKey = null; // e.g. "parking:Берлін" or "excursion:Берлін" — only one cost field editable at a time
 
 const CITY_COUNTRY_MAP = {
@@ -506,7 +643,7 @@ function newRoute(name){
     parkingCountryView: EURO_COUNTRIES[0],
     excursionCountryView: EURO_COUNTRIES[0],
     system: { type: '10+1', customPaying: 10, customFree: 1 },
-    baseGroup: { size: 30, system: 'none', extraFree: 0, discounts: [], extraPrice: null },
+    baseGroup: { size: 40, system: 'none', extraFree: 0, discounts: [], extraPrice: null },
     locked: false,
     savedId: null,
     savedSnapshotJSON: null,
@@ -532,12 +669,18 @@ function nightTransfersCount(route){
 
 function fmt(n){
   if(!isFinite(n)) return '—';
-  return '€' + n.toLocaleString('en-US',{minimumFractionDigits:1,maximumFractionDigits:1});
+  return '€' + n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
 function getRoute(id){ return routes.find(r=>r.id===id); }
 function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
 
 /* ---------- TABS ---------- */
+function switchToRoute(id){
+  if(id===activeId) return;
+  activeId = id;
+  renderAll();
+}
+
 function renderTabs(){
   const bar = document.getElementById('tabbar');
   bar.innerHTML = '';
@@ -547,8 +690,8 @@ function renderTabs(){
     tab.dataset.id = r.id;
     tab.innerHTML = `<input type="text" value="${escapeHtml(r.name)}" data-id="${r.id}" class="tabname"/><span class="dirty-dot" data-dirty-id="${r.id}" title="Є незбережені зміни" style="display:${routeIsDirty(r)?'inline-block':'none'}"></span><span class="rm" data-id="${r.id}">✕</span>`;
     tab.addEventListener('click',(e)=>{
-      if(e.target.classList.contains('rm')||e.target.classList.contains('tabname')) return;
-      activeId = r.id; renderAll();
+      if(e.target.classList.contains('rm')) return;
+      switchToRoute(r.id);
     });
     bar.appendChild(tab);
   });
@@ -564,7 +707,13 @@ function renderTabs(){
       getRoute(Number(e.target.dataset.id)).name = e.target.value;
       updateTabDirtyDot();
     });
-    inp.addEventListener('click', e=>e.stopPropagation());
+    // Clicking the name field of an inactive tab switches to it (like clicking anywhere else
+    // on the tab); clicking it while already active just places the cursor for renaming —
+    // in that case we deliberately do nothing extra so a full re-render doesn't interrupt typing.
+    inp.addEventListener('click', e=>{
+      e.stopPropagation();
+      switchToRoute(Number(e.target.dataset.id));
+    });
   });
   bar.querySelectorAll('.rm').forEach(x=>{
     x.addEventListener('click', e=>{
@@ -931,7 +1080,7 @@ function standardSizeTable(route){
   return `
     <table class="size-table">
       <thead><tr><th>Розмір групи</th>${cells.map(c=>`<th>${c.size} чол</th>`).join('')}</tr></thead>
-      <tbody><tr class="price-row"><td>Ціна на особу</td>${cells.map(c=>`<td>${fmt(c.price)}</td>`).join('')}</tr></tbody>
+      <tbody><tr class="price-row"><td>Ціна на особу</td>${cells.map(c=>`<td>${fmtBoth(c.price)}</td>`).join('')}</tr></tbody>
     </table>
   `;
 }
@@ -946,7 +1095,7 @@ function systemSizeTable(route){
     return `
       <table class="size-table">
         <thead><tr><th>Оплачуваних</th><th>Безкоштовних</th><th>Ціна на особу</th></tr></thead>
-        <tbody><tr class="price-row"><td>${P}</td><td>${F}</td><td>${fmt(price)}</td></tr></tbody>
+        <tbody><tr class="price-row"><td>${P}</td><td>${F}</td><td>${fmtBoth(price)}</td></tr></tbody>
       </table>
     `;
   }
@@ -960,7 +1109,7 @@ function systemSizeTable(route){
       <thead><tr><th>Розмір групи</th>${cells.map(c=>`<th>${c.size} чол</th>`).join('')}</tr></thead>
       <tbody>
         <tr><td>Безкоштовних місць</td>${cells.map(c=>`<td>${c.F}</td>`).join('')}</tr>
-        <tr class="price-row"><td>Ціна на особу</td>${cells.map(c=>`<td>${fmt(c.price)}</td>`).join('')}</tr>
+        <tr class="price-row"><td>Ціна на особу</td>${cells.map(c=>`<td>${fmtBoth(c.price)}</td>`).join('')}</tr>
       </tbody>
     </table>
   `;
@@ -1090,14 +1239,12 @@ function baseGroupExtraTable(route, calc){
   `;
 }
 
-function baseGroupSection(route){
+function bgControlsHtml(route){
   const bg = route.baseGroup;
   const calc = computeBaseGroup(route);
-  const discountTotal = calc.discountRows.reduce((s,d)=>s+d.cnt,0);
   const clampNote = calc.anyClamped
     ? `<div style="color:var(--red);font-size:12px;margin-top:6px;">Кількість запитаних знижкових місць перевищує вільні місця в базі після пільгових — частину рядків скорочено.</div>`
     : '';
-  const extraPriceVal = (bg.extraPrice!==null && bg.extraPrice!==undefined) ? bg.extraPrice : calc.fullPrice;
   return `
     <div class="meta-row">
       <div class="field"><label>Розмір базової групи</label><input type="text" inputmode="numeric" id="bgSize" value="${bg.size}"></div>
@@ -1118,20 +1265,27 @@ function baseGroupSection(route){
     </table>
     <button class="add-row" id="bgDiscountAddRow">+ додати знижкову категорію</button>
     ${clampNote}
+  `;
+}
 
+function bgComputedHtml(route, calc){
+  const bg = route.baseGroup;
+  const discountTotal = calc.discountRows.reduce((s,d)=>s+d.cnt,0);
+  const extraPriceVal = round2((bg.extraPrice!==null && bg.extraPrice!==undefined) ? bg.extraPrice : calc.fullPrice);
+  return `
     <table class="breakdown" style="margin-top:18px;">
       <tr><td>Пільгові місця за системою «${bg.system}»</td><td>${calc.systemFree}</td></tr>
       <tr><td>Пільгові місця додатково</td><td>${calc.manualFree}</td></tr>
       <tr><td>Знижкові місця (всього)</td><td>${discountTotal}</td></tr>
       <tr><td>Учасників за повною (беззбитковою) ціною</td><td>${calc.fullPayers}</td></tr>
       <tr class="sep"><td>Собівартість бази (${calc.size} чол)</td><td>${fmt(calc.totalCost)}</td></tr>
-      <tr class="total"><td>Беззбиткова повна ціна на учасника</td><td>${fmt(calc.fullPrice)}</td></tr>
+      <tr class="total"><td>Беззбиткова повна ціна на учасника</td><td>${fmtBoth(calc.fullPrice)}</td></tr>
     </table>
 
     ${calc.discountRows.length ? `
     <div class="sub" style="margin-top:14px;">Ціна для знижкових категорій (при цій повній ціні прибуток бази лишається нульовим)</div>
     <table class="breakdown">
-      ${calc.discountRows.map(d=>`<tr><td>Знижка ${d.pct}% · ${d.cnt} місць</td><td>${fmt(calc.fullPrice*(1-d.pct/100))}</td></tr>`).join('')}
+      ${calc.discountRows.map(d=>`<tr><td>Знижка ${d.pct}% · ${d.cnt} місць</td><td>${fmtBoth(calc.fullPrice*(1-d.pct/100))}</td></tr>`).join('')}
     </table>` : ''}
 
     <div class="sub" style="margin-top:26px;">Учасники понад базою — чистий прибуток (собівартість бази вже повністю покрита)</div>
@@ -1142,6 +1296,14 @@ function baseGroupSection(route){
     </div>
     <div class="sub" style="margin-top:4px;">За замовчуванням ціна дорівнює беззбитковій повній ціні бази — тобто продовжуємо продавати за тією ж ціною, тільки собівартість групових витрат (дорога, парковки, екскурсоводи, супровід) уже покрита, і кожен додатковий учасник платить лише «свою» частину (готелі/сітітакс тощо) плюс чистий прибуток.</div>
     <div class="size-table-wrap" id="bgExtraTableWrap">${baseGroupExtraTable(route, calc)}</div>
+  `;
+}
+
+function baseGroupSection(route){
+  const calc = computeBaseGroup(route);
+  return `
+    <div id="bgControlsWrap">${bgControlsHtml(route)}</div>
+    <div id="bgComputedWrap">${bgComputedHtml(route, calc)}</div>
   `;
 }
 
@@ -1753,10 +1915,27 @@ function wireResultsEvents(route){
 }
 
 /* ---------- BASE GROUP EVENTS ---------- */
-function refreshBaseGroup(route){
-  const container = document.getElementById('baseGroupContainer');
-  if(container){ container.innerHTML = baseGroupSection(route); wireBaseGroupEvents(route); }
+// Recomputes and redraws only the derived numbers (breakdown, discount prices, extra-participant
+// block). Never touches the controls (size/system/extraFree/discount rows) so typing in those
+// fields doesn't destroy the input the user is actively focused in.
+function refreshBaseGroupComputed(route){
+  const calc = computeBaseGroup(route);
+  const wrap = document.getElementById('bgComputedWrap');
+  if(wrap){ wrap.innerHTML = bgComputedHtml(route, calc); wireBaseGroupComputed(route); }
   updateTabDirtyDot();
+}
+
+// Rebuilds the controls block itself — only needed when rows are structurally added/removed.
+function refreshBaseGroupControls(route){
+  const wrap = document.getElementById('bgControlsWrap');
+  if(wrap){ wrap.innerHTML = bgControlsHtml(route); wireBaseGroupControls(route); }
+  refreshBaseGroupComputed(route);
+}
+
+// Used by other parts of the app (road/parking/hotels/etc. changes) when only the underlying
+// costs changed, not the base-group controls themselves.
+function refreshBaseGroup(route){
+  refreshBaseGroupComputed(route);
 }
 
 function updateBaseGroupExtra(route){
@@ -1770,45 +1949,54 @@ function updateBaseGroupExtra(route){
   updateTabDirtyDot();
 }
 
-function wireBaseGroupEvents(route){
+function wireBaseGroupControls(route){
   const bg = route.baseGroup;
   const sizeInp = document.getElementById('bgSize');
   if(sizeInp) sizeInp.addEventListener('input', e=>{
     bg.size = Math.max(0, Math.floor(Number(e.target.value))||0);
-    refreshBaseGroup(route);
+    refreshBaseGroupComputed(route);
   });
   const sysSel = document.getElementById('bgSystem');
   if(sysSel) sysSel.addEventListener('change', e=>{
     bg.system = e.target.value;
-    refreshBaseGroup(route);
+    refreshBaseGroupComputed(route);
   });
   const extraFreeInp = document.getElementById('bgExtraFree');
   if(extraFreeInp) extraFreeInp.addEventListener('input', e=>{
     bg.extraFree = Math.max(0, Math.floor(Number(e.target.value))||0);
-    refreshBaseGroup(route);
+    refreshBaseGroupComputed(route);
   });
   document.querySelectorAll('.bgDiscCount').forEach(inp=>inp.addEventListener('input', e=>{
     bg.discounts[Number(e.target.dataset.i)].count = Number(e.target.value)||0;
-    refreshBaseGroup(route);
+    refreshBaseGroupComputed(route);
   }));
   document.querySelectorAll('.bgDiscPercent').forEach(inp=>inp.addEventListener('input', e=>{
     bg.discounts[Number(e.target.dataset.i)].percent = Number(e.target.value.replace(',','.'))||0;
-    refreshBaseGroup(route);
+    refreshBaseGroupComputed(route);
   }));
   document.querySelectorAll('.bgDiscDel').forEach(btn=>btn.addEventListener('click', e=>{
     bg.discounts.splice(Number(e.target.dataset.i),1);
-    refreshBaseGroup(route);
+    refreshBaseGroupControls(route);
   }));
   const addDiscBtn = document.getElementById('bgDiscountAddRow');
   if(addDiscBtn) addDiscBtn.addEventListener('click', ()=>{
     bg.discounts.push({count:1, percent:50});
-    refreshBaseGroup(route);
+    refreshBaseGroupControls(route);
   });
+}
+
+function wireBaseGroupComputed(route){
+  const bg = route.baseGroup;
   const extraPriceInp = document.getElementById('bgExtraPrice');
   if(extraPriceInp) extraPriceInp.addEventListener('input', e=>{
     bg.extraPrice = Number(e.target.value.replace(',','.'))||0;
     updateBaseGroupExtra(route);
   });
+}
+
+function wireBaseGroupEvents(route){
+  wireBaseGroupControls(route);
+  wireBaseGroupComputed(route);
 }
 
 function renderAll(){
@@ -1823,6 +2011,7 @@ async function init(){
   activeId = routes[0].id;
   renderAll();
   renderSavedBar();
+  fetchNbuRate(); // fire-and-forget; updates the badge and re-renders prices once it resolves
 
   document.getElementById('saveRouteBtn').addEventListener('click', ()=>{
     saveRoute(getRoute(activeId));
@@ -1831,6 +2020,21 @@ async function init(){
     savedPanelOpen = !savedPanelOpen;
     renderSavedPanel();
   });
+  const rateRefreshBtn = document.getElementById('rateRefreshBtn');
+  if(rateRefreshBtn) rateRefreshBtn.addEventListener('click', ()=>{
+    nbuRate = null; nbuRateError = false;
+    renderRateBadge();
+    fetchNbuRate();
+  });
+  document.querySelectorAll('[data-ratemarkupmode]').forEach(btn=>btn.addEventListener('click', e=>{
+    const mode = e.currentTarget.dataset.ratemarkupmode;
+    if(rateMarkupMode===mode) return;
+    rateMarkupMode = mode;
+    renderRateMarkupField();
+    renderRateBadge();
+    refreshAllPriceDisplays();
+  }));
+  wireRateMarkupField();
 }
 init();
 </script>
