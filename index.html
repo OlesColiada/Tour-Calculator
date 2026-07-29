@@ -125,10 +125,19 @@ table.items input[type=number]:focus{outline:2px solid var(--teal);outline-offse
 
 .day-row{display:flex;gap:10px;align-items:center;margin-bottom:8px;flex-wrap:wrap;}
 .day-label{font-family:'JetBrains Mono',monospace;font-size:12px;color:#7a7360;width:150px;flex-shrink:0;}
-.day-city{flex:1;min-width:160px;border:1px solid var(--line);border-radius:3px;padding:7px 10px;font-family:'Inter',sans-serif;font-size:13px;background:var(--paper);}
+.day-city{flex:1;min-width:160px;border:1px solid var(--line);border-radius:3px;padding:7px 10px;font-family:'Inter',sans-serif;font-size:13px;background:var(--paper);width:100%;box-sizing:border-box;}
 .day-city:focus{outline:2px solid var(--teal);outline-offset:1px;background:var(--white);}
+.city-auto-wrap{position:relative;flex:1;min-width:160px;}
+.city-suggest{position:absolute;top:100%;left:0;right:0;background:var(--white);border:1px solid var(--line);border-top:none;max-height:260px;overflow-y:auto;z-index:80;box-shadow:0 8px 18px rgba(20,30,30,.15);border-radius:0 0 4px 4px;}
+.city-suggest:empty{display:none;}
+.city-suggest-country{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#9a927a;padding:7px 10px 3px;background:var(--paper);}
+.city-suggest-item{padding:7px 12px;font-size:13px;font-family:'Inter',sans-serif;cursor:pointer;color:var(--ink);}
+.city-suggest-item:hover,.city-suggest-item.active{background:var(--gold-dim);}
 .day-night{border:1px solid var(--line);border-radius:3px;padding:7px 10px;font-size:12.5px;font-family:'Inter',sans-serif;background:var(--paper);width:190px;}
 .day-timeline-wrap{overflow-x:auto;background:var(--paper);border:1px solid var(--paper-dim);border-radius:6px;padding:10px 6px;}
+.tl-node{opacity:0;transform:translateY(6px);transition:opacity .5s ease,transform .5s ease;}
+.tl-play .tl-node{opacity:1;transform:translateY(0);}
+.tl-bus{transform:translateX(0);}
 
 /* results */
 .breakdown{width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:13.5px;}
@@ -153,6 +162,9 @@ table.size-table th:first-child{text-align:left;}
 table.size-table td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--paper-dim);}
 table.size-table td:first-child{text-align:left;font-family:'Inter',sans-serif;font-weight:600;color:var(--teal-deep);}
 table.size-table tr.price-row td{font-weight:700;background:var(--gold-dim);color:var(--teal-deep);}
+table.size-table th.col-min-group{background:var(--gold);color:var(--teal-deep);}
+table.size-table td.col-min-group{background:#fbf1d6;box-shadow:inset 0 0 0 2px var(--gold);}
+table.size-table tr.price-row td.col-min-group{background:var(--gold);color:var(--teal-deep);}
 
 .header-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px;}
 
@@ -240,6 +252,95 @@ const EURO_COUNTRIES = ["Австрія","Бельгія","Болгарія","В
 "Словенія","Україна","Фінляндія","Франція","Хорватія","Чехія","Швейцарія","Швеція"];
 
 const ESCORT_RATES = [0,40,50,75,100];
+
+/* ---------- CITY AUTOCOMPLETE (European cities by country) ---------- */
+const EUROPE_CITIES = [
+  {city:"Відень",country:"Австрія"},{city:"Зальцбург",country:"Австрія"},{city:"Інсбрук",country:"Австрія"},
+  {city:"Грац",country:"Австрія"},{city:"Лінц",country:"Австрія"},{city:"Халльштатт",country:"Австрія"},
+  {city:"Брюссель",country:"Бельгія"},{city:"Брюгге",country:"Бельгія"},{city:"Гент",country:"Бельгія"},
+  {city:"Антверпен",country:"Бельгія"},{city:"Льєж",country:"Бельгія"},
+  {city:"Софія",country:"Болгарія"},{city:"Пловдив",country:"Болгарія"},{city:"Варна",country:"Болгарія"},
+  {city:"Бургас",country:"Болгарія"},{city:"Велико Тирново",country:"Болгарія"},
+  {city:"Лондон",country:"Велика Британія"},{city:"Единбург",country:"Велика Британія"},{city:"Манчестер",country:"Велика Британія"},
+  {city:"Ліверпуль",country:"Велика Британія"},{city:"Оксфорд",country:"Велика Британія"},{city:"Кембридж",country:"Велика Британія"},
+  {city:"Глазго",country:"Велика Британія"},{city:"Бат",country:"Велика Британія"},
+  {city:"Будапешт",country:"Угорщина"},{city:"Дебрецен",country:"Угорщина"},{city:"Печ",country:"Угорщина"},
+  {city:"Сегед",country:"Угорщина"},
+  {city:"Берлін",country:"Німеччина"},{city:"Мюнхен",country:"Німеччина"},{city:"Франкфурт",country:"Німеччина"},
+  {city:"Гамбург",country:"Німеччина"},{city:"Кельн",country:"Німеччина"},{city:"Дрезден",country:"Німеччина"},
+  {city:"Нюрнберг",country:"Німеччина"},{city:"Штутгарт",country:"Німеччина"},{city:"Хайдельберг",country:"Німеччина"},
+  {city:"Дюссельдорф",country:"Німеччина"},{city:"Ротенбург",country:"Німеччина"},{city:"Фюссен",country:"Німеччина"},
+  {city:"Афіни",country:"Греція"},{city:"Салоніки",country:"Греція"},{city:"Патри",country:"Греція"},
+  {city:"Метеори",country:"Греція"},{city:"Дельфи",country:"Греція"},{city:"Каламата",country:"Греція"},
+  {city:"Нафпліон",country:"Греція"},{city:"Ханья",country:"Греція"},{city:"Іракліон",country:"Греція"},
+  {city:"Родос",country:"Греція"},{city:"Корфу",country:"Греція"},{city:"Санторіні",country:"Греція"},
+  {city:"Копенгаген",country:"Данія"},{city:"Оденсе",country:"Данія"},{city:"Орхус",country:"Данія"},
+  {city:"Таллінн",country:"Естонія"},{city:"Тарту",country:"Естонія"},{city:"Пярну",country:"Естонія"},
+  {city:"Дублін",country:"Ірландія"},{city:"Корк",country:"Ірландія"},{city:"Голвей",country:"Ірландія"},
+  {city:"Рейк'явік",country:"Ісландія"},
+  {city:"Мадрид",country:"Іспанія"},{city:"Барселона",country:"Іспанія"},{city:"Севілья",country:"Іспанія"},
+  {city:"Валенсія",country:"Іспанія"},{city:"Гранада",country:"Іспанія"},{city:"Толедо",country:"Іспанія"},
+  {city:"Малага",country:"Іспанія"},{city:"Більбао",country:"Іспанія"},{city:"Сан-Себастьян",country:"Іспанія"},
+  {city:"Кордова",country:"Іспанія"},
+  {city:"Рим",country:"Італія"},{city:"Мілан",country:"Італія"},{city:"Венеція",country:"Італія"},
+  {city:"Флоренція",country:"Італія"},{city:"Неаполь",country:"Італія"},{city:"Турин",country:"Італія"},
+  {city:"Верона",country:"Італія"},{city:"Піза",country:"Італія"},{city:"Болонья",country:"Італія"},
+  {city:"Генуя",country:"Італія"},{city:"Сієна",country:"Італія"},{city:"Сорренто",country:"Італія"},
+  {city:"Позітано",country:"Італія"},{city:"Больцано",country:"Італія"},
+  {city:"Рига",country:"Латвія"},{city:"Юрмала",country:"Латвія"},
+  {city:"Вільнюс",country:"Литва"},{city:"Каунас",country:"Литва"},{city:"Клайпеда",country:"Литва"},
+  {city:"Люксембург",country:"Люксембург"},
+  {city:"Валлетта",country:"Мальта"},{city:"Слієма",country:"Мальта"},
+  {city:"Амстердам",country:"Нідерланди"},{city:"Роттердам",country:"Нідерланди"},{city:"Гаага",country:"Нідерланди"},
+  {city:"Утрехт",country:"Нідерланди"},{city:"Дельфт",country:"Нідерланди"},
+  {city:"Осло",country:"Норвегія"},{city:"Берген",country:"Норвегія"},{city:"Тронгейм",country:"Норвегія"},
+  {city:"Варшава",country:"Польща"},{city:"Краків",country:"Польща"},{city:"Вроцлав",country:"Польща"},
+  {city:"Гданськ",country:"Польща"},{city:"Познань",country:"Польща"},{city:"Закопане",country:"Польща"},
+  {city:"Лодзь",country:"Польща"},
+  {city:"Лісабон",country:"Португалія"},{city:"Порту",country:"Португалія"},{city:"Фаро",country:"Португалія"},
+  {city:"Синтра",country:"Португалія"},
+  {city:"Бухарест",country:"Румунія"},{city:"Брашов",country:"Румунія"},{city:"Клуж-Напока",country:"Румунія"},
+  {city:"Сибіу",country:"Румунія"},{city:"Тімішоара",country:"Румунія"},
+  {city:"Братислава",country:"Словаччина"},{city:"Кошице",country:"Словаччина"},{city:"Татри",country:"Словаччина"},
+  {city:"Любляна",country:"Словенія"},{city:"Блед",country:"Словенія"},{city:"Постойна",country:"Словенія"},
+  {city:"Київ",country:"Україна"},{city:"Львів",country:"Україна"},{city:"Одеса",country:"Україна"},
+  {city:"Харків",country:"Україна"},{city:"Ужгород",country:"Україна"},{city:"Кам'янець-Подільський",country:"Україна"},
+  {city:"Гельсінкі",country:"Фінляндія"},{city:"Тампере",country:"Фінляндія"},{city:"Турку",country:"Фінляндія"},
+  {city:"Париж",country:"Франція"},{city:"Ніцца",country:"Франція"},{city:"Ліон",country:"Франція"},
+  {city:"Марсель",country:"Франція"},{city:"Страсбург",country:"Франція"},{city:"Бордо",country:"Франція"},
+  {city:"Тулуза",country:"Франція"},{city:"Канни",country:"Франція"},{city:"Авіньйон",country:"Франція"},
+  {city:"Ле-Ман",country:"Франція"},{city:"Реймс",country:"Франція"},
+  {city:"Загреб",country:"Хорватія"},{city:"Спліт",country:"Хорватія"},{city:"Дубровник",country:"Хорватія"},
+  {city:"Задар",country:"Хорватія"},{city:"Пула",country:"Хорватія"},{city:"Ровінь",country:"Хорватія"},
+  {city:"Прага",country:"Чехія"},{city:"Брно",country:"Чехія"},{city:"Чеський Крумлов",country:"Чехія"},
+  {city:"Карлові Вари",country:"Чехія"},{city:"Пльзень",country:"Чехія"},
+  {city:"Цюрих",country:"Швейцарія"},{city:"Женева",country:"Швейцарія"},{city:"Берн",country:"Швейцарія"},
+  {city:"Люцерн",country:"Швейцарія"},{city:"Інтерлакен",country:"Швейцарія"},{city:"Базель",country:"Швейцарія"},
+  {city:"Церматт",country:"Швейцарія"},
+  {city:"Стокгольм",country:"Швеція"},{city:"Гетеборг",country:"Швеція"},{city:"Мальме",country:"Швеція"},
+];
+
+function matchCitySuggestions(query){
+  const q = String(query||'').trim().toLowerCase();
+  if(!q) return {};
+  const matches = EUROPE_CITIES.filter(c=>c.city.toLowerCase().startsWith(q)).slice(0,40);
+  const grouped = {};
+  matches.forEach(m=>{
+    if(!grouped[m.country]) grouped[m.country] = [];
+    grouped[m.country].push(m.city);
+  });
+  return grouped;
+}
+
+function citySuggestHtml(query){
+  const grouped = matchCitySuggestions(query);
+  const countries = Object.keys(grouped);
+  if(!countries.length) return '';
+  return countries.map(c=>`
+    <div class="city-suggest-country">${escapeHtml(c)}</div>
+    ${grouped[c].map(city=>`<div class="city-suggest-item" data-city="${escapeHtml(city)}">${escapeHtml(city)}</div>`).join('')}
+  `).join('');
+}
 
 /* ---------- NBU EXCHANGE RATE (EUR->UAH), with an editable bank/commission markup ---------- */
 let nbuRate = null;       // official NBU rate, UAH per 1 EUR
@@ -542,7 +643,8 @@ function hideModal(){
 }
 async function saveRoute(route){
   const computed = computeRoute(route);
-  const price30 = priceForCounts(computed.groupTotal, computed.personTotal, 30, 0, route.profit, route.agency);
+  const price30core = priceForCounts(computed.groupTotal, computed.personTotal, 30, 0, route.profit, route.agency);
+  const price30 = withMandatoryFee(price30core, mandatoryFeeInfo(route, computed)).total;
   const snapshot = snapshotRoute(route);
   let ok = true;
   if(route.savedId){
@@ -633,6 +735,7 @@ function newRoute(name){
     escortRate: 0,
     hotels: [],
     additional: [
+      {name:'KPI', cost:0, scope:'group', enabled:true, autoSync:true, autoSyncRate:10},
       {name:'Страховка', cost:0, scope:'person', enabled:false, autoSync:true},
       {name:'Навушники', cost:0, scope:'person', enabled:false},
     ],
@@ -640,10 +743,11 @@ function newRoute(name){
     agency: 0,
     agencyMode: 'fixed', // 'fixed' | 'percent'
     agencyPercent: 10,
+    cityTaxDailyRate: 4.98, // обов'язковий платіж компанії, €/день на учасника (покриває сітітакс; різниця з реальним сітітаксом ховається в базовій ціні)
     parkingCountryView: EURO_COUNTRIES[0],
     excursionCountryView: EURO_COUNTRIES[0],
-    system: { type: '10+1', customPaying: 10, customFree: 1 },
-    baseGroup: { size: 40, system: 'none', extraFree: 0, discounts: [], extraPrice: null },
+    system: { type: '15+1', customPaying: 10, customFree: 1 },
+    baseGroup: { size: 40, system: '15+1', extraFree: 0, discounts: [], extraPrice: null },
     locked: false,
     savedId: null,
     savedSnapshotJSON: null,
@@ -670,6 +774,10 @@ function nightTransfersCount(route){
 function fmt(n){
   if(!isFinite(n)) return '—';
   return '€' + n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+// Показує підсумок продажної ціни як "база+платіж" (наприклад 233,10+24,90), а не одним числом.
+function fmtSplitTotal(loweredBase, fee){
+  return `${fmt(loweredBase)}+${fmt(fee).replace('€','')}`;
 }
 function getRoute(id){ return routes.find(r=>r.id===id); }
 function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
@@ -772,7 +880,10 @@ function dayPlanRows(route){
     return `
     <div class="day-row">
       <span class="day-label">День ${i+1}${isLast?' · приїзд додому':''}</span>
-      <input type="text" class="day-city" data-i="${i}" placeholder="Місто" value="${escapeHtml(d.city)}">
+      <div class="city-auto-wrap">
+        <input type="text" class="day-city" data-i="${i}" placeholder="Місто" value="${escapeHtml(d.city)}" autocomplete="off">
+        <div class="city-suggest" data-i="${i}"></div>
+      </div>
       ${isLast ? '' : `
       <select class="day-night" data-i="${i}">
         <option value="hotel" ${d.nightType!=='transfer'?'selected':''}>🏨 Готель</option>
@@ -794,7 +905,9 @@ function routeTimelineSVG(route){
   const width = Math.max(560, (n-1)*dayWidth + 80);
   const height = 110;
   const y = 46;
-  let svg = `<svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;">`;
+  const distance = (n-1)*dayWidth;
+  const busDuration = Math.max(1.4, (n-1)*0.9);
+  let svg = `<svg class="tl-svg" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;overflow:visible;" data-distance="${distance}" data-duration="${busDuration.toFixed(2)}">`;
   for(let i=0;i<n-1;i++){
     const x1 = 40+i*dayWidth, x2 = 40+(i+1)*dayWidth;
     const transfer = days[i].nightType==='transfer';
@@ -805,12 +918,44 @@ function routeTimelineSVG(route){
   days.forEach((d,i)=>{
     const x = 40+i*dayWidth;
     const isLast = i===n-1;
-    svg += `<circle cx="${x}" cy="${y}" r="9" fill="${isLast?'#c69a2e':'#0f4c4c'}" stroke="#fffdf8" stroke-width="2"/>`;
-    svg += `<text x="${x}" y="${y+26}" font-size="12" font-weight="600" text-anchor="middle" fill="#1c2b2e" font-family="'Inter',sans-serif">${escapeXml(d.city || ('День '+(i+1)))}</text>`;
-    svg += `<text x="${x}" y="${y+42}" font-size="10" text-anchor="middle" fill="#7a7360" font-family="'JetBrains Mono',monospace">День ${i+1}</text>`;
+    const delay = n>1 ? (i/(n-1))*busDuration : 0;
+    svg += `<g class="tl-node" style="transition-delay:${delay.toFixed(2)}s;">
+      <circle cx="${x}" cy="${y}" r="9" fill="${isLast?'#c69a2e':'#0f4c4c'}" stroke="#fffdf8" stroke-width="2"/>
+      <text x="${x}" y="${y+26}" font-size="12" font-weight="600" text-anchor="middle" fill="#1c2b2e" font-family="'Inter',sans-serif">${escapeXml(d.city || ('День '+(i+1)))}</text>
+      <text x="${x}" y="${y+42}" font-size="10" text-anchor="middle" fill="#7a7360" font-family="'JetBrains Mono',monospace">День ${i+1}</text>
+    </g>`;
   });
+  svg += `<text class="tl-bus" x="40" y="${y+7}" font-size="22" text-anchor="middle">🚌</text>`;
   svg += `</svg>`;
   return svg;
+}
+
+// Запускає анімацію "автобус їде + міста проявляються" один раз, коли елемент вперше зʼявляється у в'юпорті.
+function initTimelineAnimation(wrapEl){
+  if(!wrapEl) return;
+  const svgEl = wrapEl.querySelector('.tl-svg');
+  if(!svgEl) return;
+  const play = ()=>{
+    const distance = Number(svgEl.dataset.distance)||0;
+    const duration = Number(svgEl.dataset.duration)||1.4;
+    svgEl.classList.add('tl-play');
+    const bus = svgEl.querySelector('.tl-bus');
+    if(bus){
+      bus.style.transition = `transform ${duration}s linear`;
+      // невеличка затримка кадру, щоб transition гарантовано підхопився
+      requestAnimationFrame(()=>{ bus.style.transform = `translateX(${distance}px)`; });
+    }
+  };
+  if(!('IntersectionObserver' in window)){ play(); return; }
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        play();
+        obs.disconnect();
+      }
+    });
+  }, {threshold:0.3});
+  obs.observe(svgEl);
 }
 
 function dayPlanSection(route){
@@ -1033,11 +1178,37 @@ function computeRoute(route){
   const escortTotal = Number(route.escortRate||0) * Number(route.days||0);
   const additionalGroupTotal = route.additional.filter(it=>it.enabled!==false && it.scope!=='person').reduce((s,it)=>s+Number(it.cost||0),0);
   const additionalPersonTotal = route.additional.filter(it=>it.enabled!==false && it.scope==='person').reduce((s,it)=>s+Number(it.cost||0),0);
-  const hotelsTotal = route.hotels.reduce((s,h)=>s+Number(h.cost||0)+Number(h.citytax||0),0);
-  const personTotal = additionalPersonTotal + hotelsTotal;
+  const roomCostTotal = route.hotels.reduce((s,h)=>s+Number(h.cost||0),0);
+  const cityTaxTotal = route.hotels.reduce((s,h)=>s+Number(h.citytax||0),0);
+  const hotelsTotal = roomCostTotal + cityTaxTotal;
+  // Сітітакс НЕ входить у пул собівартості, що ділиться на групу — він покривається окремо
+  // через обов'язковий платіж (див. mandatoryFeeInfo), щоб уникнути подвійного нарахування.
+  const personTotal = additionalPersonTotal + roomCostTotal;
   const groupTotal = roadTotal + parkingTotal + guidesTotal + escortTotal + additionalGroupTotal;
 
-  return {roadTotal,parkingTotal,guidesTotal,escortTotal,additionalGroupTotal,hotelsTotal,groupTotal,personTotal};
+  return {roadTotal,parkingTotal,guidesTotal,escortTotal,additionalGroupTotal,roomCostTotal,cityTaxTotal,hotelsTotal,groupTotal,personTotal};
+}
+
+// Обов'язковий платіж компанії: days * ставка (за замовчуванням 4,98 €/день/особу).
+// Реальний сітітакс (з розділу «Готелі») зазвичай менший за цю суму — різницю ("hidden")
+// приховують у базовій ціні (знижують її), щоб підсумкова ціна на особу лишалась незмінною
+// й дорівнювала: базова ціна (без сітітаксу) + реальний сітітакс.
+function mandatoryFeeInfo(route, r){
+  const days = Math.max(0, Number(route.days)||0);
+  const rate = Number(route.cityTaxDailyRate)||0;
+  const fee = days * rate;
+  const cityTax = r.cityTaxTotal||0;
+  const hidden = fee - cityTax; // додатне — базову ціну зменшуємо; від'ємне — збільшуємо
+  return {days, rate, fee, cityTax, hidden};
+}
+
+// Разом на особу з урахуванням обов'язкового платежу: базова (знижена на hidden) + платіж.
+// Математично дорівнює corePrice + реальний сітітакс — платіж лише перерозподіляє суму
+// між рядками "база" і "обов'язковий платіж" для чека/документів.
+function withMandatoryFee(corePrice, mf){
+  const loweredBase = corePrice - mf.hidden;
+  const total = loweredBase + mf.fee;
+  return {loweredBase, fee: mf.fee, total};
 }
 
 function priceForCounts(groupTotal, personTotal, P, F, profit, agency){
@@ -1047,23 +1218,38 @@ function priceForCounts(groupTotal, personTotal, P, F, profit, agency){
 }
 
 const GROUP_SIZE_OPTIONS = [30,35,40,45,50,55,60];
+const MIN_GROUP_SIZE = 40; // мінімальна група, під яку орієнтовно рахуємо ціну (за системою 15+1)
 
 function roundToStep(n, step){
   step = step||5;
   return Math.round(n/step)*step;
 }
 
-// Reference cost-per-head (no profit/agency) used as the base for a %-based agency commission.
+// Тур-ціна "до комісії агента" (собівартість + комісія оператора + обов'язковий платіж),
+// на базі якої підбирається щабель % комісії агента.
 function agencyCostReference(route){
   const r = computeRoute(route);
   const size = Math.max(1, Math.floor(route.baseGroup.size)||30);
-  return priceForCounts(r.groupTotal, r.personTotal, size, 0, 0, 0);
+  const corePrice = priceForCounts(r.groupTotal, r.personTotal, size, 0, route.profit, 0);
+  const mf = mandatoryFeeInfo(route, r);
+  return withMandatoryFee(corePrice, mf).total;
 }
 
+// Щаблі комісії агента: до 300€ — 15%, 300–400€ — 13%, від 400€ — 12%.
+function tieredAgencyPercent(price){
+  if(price < 300) return 15;
+  if(price < 400) return 13;
+  return 12;
+}
+
+// Автоматична комісія агента: % за щаблем від ціни туру, мінімум 25 €/особу.
+// Ручна корекція (наприклад, під конкретний запит клієнта) — перемикач у режим "€".
 function applyAgencyPercent(route){
-  const base = agencyCostReference(route);
-  const pct = Number(route.agencyPercent)||0;
-  route.agency = roundToStep(base*pct/100, 5);
+  const ref = agencyCostReference(route);
+  const pct = tieredAgencyPercent(ref);
+  route.agencyPercent = pct;
+  const raw = ref*pct/100;
+  route.agency = Math.max(25, roundToStep(raw,5));
 }
 
 function systemRatio(route){
@@ -1076,48 +1262,67 @@ function systemRatio(route){
 
 function standardSizeTable(route){
   const r = computeRoute(route);
-  const cells = GROUP_SIZE_OPTIONS.map(size=>({size, price: priceForCounts(r.groupTotal, r.personTotal, size, 0, route.profit, route.agency)}));
+  const mf = mandatoryFeeInfo(route, r);
+  const cells = GROUP_SIZE_OPTIONS.map(size=>{
+    const corePrice = priceForCounts(r.groupTotal, r.personTotal, size, 0, route.profit, route.agency);
+    return {size, corePrice, ...withMandatoryFee(corePrice, mf)};
+  });
+  const cls = size => size===MIN_GROUP_SIZE ? ' class="col-min-group"' : '';
   return `
     <table class="size-table">
-      <thead><tr><th>Розмір групи</th>${cells.map(c=>`<th>${c.size} чол</th>`).join('')}</tr></thead>
-      <tbody><tr class="price-row"><td>Ціна на особу</td>${cells.map(c=>`<td>${fmtBoth(c.price)}</td>`).join('')}</tr></tbody>
+      <thead><tr><th>Розмір групи</th>${cells.map(c=>`<th${cls(c.size)}>${c.size} чол</th>`).join('')}</tr></thead>
+      <tbody>
+        <tr><td>Реальна ціна</td>${cells.map(c=>`<td${cls(c.size)}>${fmtBoth(c.corePrice)}</td>`).join('')}</tr>
+        <tr><td>Ціна з корекцією</td>${cells.map(c=>`<td${cls(c.size)}>${fmtBoth(c.loweredBase)}</td>`).join('')}</tr>
+        <tr class="price-row"><td>В продаж: ціна з корекцією+обов'язковий платіж</td>${cells.map(c=>`<td${cls(c.size)}>${fmtSplitTotal(c.loweredBase,c.fee)}</td>`).join('')}</tr>
+      </tbody>
     </table>
+    <div class="sub" style="margin-top:6px;">Виділена колонка (${MIN_GROUP_SIZE} чол) — мінімальна група, під яку орієнтуємось при продажу (система 15+1).</div>
   `;
 }
 
 function systemSizeTable(route){
   const r = computeRoute(route);
+  const mf = mandatoryFeeInfo(route, r);
   const s = route.system;
+  const cls = size => size===MIN_GROUP_SIZE ? ' class="col-min-group"' : '';
   if(s.type==='custom'){
     const P = Math.max(0, Number(s.customPaying)||0);
     const F = Math.max(0, Number(s.customFree)||0);
-    const price = priceForCounts(r.groupTotal, r.personTotal, P, F, route.profit, route.agency);
+    const corePrice = priceForCounts(r.groupTotal, r.personTotal, P, F, route.profit, route.agency);
+    const priced = withMandatoryFee(corePrice, mf);
     return `
       <table class="size-table">
-        <thead><tr><th>Оплачуваних</th><th>Безкоштовних</th><th>Ціна на особу</th></tr></thead>
-        <tbody><tr class="price-row"><td>${P}</td><td>${F}</td><td>${fmtBoth(price)}</td></tr></tbody>
+        <thead><tr><th>Оплачуваних</th><th>Безкоштовних</th><th>Реальна ціна</th><th>Ціна з корекцією</th><th>В продаж: ціна з корекцією+обов'язковий платіж</th></tr></thead>
+        <tbody><tr class="price-row"><td>${P}</td><td>${F}</td><td>${fmtBoth(corePrice)}</td><td>${fmtBoth(priced.loweredBase)}</td><td>${fmtSplitTotal(priced.loweredBase,priced.fee)}</td></tr></tbody>
       </table>
     `;
   }
   const {unit, free} = systemRatio(route);
   const cells = GROUP_SIZE_OPTIONS.map(size=>{
     const F = unit>0 ? Math.floor(size/unit)*free : 0;
-    return {size, F, price: priceForCounts(r.groupTotal, r.personTotal, size, F, route.profit, route.agency)};
+    const corePrice = priceForCounts(r.groupTotal, r.personTotal, size, F, route.profit, route.agency);
+    return {size, F, corePrice, ...withMandatoryFee(corePrice, mf)};
   });
   return `
     <table class="size-table">
-      <thead><tr><th>Розмір групи</th>${cells.map(c=>`<th>${c.size} чол</th>`).join('')}</tr></thead>
+      <thead><tr><th>Розмір групи</th>${cells.map(c=>`<th${cls(c.size)}>${c.size} чол</th>`).join('')}</tr></thead>
       <tbody>
-        <tr><td>Безкоштовних місць</td>${cells.map(c=>`<td>${c.F}</td>`).join('')}</tr>
-        <tr class="price-row"><td>Ціна на особу</td>${cells.map(c=>`<td>${fmtBoth(c.price)}</td>`).join('')}</tr>
+        <tr><td>Безкоштовних місць</td>${cells.map(c=>`<td${cls(c.size)}>${c.F}</td>`).join('')}</tr>
+        <tr><td>Реальна ціна</td>${cells.map(c=>`<td${cls(c.size)}>${fmtBoth(c.corePrice)}</td>`).join('')}</tr>
+        <tr><td>Ціна з корекцією</td>${cells.map(c=>`<td${cls(c.size)}>${fmtBoth(c.loweredBase)}</td>`).join('')}</tr>
+        <tr class="price-row"><td>В продаж: ціна з корекцією+обов'язковий платіж</td>${cells.map(c=>`<td${cls(c.size)}>${fmtSplitTotal(c.loweredBase,c.fee)}</td>`).join('')}</tr>
       </tbody>
     </table>
+    <div class="sub" style="margin-top:6px;">Виділена колонка (${MIN_GROUP_SIZE} чол) — мінімальна група, під яку орієнтуємось при продажу (система 15+1).</div>
   `;
 }
 
 function resultsCard(route){
   const r = computeRoute(route);
+  const mf = mandatoryFeeInfo(route, r);
   const s = route.system;
+  if(route.agencyMode==='percent') applyAgencyPercent(route);
   return `
     <table class="breakdown">
       <tr><td>Групові витрати (дорога + парковки + екскурсоводи + супровід + додаткові на групу) — всього</td><td>${fmt(r.groupTotal)}</td></tr>
@@ -1126,8 +1331,8 @@ function resultsCard(route){
       <tr><td>&nbsp;&nbsp;у т.ч. екскурсоводи</td><td>${fmt(r.guidesTotal)}</td></tr>
       <tr><td>&nbsp;&nbsp;у т.ч. супровід</td><td>${fmt(r.escortTotal)}</td></tr>
       <tr><td>&nbsp;&nbsp;у т.ч. додаткові витрати на групу</td><td>${fmt(r.additionalGroupTotal)}</td></tr>
-      <tr class="sep"><td>Витрати на учасника (готелі + сітітакс + додаткові «на учасника») — на 1 людину</td><td>${fmt(r.personTotal)}</td></tr>
-      <tr><td>&nbsp;&nbsp;у т.ч. готелі (вартість + сітітакс)</td><td>${fmt(r.hotelsTotal)}</td></tr>
+      <tr class="sep"><td>Витрати на учасника (готелі без сітітаксу + додаткові «на учасника») — на 1 людину</td><td>${fmt(r.personTotal)}</td></tr>
+      <tr><td>&nbsp;&nbsp;у т.ч. готелі (вартість проживання, без сітітаксу)</td><td>${fmt(r.roomCostTotal)}</td></tr>
     </table>
 
     <div class="meta-row" style="margin-top:20px;">
@@ -1140,11 +1345,20 @@ function resultsCard(route){
           </span>
         </label>
         ${route.agencyMode==='percent'
-          ? `<input type="text" inputmode="decimal" id="agencyPercentInput" placeholder="%" value="${String(route.agencyPercent).replace('.',',')}"/>`
+          ? `<input type="text" disabled id="agencyPercentInput" value="${route.agencyPercent}%"/>`
           : `<input type="text" inputmode="decimal" id="agencyInput" value="${String(route.agency).replace('.',',')}"/>`}
       </div>
     </div>
-    ${route.agencyMode==='percent' ? `<div class="sub" id="agencyPercentNote" style="margin-top:-8px;">= ${fmt(route.agency)} /особу (${route.agencyPercent}% від собівартості на ${route.baseGroup.size} чол., округлено до 5 €)</div>` : ''}
+    ${route.agencyMode==='percent' ? `<div class="sub" id="agencyPercentNote" style="margin-top:-8px;">= ${fmt(route.agency)} /особу (${route.agencyPercent}% від ціни ${fmt(agencyCostReference(route))}, мін. 25 €). Щаблі: до 300€ — 15%, 300–400€ — 13%, від 400€ — 12%. Для корекції під конкретний запит клієнта перемкніть на «€» і впишіть суму вручну.</div>` : ''}
+
+    <div class="sub" style="margin-top:22px;">Обов'язковий платіж (сітітакс)</div>
+    <div class="meta-row">
+      <div class="field"><label>Ставка, €/день на учасника</label><input type="text" inputmode="decimal" id="cityTaxRateInput" value="${String(route.cityTaxDailyRate).replace('.',',')}"/></div>
+      <div class="field"><label>Разом за тур (днів × ставка)</label><input type="text" disabled value="${fmt(mf.fee)}"></div>
+      <div class="field"><label>Реальний сітітакс (з розділу «Готелі»)</label><input type="text" disabled value="${fmt(mf.cityTax)}"></div>
+      <div class="field"><label>Ховається в базовій ціні</label><input type="text" disabled value="${fmt(mf.hidden)}"></div>
+    </div>
+    <div class="sub" style="margin-top:-8px;">Обов'язковий платіж = ${route.days} дн. × ${String(route.cityTaxDailyRate).replace('.',',')} € = ${fmt(mf.fee)}. Із базової ціни в таблицях нижче віднімається різниця з реальним сітітаксом (${fmt(mf.hidden)}), тож підсумкова ціна на особу лишається незмінною — база просто виглядає нижчою, а платіж покриває різницю.</div>
 
     <div class="sub" style="margin-top:22px;">Ціна на особу для звичайної групи (без безкоштовних місць)</div>
     <div class="size-table-wrap" id="standardSizeTableWrap">${standardSizeTable(route)}</div>
@@ -1209,7 +1423,7 @@ function computeBaseGroup(route){
   return {
     size, systemFree, manualFree, totalFree, discountRows, anyClamped,
     fullPayers, denom, totalCost, fullPrice,
-    personTotal: r.personTotal, groupTotal: r.groupTotal,
+    personTotal: r.personTotal, groupTotal: r.groupTotal, cityTaxTotal: r.cityTaxTotal,
   };
 }
 
@@ -1224,8 +1438,11 @@ function baseGroupDiscountRows(route){
 
 function baseGroupExtraTable(route, calc){
   const bg = route.baseGroup;
-  const extraPrice = (bg.extraPrice!==null && bg.extraPrice!==undefined) ? Number(bg.extraPrice) : calc.fullPrice;
-  const profitPerHead = extraPrice - calc.personTotal;
+  const mf = mandatoryFeeInfo(route, {cityTaxTotal: calc.cityTaxTotal});
+  const priced = withMandatoryFee(calc.fullPrice, mf);
+  const realPersonCost = calc.personTotal + calc.cityTaxTotal; // додатковий учасник теж споживає готель і реальний сітітакс
+  const extraPrice = (bg.extraPrice!==null && bg.extraPrice!==undefined) ? Number(bg.extraPrice) : priced.total;
+  const profitPerHead = extraPrice - realPersonCost;
   const adds = [1,2,3,5,8,10,15,20];
   const cells = adds.map(add=>({size: calc.size+add, extraCount: add, profit: profitPerHead*add}));
   return `
@@ -1270,8 +1487,10 @@ function bgControlsHtml(route){
 
 function bgComputedHtml(route, calc){
   const bg = route.baseGroup;
+  const mf = mandatoryFeeInfo(route, {cityTaxTotal: calc.cityTaxTotal});
+  const priced = withMandatoryFee(calc.fullPrice, mf);
   const discountTotal = calc.discountRows.reduce((s,d)=>s+d.cnt,0);
-  const extraPriceVal = round2((bg.extraPrice!==null && bg.extraPrice!==undefined) ? bg.extraPrice : calc.fullPrice);
+  const extraPriceVal = round2((bg.extraPrice!==null && bg.extraPrice!==undefined) ? bg.extraPrice : priced.total);
   return `
     <table class="breakdown" style="margin-top:18px;">
       <tr><td>Пільгові місця за системою «${bg.system}»</td><td>${calc.systemFree}</td></tr>
@@ -1279,22 +1498,24 @@ function bgComputedHtml(route, calc){
       <tr><td>Знижкові місця (всього)</td><td>${discountTotal}</td></tr>
       <tr><td>Учасників за повною (беззбитковою) ціною</td><td>${calc.fullPayers}</td></tr>
       <tr class="sep"><td>Собівартість бази (${calc.size} чол)</td><td>${fmt(calc.totalCost)}</td></tr>
-      <tr class="total"><td>Беззбиткова повна ціна на учасника</td><td>${fmtBoth(calc.fullPrice)}</td></tr>
+      <tr><td>Реальна ціна</td><td>${fmtBoth(calc.fullPrice)}</td></tr>
+      <tr><td>Ціна з корекцією</td><td>${fmtBoth(priced.loweredBase)}</td></tr>
+      <tr class="total"><td>В продаж: ціна з корекцією+обов'язковий платіж</td><td>${fmtSplitTotal(priced.loweredBase,priced.fee)}</td></tr>
     </table>
 
     ${calc.discountRows.length ? `
-    <div class="sub" style="margin-top:14px;">Ціна для знижкових категорій (при цій повній ціні прибуток бази лишається нульовим)</div>
+    <div class="sub" style="margin-top:14px;">Ціна для знижкових категорій (обов'язковий платіж стягується завжди, знижка на нього не поширюється)</div>
     <table class="breakdown">
-      ${calc.discountRows.map(d=>`<tr><td>Знижка ${d.pct}% · ${d.cnt} місць</td><td>${fmtBoth(calc.fullPrice*(1-d.pct/100))}</td></tr>`).join('')}
+      ${calc.discountRows.map(d=>`<tr><td>Знижка ${d.pct}% · ${d.cnt} місць</td><td>${fmtBoth((calc.fullPrice*(1-d.pct/100) - mf.hidden)+mf.fee)}</td></tr>`).join('')}
     </table>` : ''}
 
     <div class="sub" style="margin-top:26px;">Учасники понад базою — чистий прибуток (собівартість бази вже повністю покрита)</div>
     <div class="meta-row">
       <div class="field"><label>Ціна для одного понадпланового, €</label><input type="text" inputmode="decimal" id="bgExtraPrice" value="${String(extraPriceVal).replace('.',',')}"></div>
-      <div class="field"><label>Витрати на 1 понадпланового, €</label><input type="text" disabled value="${fmt(calc.personTotal)}"></div>
-      <div class="field"><label>Прибуток з 1 понадпланового, €</label><input type="text" disabled id="bgExtraProfitDisplay" value="${fmt(extraPriceVal-calc.personTotal)}" style="font-weight:700;color:var(--teal-deep);"></div>
+      <div class="field"><label>Витрати на 1 понадпланового, €</label><input type="text" disabled value="${fmt(calc.personTotal+calc.cityTaxTotal)}"></div>
+      <div class="field"><label>Прибуток з 1 понадпланового, €</label><input type="text" disabled id="bgExtraProfitDisplay" value="${fmt(extraPriceVal-(calc.personTotal+calc.cityTaxTotal))}" style="font-weight:700;color:var(--teal-deep);"></div>
     </div>
-    <div class="sub" style="margin-top:4px;">За замовчуванням ціна дорівнює беззбитковій повній ціні бази — тобто продовжуємо продавати за тією ж ціною, тільки собівартість групових витрат (дорога, парковки, екскурсоводи, супровід) уже покрита, і кожен додатковий учасник платить лише «свою» частину (готелі/сітітакс тощо) плюс чистий прибуток.</div>
+    <div class="sub" style="margin-top:4px;">За замовчуванням ціна дорівнює повній ціні бази (з обов'язковим платежем) — тобто продовжуємо продавати за тією ж ціною, тільки собівартість групових витрат (дорога, парковки, екскурсоводи, супровід) уже покрита, і кожен додатковий учасник платить лише «свою» частину (готелі тощо) плюс чистий прибуток.</div>
     <div class="size-table-wrap" id="bgExtraTableWrap">${baseGroupExtraTable(route, calc)}</div>
   `;
 }
@@ -1308,8 +1529,26 @@ function baseGroupSection(route){
 }
 
 /* ---------- PRINT & SHARE ---------- */
+// Список того, що входить у вартість туру — на основі реально активних складових маршруту.
+// KPI навмисно виключено зі списку — це внутрішня стаття компанії, не клієнтська послуга.
+function includedItemsList(route){
+  const items = [];
+  if(Number(route.road.km)>0) items.push('Транспортне обслуговування (автобус, паркування)');
+  if(route.excursionSelected.length>0) items.push('Послуги гідів/екскурсоводів за програмою');
+  if(Number(route.escortRate)>0) items.push('Супровід керівника групи');
+  if(route.hotels.length>0) items.push(`Проживання в готелях (${route.hotels.length} ноч.)`);
+  if(Number(route.cityTaxDailyRate)>0 && Number(route.days)>0) items.push('Курортний збір (сітітакс) у готелях');
+  route.additional.forEach(it=>{
+    if(it.enabled!==false && it.name && it.name.trim().toLowerCase()!=='kpi'){
+      items.push(it.name);
+    }
+  });
+  return items;
+}
+
 function buildRouteSummaryText(route){
   const r = computeRoute(route);
+  const mf = mandatoryFeeInfo(route, r);
   const lines = [];
   lines.push(`Маршрут: ${route.name}`);
   lines.push(`К-ть днів: ${route.days}`);
@@ -1323,8 +1562,9 @@ function buildRouteSummaryText(route){
   lines.push('');
   lines.push('Ціна на особу (звичайна група, без безкоштовних місць):');
   GROUP_SIZE_OPTIONS.forEach(size=>{
-    const price = priceForCounts(r.groupTotal, r.personTotal, size, 0, route.profit, route.agency);
-    lines.push(`  ${size} чол: ${fmt(price)}`);
+    const corePrice = priceForCounts(r.groupTotal, r.personTotal, size, 0, route.profit, route.agency);
+    const priced = withMandatoryFee(corePrice, mf);
+    lines.push(`  ${size} чол: ${fmt(priced.total)} (реальна ${fmt(corePrice)}, з корекцією ${fmt(priced.loweredBase)}, обов'язк. платіж ${fmt(priced.fee)})`);
   });
   const {unit, free} = systemRatio(route);
   if(route.system.type!=='custom'){
@@ -1332,24 +1572,30 @@ function buildRouteSummaryText(route){
     lines.push(`Ціна на особу (система ${route.system.type}):`);
     GROUP_SIZE_OPTIONS.forEach(size=>{
       const F = unit>0 ? Math.floor(size/unit)*free : 0;
-      const price = priceForCounts(r.groupTotal, r.personTotal, size, F, route.profit, route.agency);
-      lines.push(`  ${size} чол (${F} безкошт.): ${fmt(price)}`);
+      const corePrice = priceForCounts(r.groupTotal, r.personTotal, size, F, route.profit, route.agency);
+      const priced = withMandatoryFee(corePrice, mf);
+      lines.push(`  ${size} чол (${F} безкошт.): ${fmt(priced.total)}`);
     });
   } else {
     const P = Math.max(0,Number(route.system.customPaying)||0);
     const F = Math.max(0,Number(route.system.customFree)||0);
-    const price = priceForCounts(r.groupTotal, r.personTotal, P, F, route.profit, route.agency);
+    const corePrice = priceForCounts(r.groupTotal, r.personTotal, P, F, route.profit, route.agency);
+    const priced = withMandatoryFee(corePrice, mf);
     lines.push('');
-    lines.push(`Ціна на особу (довільна система, ${P} оплачуваних + ${F} безкоштовних): ${fmt(price)}`);
+    lines.push(`Ціна на особу (довільна система, ${P} оплачуваних + ${F} безкоштовних): ${fmt(priced.total)}`);
   }
-  const bg = computeBaseGroup(route);
-  lines.push('');
-  lines.push(`Беззбиткова база (${bg.size} чол, повних ${bg.fullPayers}, пільгових ${bg.totalFree}): повна ціна ${fmt(bg.fullPrice)}`);
+  const included = includedItemsList(route);
+  if(included.length){
+    lines.push('');
+    lines.push('Що входить у вартість туру:');
+    included.forEach(item=>lines.push(`  • ${item}`));
+  }
   return lines.join('\n');
 }
 
 function buildRouteSummaryShort(route){
   const r = computeRoute(route);
+  const mf = mandatoryFeeInfo(route, r);
   const lines = [];
   lines.push(`Маршрут: ${route.name} (${route.days} дн.)`);
   route.dayPlan.forEach((d,i)=>{
@@ -1358,20 +1604,38 @@ function buildRouteSummaryShort(route){
     lines.push(`Д${i+1}: ${d.city || '—'}${night}`);
   });
   const midSize = GROUP_SIZE_OPTIONS[Math.floor(GROUP_SIZE_OPTIONS.length/2)];
-  const price = priceForCounts(r.groupTotal, r.personTotal, midSize, 0, route.profit, route.agency);
-  lines.push(`Ціна/особу (${midSize} чол): ${fmt(price)}`);
+  const corePrice = priceForCounts(r.groupTotal, r.personTotal, midSize, 0, route.profit, route.agency);
+  const priced = withMandatoryFee(corePrice, mf);
+  lines.push(`Ціна/особу (${midSize} чол): ${fmt(priced.total)}`);
   return lines.join('\n');
 }
 
 function printRoute(route){
   const summary = buildRouteSummaryText(route);
+  // Прибираємо перші два рядки (назва/к-ть днів) — вони вже показані вгорі бланку окремим заголовком,
+  // і хвіст "Що входить у вартість туру" — він рендериться нижче окремим стилізованим блоком.
+  const bodyLines = summary.split('\n').slice(2).join('\n')
+    .split('\nЩо входить у вартість туру:')[0]
+    .replace(/^\n+|\n+$/g,'');
+  const included = includedItemsList(route);
   const win = window.open('', '_blank');
   if(!win) return;
   win.document.write(`<!DOCTYPE html><html lang="uk"><head><meta charset="UTF-8"><title>${escapeHtml(route.name)}</title>
     <style>
-      body{font-family:Georgia,serif;padding:40px;color:#1c2b2e;white-space:pre-wrap;line-height:1.6;font-size:14px;}
-      h1{font-size:22px;border-bottom:2px solid #c69a2e;padding-bottom:10px;}
-    </style></head><body><h1>${escapeHtml(route.name)}</h1><div>${escapeHtml(summary)}</div></body></html>`);
+      body{font-family:Georgia,serif;padding:40px;color:#1c2b2e;line-height:1.6;font-size:14px;}
+      .head{border-bottom:2px solid #c69a2e;padding-bottom:10px;margin-bottom:18px;}
+      h1{font-size:22px;margin:0 0 4px;}
+      .days{font-size:14px;color:#5b5548;font-family:'Courier New',monospace;}
+      .body{white-space:pre-wrap;}
+      .included{margin-top:26px;border-top:1px solid #c9c2ab;padding-top:14px;}
+      .included h2{font-size:15px;margin:0 0 8px;}
+      .included ul{margin:0;padding-left:20px;}
+      .included li{margin-bottom:4px;}
+    </style></head><body>
+    <div class="head"><h1>${escapeHtml(route.name)}</h1><div class="days">${route.days} дн.</div></div>
+    <div class="body">${escapeHtml(bodyLines)}</div>
+    ${included.length ? `<div class="included"><h2>Що входить у вартість туру</h2><ul>${included.map(i=>`<li>${escapeHtml(i)}</li>`).join('')}</ul></div>` : ''}
+    </body></html>`);
   win.document.close();
   win.focus();
   setTimeout(()=>win.print(), 300);
@@ -1457,12 +1721,6 @@ function renderRouteBody(){
       <div class="sub">Собівартість і ціна туру на особу для різних розмірів групи</div>
       <div id="resultsContainer">${resultsCard(route)}</div>
     </div>
-
-    <div class="card">
-      <h2>Беззбиткова база (фіксована група)</h2>
-      <div class="sub">Розрахунок ціни, за якої база у ${route.baseGroup.size} учасників повністю покриває собівартість без прибутку — а все, що понад базу, є чистим прибутком. Врахуйте пільгові та знижкові місця в базі (система 10+1/12+1/15+1 та/або ручні категорії).</div>
-      <div id="baseGroupContainer">${baseGroupSection(route)}</div>
-    </div>
     </div>
 
     <div class="card">
@@ -1480,6 +1738,7 @@ function renderRouteBody(){
   `;
 
   wireEvents(route);
+  initTimelineAnimation(document.getElementById('dayTimeline'));
   updateTabDirtyDot();
 }
 
@@ -1491,10 +1750,18 @@ function wireEvents(route){
   });
   el.querySelectorAll('.day-city').forEach(inp=>{
     inp.addEventListener('input', e=>{
-      route.dayPlan[Number(e.target.dataset.i)].city = e.target.value;
+      const i = Number(e.target.dataset.i);
+      route.dayPlan[i].city = e.target.value;
       updateDayTimeline(route);
+      const sug = document.querySelector(`.city-suggest[data-i="${i}"]`);
+      if(sug) sug.innerHTML = citySuggestHtml(e.target.value);
     });
-    inp.addEventListener('blur', ()=>renderRouteBody());
+    inp.addEventListener('focus', e=>{
+      const i = Number(e.target.dataset.i);
+      const sug = document.querySelector(`.city-suggest[data-i="${i}"]`);
+      if(sug) sug.innerHTML = citySuggestHtml(e.target.value);
+    });
+    inp.addEventListener('blur', ()=>setTimeout(()=>renderRouteBody(), 150));
   });
   el.querySelectorAll('.day-night').forEach(sel=>sel.addEventListener('change', e=>{
     route.dayPlan[Number(e.target.dataset.i)].nightType = e.target.value;
@@ -1745,10 +2012,18 @@ function syncHotelsCount(route){
 function wireDayRowEvents(route){
   document.querySelectorAll('.day-city').forEach(inp=>{
     inp.addEventListener('input', e=>{
-      route.dayPlan[Number(e.target.dataset.i)].city = e.target.value;
+      const i = Number(e.target.dataset.i);
+      route.dayPlan[i].city = e.target.value;
       updateDayTimeline(route);
+      const sug = document.querySelector(`.city-suggest[data-i="${i}"]`);
+      if(sug) sug.innerHTML = citySuggestHtml(e.target.value);
     });
-    inp.addEventListener('blur', ()=>renderRouteBody());
+    inp.addEventListener('focus', e=>{
+      const i = Number(e.target.dataset.i);
+      const sug = document.querySelector(`.city-suggest[data-i="${i}"]`);
+      if(sug) sug.innerHTML = citySuggestHtml(e.target.value);
+    });
+    inp.addEventListener('blur', ()=>setTimeout(()=>renderRouteBody(), 150));
   });
   document.querySelectorAll('.day-night').forEach(sel=>sel.addEventListener('change', e=>{
     route.dayPlan[Number(e.target.dataset.i)].nightType = e.target.value;
@@ -1772,7 +2047,7 @@ function updateDayCount(route, val){
 function syncAutoAdditionalItems(route){
   let changed = false;
   route.additional.forEach(it=>{
-    if(it.autoSync){ it.cost = route.days; changed = true; }
+    if(it.autoSync){ it.cost = route.days * (it.autoSyncRate!=null ? Number(it.autoSyncRate) : 1); changed = true; }
   });
   if(changed){
     const rowsEl = document.getElementById('additionalRows');
@@ -1786,7 +2061,7 @@ function syncAutoAdditionalItems(route){
 
 function updateDayTimeline(route){
   const wrap = document.getElementById('dayTimeline');
-  if(wrap) wrap.innerHTML = routeTimelineSVG(route);
+  if(wrap){ wrap.innerHTML = routeTimelineSVG(route); initTimelineAnimation(wrap); }
   const nt = document.getElementById('nightTransfersDisplay');
   if(nt) nt.value = nightTransfersCount(route);
   refreshResults();
@@ -1864,7 +2139,6 @@ function refreshResults(){
   const container = document.getElementById('resultsContainer');
   if(container) container.innerHTML = resultsCard(route);
   wireResultsEvents(route);
-  refreshBaseGroup(route);
   updateTabDirtyDot();
 }
 
@@ -1872,6 +2146,13 @@ function wireResultsEvents(route){
   const profitInp = document.getElementById('profitInput');
   if(profitInp) profitInp.addEventListener('input', e=>{
     route.profit = Number(e.target.value.replace(',','.'))||0;
+    if(route.agencyMode==='percent'){
+      applyAgencyPercent(route);
+      const note = document.getElementById('agencyPercentNote');
+      if(note) note.textContent = `= ${fmt(route.agency)} /особу (${route.agencyPercent}% від ціни ${fmt(agencyCostReference(route))}, мін. 25 €). Щаблі: до 300€ — 15%, 300–400€ — 13%, від 400€ — 12%. Для корекції під конкретний запит клієнта перемкніть на «€» і впишіть суму вручну.`;
+      const pctDisp = document.getElementById('agencyPercentInput');
+      if(pctDisp) pctDisp.value = route.agencyPercent+'%';
+    }
     updateSizeTables(route);
   });
   const agencyInp = document.getElementById('agencyInput');
@@ -1879,22 +2160,16 @@ function wireResultsEvents(route){
     route.agency = Number(e.target.value.replace(',','.'))||0;
     updateSizeTables(route);
   });
-  const agencyPercentInp = document.getElementById('agencyPercentInput');
-  if(agencyPercentInp) agencyPercentInp.addEventListener('input', e=>{
-    route.agencyPercent = Number(e.target.value.replace(',','.'))||0;
-    applyAgencyPercent(route);
-    const note = document.getElementById('agencyPercentNote');
-    if(note) note.textContent = `= ${fmt(route.agency)} /особу (${route.agencyPercent}% від собівартості на ${route.baseGroup.size} чол., округлено до 5 €)`;
-    updateSizeTables(route);
+  const cityTaxRateInp = document.getElementById('cityTaxRateInput');
+  if(cityTaxRateInp) cityTaxRateInp.addEventListener('input', e=>{
+    route.cityTaxDailyRate = Number(e.target.value.replace(',','.'))||0;
+    refreshResults();
   });
   document.querySelectorAll('[data-agencymode]').forEach(btn=>btn.addEventListener('click', e=>{
     const mode = e.target.dataset.agencymode;
     if(route.agencyMode===mode) return;
     route.agencyMode = mode;
-    if(mode==='percent'){
-      if(!route.agencyPercent) route.agencyPercent = 10;
-      applyAgencyPercent(route);
-    }
+    if(mode==='percent') applyAgencyPercent(route);
     refreshResults();
   }));
   const systemSel = document.getElementById('systemTypeSel');
@@ -1944,8 +2219,10 @@ function updateBaseGroupExtra(route){
   const wrap = document.getElementById('bgExtraTableWrap');
   if(wrap) wrap.innerHTML = baseGroupExtraTable(route, calc);
   const disp = document.getElementById('bgExtraProfitDisplay');
-  const extraPrice = (bg.extraPrice!==null && bg.extraPrice!==undefined) ? Number(bg.extraPrice) : calc.fullPrice;
-  if(disp) disp.value = fmt(extraPrice - calc.personTotal);
+  const mf = mandatoryFeeInfo(route, {cityTaxTotal: calc.cityTaxTotal});
+  const priced = withMandatoryFee(calc.fullPrice, mf);
+  const extraPrice = (bg.extraPrice!==null && bg.extraPrice!==undefined) ? Number(bg.extraPrice) : priced.total;
+  if(disp) disp.value = fmt(extraPrice - (calc.personTotal+calc.cityTaxTotal));
   updateTabDirtyDot();
 }
 
@@ -2035,6 +2312,25 @@ async function init(){
     refreshAllPriceDisplays();
   }));
   wireRateMarkupField();
+
+  document.addEventListener('mousedown', e=>{
+    const item = e.target.closest('.city-suggest-item');
+    if(!item) return;
+    e.preventDefault();
+    const wrap = item.closest('.city-suggest');
+    const i = Number(wrap.dataset.i);
+    const route = getRoute(activeId);
+    if(route && route.dayPlan[i]){
+      route.dayPlan[i].city = item.dataset.city;
+      wrap.innerHTML = '';
+      renderRouteBody();
+    }
+  });
+  document.addEventListener('mousedown', e=>{
+    if(!e.target.closest('.city-auto-wrap')){
+      document.querySelectorAll('.city-suggest').forEach(s=>s.innerHTML='');
+    }
+  });
 }
 init();
 </script>
