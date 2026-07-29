@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="uk">
-<head>
-<meta charset="UTF-8">
+<!-- saved from url=(0047)file:///C:/Users/38097/Downloads/index_188.html -->
+<html lang="uk"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <title>Калькулятор вартості туру</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap');
@@ -201,13 +201,13 @@ footer{text-align:center;color:#8a8368;font-size:12px;margin-top:40px;}
       <div>
         <h1>Прорахунок вартості туру</h1>
         <p>Розрахунок вартості туру по маршрутах з урахуванням оплачуваних та безкоштовних місць</p>
-        <div class="storage-note" id="storageNote"></div>
+        <div class="storage-note" id="storageNote">База міст, вартостей парковок та екскурсоводів — спільна хмарна база (Supabase), доступна з будь-якого пристрою.</div>
       </div>
     </div>
     <div class="header-right">
       <div class="stamp">ГРУПОВІ ТУРИ · КАЛЬКУЛЯЦІЯ</div>
       <div class="rate-badge" id="rateBadge">
-        <div class="rate-badge-row"><span>Курс НБУ (EUR)</span><strong id="nbuRateValue">…</strong></div>
+        <div class="rate-badge-row"><span>Курс НБУ (EUR)</span><strong id="nbuRateValue">51.08 ₴</strong></div>
         <div class="rate-badge-row">
           <span>Надбавка
             <span class="unit-toggle">
@@ -217,8 +217,8 @@ footer{text-align:center;color:#8a8368;font-size:12px;margin-top:40px;}
           </span>
           <span id="rateMarkupFieldWrap"><input type="text" inputmode="decimal" id="rateMarkupInput" value="3">%</span>
         </div>
-        <div class="rate-badge-row"><span>Робочий курс</span><strong id="workingRateValue">—</strong></div>
-        <div class="rate-badge-date" id="rateDateText"></div>
+        <div class="rate-badge-row"><span>Робочий курс</span><strong id="workingRateValue">52.61 ₴</strong></div>
+        <div class="rate-badge-date" id="rateDateText">станом на 30.07.2026</div>
         <button type="button" class="mini-btn ghost" id="rateRefreshBtn">↻ Оновити курс</button>
       </div>
     </div>
@@ -226,13 +226,263 @@ footer{text-align:center;color:#8a8368;font-size:12px;margin-top:40px;}
 </header>
 
 <div class="wrap">
-  <div class="tabbar" id="tabbar"></div>
+  <div class="tabbar" id="tabbar"><div class="tab active" data-id="1"><input type="text" value="Маршрут 1" data-id="1" class="tabname"><span class="dirty-dot" data-dirty-id="1" title="Є незбережені зміни" style="display:none"></span><span class="rm" data-id="1">✕</span></div><button class="addtab">+ Маршрут</button></div>
   <div class="save-bar">
     <button class="mini-btn" id="saveRouteBtn">💾 Зберегти маршрут</button>
-    <button class="mini-btn ghost" id="toggleSavedBtn">📚 База маршрутів (<span id="savedCount">0</span>)</button>
+    <button class="mini-btn ghost" id="toggleSavedBtn">📚 База маршрутів (<span id="savedCount">8</span>)</button>
   </div>
   <div id="savedPanel"></div>
-  <div id="routeBody"></div>
+  <div id="routeBody">
+    
+    <div id="editableArea" class="">
+    <div class="card">
+      <h2>Маршрут 1</h2>
+      <div class="sub">Маршрут по днях</div>
+      
+    <div class="meta-row">
+      <div class="field"><label>К-ть днів</label><input type="text" inputmode="numeric" id="daysInput" value="0"></div>
+      <div class="field"><label>К-ть нічних переїздів</label><input type="text" disabled="" id="nightTransfersDisplay" value="0"></div>
+    </div>
+    <div class="sub" style="margin-top:14px;">Короткий опис кожного дня (місто) — в кінці кожного дня, крім дня приїзду додому, оберіть готель або нічний переїзд.</div>
+    <div id="dayRows"><div style="font-size:12.5px;color:#9a927a;padding:6px 0;">Вкажіть к-ть днів, щоб розписати маршрут.</div></div>
+    <div class="sub" style="margin-top:20px;">Візуалізація маршруту</div>
+    <div id="dayTimeline" class="day-timeline-wrap"><div style="font-size:12.5px;color:#9a927a;">Візуалізація зʼявиться після додавання днів.</div></div>
+  
+    </div>
+
+    <div class="card">
+      <h2>Дорога</h2>
+      <div class="sub">Кілометраж маршруту та вартість за кілометр</div>
+      <div class="meta-row">
+        <div class="field"><label>Кілометраж (км)</label><input type="text" inputmode="decimal" id="roadKm" value="0"></div>
+        <div class="field"><label>Вартість 1 км (€/км)</label><input type="text" inputmode="decimal" id="roadPrice" value="0"></div>
+        <div class="field"><label>Разом дорога</label><input type="text" disabled="" id="roadTotalDisplay" value="€0.00" style="font-weight:700;color:var(--teal-deep);"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Готелі</h2>
+      <div class="sub">Додайте готелі по маршруту — країна, вартість на учасника та сітітакс на учасника (за замовчуванням 0).</div>
+      
+    <div class="sub" style="margin-top:0;">Кількість готелів формується автоматично за к-стю ночей «Готель» у плані по днях. Можна донастроїти вручну.</div>
+    <table class="items">
+      <thead><tr><th>Готель</th><th style="width:160px;">Країна</th><th style="width:120px;">Вартість/особу €</th><th style="width:120px;">Сітітакс/особу €</th><th style="width:30px;"></th></tr></thead>
+      <tbody id="hotelsRows"><tr><td colspan="5" style="color:#9a927a;font-size:12.5px;">Готелів ще не додано</td></tr></tbody>
+      <tfoot><tr><td class="grp-total">Разом на учасника (готелі)</td><td></td><td></td><td class="grp-total" id="hotelsTotal" style="text-align:right;">€0.00</td><td></td></tr></tfoot>
+    </table>
+    <button class="add-row" id="hotelsAddRow">+ додати готель</button>
+  
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <h2>Парковки</h2>
+        <div class="sub">Оберіть міста по маршруту — вартість підсумовується. Нові міста додаються в спільну базу.</div>
+        
+    <div style="font-size:12px;color:#9a927a;margin-bottom:8px;">У плані по днях ще немає розпізнаних країн — показано всі країни Європи. Впишіть міста в «Маршрут по днях», і список звузиться автоматично.</div>
+    <div class="picker-row">
+      <div class="field"><label>Країна</label><select id="parkingCountrySel"><option value="Австрія" selected="">Австрія</option><option value="Албанія">Албанія</option><option value="Андорра">Андорра</option><option value="Бельгія">Бельгія</option><option value="Білорусь">Білорусь</option><option value="Болгарія">Болгарія</option><option value="Боснія і Герцеговина">Боснія і Герцеговина</option><option value="Ватикан">Ватикан</option><option value="Велика Британія">Велика Британія</option><option value="Угорщина">Угорщина</option><option value="Німеччина">Німеччина</option><option value="Греція">Греція</option><option value="Данія">Данія</option><option value="Естонія">Естонія</option><option value="Ірландія">Ірландія</option><option value="Ісландія">Ісландія</option><option value="Іспанія">Іспанія</option><option value="Італія">Італія</option><option value="Латвія">Латвія</option><option value="Литва">Литва</option><option value="Ліхтенштейн">Ліхтенштейн</option><option value="Люксембург">Люксембург</option><option value="Мальта">Мальта</option><option value="Молдова">Молдова</option><option value="Монако">Монако</option><option value="Нідерланди">Нідерланди</option><option value="Норвегія">Норвегія</option><option value="Північна Македонія">Північна Македонія</option><option value="Польща">Польща</option><option value="Португалія">Португалія</option><option value="Румунія">Румунія</option><option value="Сан-Марино">Сан-Марино</option><option value="Сербія">Сербія</option><option value="Словаччина">Словаччина</option><option value="Словенія">Словенія</option><option value="Україна">Україна</option><option value="Фінляндія">Фінляндія</option><option value="Франція">Франція</option><option value="Хорватія">Хорватія</option><option value="Чехія">Чехія</option><option value="Чорногорія">Чорногорія</option><option value="Швейцарія">Швейцарія</option><option value="Швеція">Швеція</option><option value="Азербайджан">Азербайджан</option><option value="Вірменія">Вірменія</option><option value="Грузія">Грузія</option><option value="Туреччина">Туреччина</option><option value="Кіпр">Кіпр</option><option value="Ізраїль">Ізраїль</option><option value="Йорданія">Йорданія</option><option value="Ліван">Ліван</option><option value="ОАЕ">ОАЕ</option><option value="Саудівська Аравія">Саудівська Аравія</option><option value="Катар">Катар</option><option value="Бахрейн">Бахрейн</option><option value="Кувейт">Кувейт</option><option value="Оман">Оман</option><option value="Казахстан">Казахстан</option><option value="Узбекистан">Узбекистан</option><option value="Киргизстан">Киргизстан</option><option value="Таджикистан">Таджикистан</option><option value="Туркменістан">Туркменістан</option><option value="Індія">Індія</option><option value="Шрі-Ланка">Шрі-Ланка</option><option value="Непал">Непал</option><option value="Мальдіви">Мальдіви</option><option value="Таїланд">Таїланд</option><option value="В&#39;єтнам">В'єтнам</option><option value="Камбоджа">Камбоджа</option><option value="Лаос">Лаос</option><option value="М&#39;янма">М'янма</option><option value="Малайзія">Малайзія</option><option value="Сінгапур">Сінгапур</option><option value="Індонезія">Індонезія</option><option value="Філіппіни">Філіппіни</option><option value="Китай">Китай</option><option value="Монголія">Монголія</option><option value="Японія">Японія</option><option value="Південна Корея">Південна Корея</option><option value="Північна Корея">Північна Корея</option><option value="Єгипет">Єгипет</option><option value="Марокко">Марокко</option><option value="Туніс">Туніс</option><option value="Алжир">Алжир</option><option value="Кенія">Кенія</option><option value="Танзанія">Танзанія</option><option value="ПАР">ПАР</option><option value="Намібія">Намібія</option><option value="Маврикій">Маврикій</option><option value="Сейшели">Сейшели</option><option value="Ефіопія">Ефіопія</option><option value="Нігерія">Нігерія</option><option value="Гана">Гана</option><option value="Замбія">Замбія</option><option value="Зімбабве">Зімбабве</option><option value="США">США</option><option value="Канада">Канада</option><option value="Мексика">Мексика</option><option value="Куба">Куба</option><option value="Домінікана">Домінікана</option><option value="Ямайка">Ямайка</option><option value="Коста-Рика">Коста-Рика</option><option value="Панама">Панама</option><option value="Бразилія">Бразилія</option><option value="Аргентина">Аргентина</option><option value="Чилі">Чилі</option><option value="Перу">Перу</option><option value="Колумбія">Колумбія</option><option value="Еквадор">Еквадор</option><option value="Уругвай">Уругвай</option><option value="Болівія">Болівія</option><option value="Венесуела">Венесуела</option><option value="Австралія">Австралія</option><option value="Нова Зеландія">Нова Зеландія</option><option value="Фіджі">Фіджі</option></select></div>
+    </div>
+    <div class="city-list" id="parkingCityList"><div class="city-chip-option ">
+      <span class="city-label" data-city="Відень" data-mode="parking">Відень</span>
+      <span class="cost-display">€80.00</span><button type="button" class="edit-pencil" data-type="parking" data-city="Відень" title="Виправити вартість парковки">✎</button>
+    </div><div class="city-chip-option ">
+      <span class="city-label" data-city="Зальцбург" data-mode="parking">Зальцбург</span>
+      <span class="cost-display">€90.00</span><button type="button" class="edit-pencil" data-type="parking" data-city="Зальцбург" title="Виправити вартість парковки">✎</button>
+    </div></div>
+    <div class="add-city-form">
+      <input type="text" class="name-inp" id="parkingNewCity" placeholder="Нове місто">
+      <input type="text" inputmode="decimal" class="cost-inp" id="parkingNewCost" placeholder="€">
+      <button class="mini-btn" id="parkingAddCityBtn">+ додати місто в «Австрія»</button>
+    </div>
+    <div class="add-city-msg" id="parkingAddMsg" style="display:none;color:var(--red);font-size:12px;margin-top:6px;"></div>
+    <div class="selected-strip"><strong style="font-size:12px;color:#7a7360;">Обрано для маршруту:</strong><br><span id="parkingSelectedStrip"><span style="font-size:12.5px;color:#9a927a;">Ще нічого не обрано</span></span></div>
+    <div class="subtotal-line"><span>Разом парковки</span><span id="parkingTotalValue">€0.00</span></div>
+  
+      </div>
+      <div class="card">
+        <h2>Екскурсоводи</h2>
+        <div class="sub">Оберіть міста, де потрібен екскурсовод — це оплата за проведення екскурсії (фіксована сума за місто, збережена в базі).</div>
+        
+    <div style="font-size:12px;color:#9a927a;margin-bottom:8px;">У плані по днях ще немає розпізнаних країн — показано всі країни Європи. Впишіть міста в «Маршрут по днях», і список звузиться автоматично.</div>
+    <div class="picker-row">
+      <div class="field"><label>Країна</label><select id="excursionCountrySel"><option value="Австрія" selected="">Австрія</option><option value="Албанія">Албанія</option><option value="Андорра">Андорра</option><option value="Бельгія">Бельгія</option><option value="Білорусь">Білорусь</option><option value="Болгарія">Болгарія</option><option value="Боснія і Герцеговина">Боснія і Герцеговина</option><option value="Ватикан">Ватикан</option><option value="Велика Британія">Велика Британія</option><option value="Угорщина">Угорщина</option><option value="Німеччина">Німеччина</option><option value="Греція">Греція</option><option value="Данія">Данія</option><option value="Естонія">Естонія</option><option value="Ірландія">Ірландія</option><option value="Ісландія">Ісландія</option><option value="Іспанія">Іспанія</option><option value="Італія">Італія</option><option value="Латвія">Латвія</option><option value="Литва">Литва</option><option value="Ліхтенштейн">Ліхтенштейн</option><option value="Люксембург">Люксембург</option><option value="Мальта">Мальта</option><option value="Молдова">Молдова</option><option value="Монако">Монако</option><option value="Нідерланди">Нідерланди</option><option value="Норвегія">Норвегія</option><option value="Північна Македонія">Північна Македонія</option><option value="Польща">Польща</option><option value="Португалія">Португалія</option><option value="Румунія">Румунія</option><option value="Сан-Марино">Сан-Марино</option><option value="Сербія">Сербія</option><option value="Словаччина">Словаччина</option><option value="Словенія">Словенія</option><option value="Україна">Україна</option><option value="Фінляндія">Фінляндія</option><option value="Франція">Франція</option><option value="Хорватія">Хорватія</option><option value="Чехія">Чехія</option><option value="Чорногорія">Чорногорія</option><option value="Швейцарія">Швейцарія</option><option value="Швеція">Швеція</option><option value="Азербайджан">Азербайджан</option><option value="Вірменія">Вірменія</option><option value="Грузія">Грузія</option><option value="Туреччина">Туреччина</option><option value="Кіпр">Кіпр</option><option value="Ізраїль">Ізраїль</option><option value="Йорданія">Йорданія</option><option value="Ліван">Ліван</option><option value="ОАЕ">ОАЕ</option><option value="Саудівська Аравія">Саудівська Аравія</option><option value="Катар">Катар</option><option value="Бахрейн">Бахрейн</option><option value="Кувейт">Кувейт</option><option value="Оман">Оман</option><option value="Казахстан">Казахстан</option><option value="Узбекистан">Узбекистан</option><option value="Киргизстан">Киргизстан</option><option value="Таджикистан">Таджикистан</option><option value="Туркменістан">Туркменістан</option><option value="Індія">Індія</option><option value="Шрі-Ланка">Шрі-Ланка</option><option value="Непал">Непал</option><option value="Мальдіви">Мальдіви</option><option value="Таїланд">Таїланд</option><option value="В&#39;єтнам">В'єтнам</option><option value="Камбоджа">Камбоджа</option><option value="Лаос">Лаос</option><option value="М&#39;янма">М'янма</option><option value="Малайзія">Малайзія</option><option value="Сінгапур">Сінгапур</option><option value="Індонезія">Індонезія</option><option value="Філіппіни">Філіппіни</option><option value="Китай">Китай</option><option value="Монголія">Монголія</option><option value="Японія">Японія</option><option value="Південна Корея">Південна Корея</option><option value="Північна Корея">Північна Корея</option><option value="Єгипет">Єгипет</option><option value="Марокко">Марокко</option><option value="Туніс">Туніс</option><option value="Алжир">Алжир</option><option value="Кенія">Кенія</option><option value="Танзанія">Танзанія</option><option value="ПАР">ПАР</option><option value="Намібія">Намібія</option><option value="Маврикій">Маврикій</option><option value="Сейшели">Сейшели</option><option value="Ефіопія">Ефіопія</option><option value="Нігерія">Нігерія</option><option value="Гана">Гана</option><option value="Замбія">Замбія</option><option value="Зімбабве">Зімбабве</option><option value="США">США</option><option value="Канада">Канада</option><option value="Мексика">Мексика</option><option value="Куба">Куба</option><option value="Домінікана">Домінікана</option><option value="Ямайка">Ямайка</option><option value="Коста-Рика">Коста-Рика</option><option value="Панама">Панама</option><option value="Бразилія">Бразилія</option><option value="Аргентина">Аргентина</option><option value="Чилі">Чилі</option><option value="Перу">Перу</option><option value="Колумбія">Колумбія</option><option value="Еквадор">Еквадор</option><option value="Уругвай">Уругвай</option><option value="Болівія">Болівія</option><option value="Венесуела">Венесуела</option><option value="Австралія">Австралія</option><option value="Нова Зеландія">Нова Зеландія</option><option value="Фіджі">Фіджі</option></select></div>
+    </div>
+    <div class="city-list" id="excursionCityList"><div class="city-chip-option ">
+      <span class="city-label" data-city="Відень" data-mode="excursion">Відень</span>
+      <span class="cost-display">€160.00</span><button type="button" class="edit-pencil" data-type="excursion" data-city="Відень" title="Виправити вартість екскурсовода">✎</button>
+    </div><div class="city-chip-option ">
+      <span class="city-label" data-city="Зальцбург" data-mode="excursion">Зальцбург</span>
+      <span class="cost-display">€160.00</span><button type="button" class="edit-pencil" data-type="excursion" data-city="Зальцбург" title="Виправити вартість екскурсовода">✎</button>
+    </div></div>
+    <div class="add-city-form">
+      <input type="text" class="name-inp" id="excursionNewCity" placeholder="Нове місто">
+      <input type="text" inputmode="decimal" class="cost-inp" id="excursionNewCost" placeholder="€">
+      <button class="mini-btn" id="excursionAddCityBtn">+ додати місто в «Австрія»</button>
+    </div>
+    <div class="add-city-msg" id="excursionAddMsg" style="display:none;color:var(--red);font-size:12px;margin-top:6px;"></div>
+    <div class="selected-strip"><strong style="font-size:12px;color:#7a7360;">Екскурсоводи по маршруту:</strong><br><span id="excursionSelectedStrip"><span style="font-size:12.5px;color:#9a927a;">Ще не обрано жодного екскурсовода</span></span></div>
+    <div class="subtotal-line"><span>Разом екскурсоводи</span><span id="excursionTotalValue">€0.00</span></div>
+  
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Додаткові витрати</h2>
+      <div class="sub">Супровід рахується автоматично (ставка × к-ть днів туру). Для решти пунктів вкажіть, чи це витрата на всю групу, чи на кожного учасника.</div>
+      <div class="escort-block">
+        <div class="field"><label>Супровід, €/доба</label>
+          <select id="escortRateSel"><option value="0" selected="">Без супроводу</option><option value="40">40 €/доба</option><option value="50">50 €/доба</option><option value="75">75 €/доба</option><option value="100">100 €/доба</option></select>
+        </div>
+        <div class="field"><label>К-ть днів туру</label><input type="text" disabled="" id="escortDaysDisplay" value="0"></div>
+        <div class="field"><label>Разом супровід</label><input type="text" disabled="" id="escortTotalDisplay" value="€0.00" style="font-weight:700;color:var(--teal-deep);"></div>
+      </div>
+      
+    <div class="sub" style="margin-top:0;">Позначка «✓» — витрата включається в розрахунок. Без позначки пункт лишається доступним, але не додається до вартості (доплата за бажанням).</div>
+    <table class="items">
+      <thead><tr><th style="width:34px;"></th><th>Стаття витрат</th><th style="width:110px;">€ EUR</th><th style="width:110px;">Тип</th><th style="width:30px;"></th></tr></thead>
+      <tbody id="additionalRows">
+    <tr class="">
+      <td><input type="checkbox" class="itenabled" data-i="0" checked="" title="Включити в розрахунок"></td>
+      <td><input type="text" value="KPI" data-i="0" class="itname"></td>
+      <td><input type="text" inputmode="decimal" value="0" data-i="0" class="itcost"></td>
+      <td><select class="itscope" data-i="0">
+        <option value="group" selected="">на групу</option>
+        <option value="person">на учасника</option>
+      </select></td>
+      <td><button class="del-btn" data-i="0">✕</button></td>
+    </tr>
+    <tr class="item-disabled">
+      <td><input type="checkbox" class="itenabled" data-i="1" title="Включити в розрахунок"></td>
+      <td><input type="text" value="Страховка" data-i="1" class="itname"></td>
+      <td><input type="text" inputmode="decimal" value="0" data-i="1" class="itcost"></td>
+      <td><select class="itscope" data-i="1">
+        <option value="group">на групу</option>
+        <option value="person" selected="">на учасника</option>
+      </select></td>
+      <td><button class="del-btn" data-i="1">✕</button></td>
+    </tr>
+    <tr class="item-disabled">
+      <td><input type="checkbox" class="itenabled" data-i="2" title="Включити в розрахунок"></td>
+      <td><input type="text" value="Навушники" data-i="2" class="itname"></td>
+      <td><input type="text" inputmode="decimal" value="0" data-i="2" class="itcost"></td>
+      <td><select class="itscope" data-i="2">
+        <option value="group">на групу</option>
+        <option value="person" selected="">на учасника</option>
+      </select></td>
+      <td><button class="del-btn" data-i="2">✕</button></td>
+    </tr>
+    <tr class="item-disabled">
+      <td><input type="checkbox" class="itenabled" data-i="3" title="Включити в розрахунок"></td>
+      <td><input type="text" value="Проживання Стафу" data-i="3" class="itname"></td>
+      <td><input type="text" inputmode="decimal" value="0" data-i="3" class="itcost"></td>
+      <td><select class="itscope" data-i="3">
+        <option value="group" selected="">на групу</option>
+        <option value="person">на учасника</option>
+      </select></td>
+      <td><button class="del-btn" data-i="3">✕</button></td>
+    </tr></tbody>
+      <tfoot>
+        <tr><td></td><td class="grp-total">Разом на групу</td><td class="grp-total" id="additionalGroupTotal" style="text-align:right;">€0.00</td><td></td><td></td></tr>
+        <tr><td></td><td class="grp-total">Разом на учасника</td><td class="grp-total" id="additionalPersonTotal" style="text-align:right;">€0.00</td><td></td><td></td></tr>
+      </tfoot>
+    </table>
+    <button class="add-row" id="additionalAddRow">+ додати пункт</button>
+  
+    </div>
+
+    <div class="card">
+      <h2>Підсумкова вартість</h2>
+      <div class="sub">Собівартість і ціна туру на особу для різних розмірів групи</div>
+      <div id="resultsContainer">
+    <table class="breakdown">
+      <tbody><tr><td>Групові витрати (дорога + парковки + екскурсоводи + супровід + додаткові на групу) — всього</td><td>€0.00</td></tr>
+      <tr><td>&nbsp;&nbsp;у т.ч. дорога</td><td>€0.00</td></tr>
+      <tr><td>&nbsp;&nbsp;у т.ч. парковки</td><td>€0.00</td></tr>
+      <tr><td>&nbsp;&nbsp;у т.ч. екскурсоводи</td><td>€0.00</td></tr>
+      <tr><td>&nbsp;&nbsp;у т.ч. супровід</td><td>€0.00</td></tr>
+      <tr><td>&nbsp;&nbsp;у т.ч. додаткові витрати на групу</td><td>€0.00</td></tr>
+      <tr class="sep"><td>Витрати на учасника (готелі без сітітаксу + додаткові «на учасника») — на 1 людину</td><td>€0.00</td></tr>
+      <tr><td>&nbsp;&nbsp;у т.ч. готелі (вартість проживання, без сітітаксу)</td><td>€0.00</td></tr>
+    </tbody></table>
+
+    <div class="meta-row" style="margin-top:20px;">
+      <div class="field"><label>Комісія оператора, €/особу</label><input type="text" inputmode="decimal" id="profitInput" value="0"></div>
+      <div class="field">
+        <label>Комісія агента, €/особу
+          <span class="unit-toggle">
+            <button type="button" class="unit-btn" data-agencymode="fixed" style="background:var(--teal);color:var(--white);border-color:var(--teal-deep);">€</button>
+            <button type="button" class="unit-btn" data-agencymode="percent" style="">%</button>
+          </span>
+        </label>
+        <input type="text" inputmode="decimal" id="agencyInput" value="0">
+      </div>
+    </div>
+    
+
+    <div class="sub" style="margin-top:22px;">Обов'язковий платіж (сітітакс)</div>
+    <div class="meta-row">
+      <div class="field"><label>Ставка, €/день на учасника</label><input type="text" inputmode="decimal" id="cityTaxRateInput" value="4,98"></div>
+      <div class="field"><label>Разом за тур (днів × ставка)</label><input type="text" disabled="" value="€0.00"></div>
+      <div class="field"><label>Реальний сітітакс (з розділу «Готелі»)</label><input type="text" disabled="" value="€0.00"></div>
+      <div class="field"><label>Ховається в базовій ціні</label><input type="text" disabled="" value="€0.00"></div>
+    </div>
+    <div class="sub" style="margin-top:-8px;">Обов'язковий платіж = 0 дн. × 4,98 € = €0.00. Із базової ціни в таблицях нижче віднімається різниця з реальним сітітаксом (€0.00), тож підсумкова ціна на особу лишається незмінною — база просто виглядає нижчою, а платіж покриває різницю.</div>
+
+    <div class="sub" style="margin-top:22px;">Ціна на особу для звичайної групи (без безкоштовних місць)</div>
+    <div class="size-table-wrap" id="standardSizeTableWrap">
+    <table class="size-table">
+      <thead><tr><th>Розмір групи</th><th>30 чол</th><th>35 чол</th><th class="col-min-group">40 чол</th><th>45 чол</th><th>50 чол</th><th>55 чол</th><th>60 чол</th></tr></thead>
+      <tbody>
+        <tr><td>Реальна ціна</td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td class="col-min-group">€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td></tr>
+        <tr><td>Ціна з корекцією</td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td class="col-min-group">€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td></tr>
+        <tr class="price-row"><td>В продаж: ціна з корекцією+обов'язковий платіж</td><td>€0.00+0.00</td><td>€0.00+0.00</td><td class="col-min-group">€0.00+0.00</td><td>€0.00+0.00</td><td>€0.00+0.00</td><td>€0.00+0.00</td><td>€0.00+0.00</td></tr>
+      </tbody>
+    </table>
+    <div class="sub" style="margin-top:6px;">Виділена колонка (40 чол) — мінімальна група, під яку орієнтуємось при продажу (система 15+1).</div>
+  </div>
+
+    <div class="sub" style="margin-top:26px;">Розрахунок за системою «безкоштовних місць»</div>
+    <div class="meta-row">
+      <div class="field"><label>Система</label>
+        <select id="systemTypeSel">
+          <option value="10+1">10+1</option>
+          <option value="12+1">12+1</option>
+          <option value="15+1" selected="">15+1</option>
+          <option value="custom">Довільна</option>
+        </select>
+      </div>
+      
+    </div>
+    <div class="size-table-wrap" id="systemSizeTableWrap">
+    <table class="size-table">
+      <thead><tr><th>Розмір групи</th><th>30 чол</th><th>35 чол</th><th class="col-min-group">40 чол</th><th>45 чол</th><th>50 чол</th><th>55 чол</th><th>60 чол</th></tr></thead>
+      <tbody>
+        <tr><td>Безкоштовних місць</td><td>2</td><td>2</td><td class="col-min-group">2</td><td>3</td><td>3</td><td>3</td><td>4</td></tr>
+        <tr><td>Реальна ціна</td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td class="col-min-group">€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td></tr>
+        <tr><td>Ціна з корекцією</td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td class="col-min-group">€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td></tr>
+        <tr class="price-row"><td>В продаж: ціна з корекцією+обов'язковий платіж</td><td>€0.00+0.00</td><td>€0.00+0.00</td><td class="col-min-group">€0.00+0.00</td><td>€0.00+0.00</td><td>€0.00+0.00</td><td>€0.00+0.00</td><td>€0.00+0.00</td></tr>
+      </tbody>
+    </table>
+    <div class="sub" style="margin-top:6px;">Виділена колонка (40 чол) — мінімальна група, під яку орієнтуємось при продажу (система 15+1).</div>
+  </div>
+  </div>
+    </div>
+    </div>
+
+    <div class="card">
+      <h2>Друк і надсилання</h2>
+      <div class="sub">Сформувати текстовий підсумок маршруту для друку або надсилання клієнту.</div>
+      <div class="share-row">
+        <button class="mini-btn" id="printRouteBtn">🖨️ Друк</button>
+        <button class="mini-btn ghost" id="emailShareBtn">✉️ Email</button>
+        <button class="mini-btn ghost" id="viberShareBtn" title="Viber обмежує довжину посилання, тому надсилає скорочений підсумок">📱 Viber (короткий)</button>
+        <button class="mini-btn ghost" id="telegramShareBtn">✈️ Telegram</button>
+        <button class="mini-btn ghost" id="whatsappShareBtn">💬 WhatsApp</button>
+      </div>
+      <div style="font-size:11.5px;color:#9a927a;margin-top:8px;">Viber має жорсткий ліміт довжини посилання, тому туди йде скорочений варіант (план по днях + одна ціна для прикладу). Email, Telegram, WhatsApp і друк отримують повний підсумок з усіма таблицями цін.</div>
+    </div>
+  </div>
 </div>
 
 <div class="modal-overlay" id="appModalOverlay" style="display:none;">
@@ -543,6 +793,12 @@ const CITY_COUNTRY_MAP = {
   "цюрих":"Швейцарія","женева":"Швейцарія","берн":"Швейцарія","базель":"Швейцарія","лозанна":"Швейцарія",
   "стокгольм":"Швеція","гетеборг":"Швеція","мальме":"Швеція",
 };
+// Автоматично доповнюємо мапу даними з EUROPE_CITIES — щоб країна підтягувалась
+// і для щойно доданих туди міст (наприклад, Туреччини), без ручного дублювання списку.
+EUROPE_CITIES.forEach(c=>{
+  const key = c.city.trim().toLowerCase();
+  if(!CITY_COUNTRY_MAP[key]) CITY_COUNTRY_MAP[key] = c.country;
+});
 
 function correctCountryFor(cityName){
   return CITY_COUNTRY_MAP[cityName.trim().toLowerCase()] || null;
@@ -797,6 +1053,7 @@ function newRoute(name){
       {name:'KPI', cost:0, scope:'group', enabled:true, autoSync:true, autoSyncRate:10},
       {name:'Страховка', cost:0, scope:'person', enabled:false, autoSync:true},
       {name:'Навушники', cost:0, scope:'person', enabled:false},
+      {name:'Проживання Стафу', cost:0, scope:'group', enabled:false},
     ],
     profit: 0,
     agency: 0,
@@ -2372,6 +2629,15 @@ async function init(){
   }));
   wireRateMarkupField();
 
+  // Числові поля (inputmode="decimal"/"numeric") часто стоять з "0" за замовчуванням —
+  // виділяємо весь текст при фокусі, щоб перший же введений символ замінював його, а не дописувався.
+  document.addEventListener('focus', e=>{
+    const t = e.target;
+    if(t && t.tagName==='INPUT' && !t.disabled && (t.getAttribute('inputmode')==='decimal' || t.getAttribute('inputmode')==='numeric')){
+      t.select();
+    }
+  }, true);
+
   document.addEventListener('mousedown', e=>{
     const item = e.target.closest('.city-suggest-item');
     if(!item) return;
@@ -2394,5 +2660,6 @@ async function init(){
 init();
 </script>
 
-</body>
-</html>
+
+
+</body></html>
