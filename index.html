@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<!-- saved from url=(0047)file:///C:/Users/38097/Downloads/index_188.html -->
-<html lang="uk"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
 <title>Калькулятор вартості туру</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap');
@@ -141,6 +141,14 @@ table.items input[type=number]:focus{outline:2px solid var(--teal);outline-offse
 
 /* results */
 .breakdown{width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:13.5px;}
+.headline-price{background:var(--teal-deep);color:var(--white);border-radius:8px;padding:18px 22px;margin-bottom:20px;display:flex;flex-direction:column;gap:6px;border:1px solid var(--gold);}
+.headline-label{font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;color:#cfe3df;font-family:'JetBrains Mono',monospace;}
+.headline-value{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;color:var(--white);line-height:1.2;}
+.headline-value .uah-amt{color:#cfe3df;font-size:.55em;opacity:.95;margin-left:10px;font-weight:600;}
+.headline-slider-row{display:flex;align-items:center;gap:10px;margin-top:8px;}
+.headline-slider-row input[type=range]{flex:1;accent-color:var(--gold);height:20px;cursor:pointer;}
+.headline-slider-end{font-family:'JetBrains Mono',monospace;font-size:11px;color:#9fc2bc;}
+@media(max-width:520px){.headline-value{font-size:22px;}}
 .breakdown td{padding:9px 6px;border-bottom:1px solid var(--paper-dim);}
 .breakdown td:first-child{font-family:'Inter',sans-serif;color:var(--ink);}
 .breakdown td:last-child{text-align:right;}
@@ -167,6 +175,30 @@ table.size-table td.col-min-group{background:#fbf1d6;box-shadow:inset 0 0 0 2px 
 table.size-table tr.price-row td.col-min-group{background:var(--gold);color:var(--teal-deep);}
 
 .header-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px;}
+.map-btn{width:52px;height:52px;background:var(--teal);border:1.5px solid var(--gold-dim);border-radius:8px;color:var(--white);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;box-shadow:0 3px 10px rgba(0,0,0,.2);flex-shrink:0;}
+.map-btn:hover{background:var(--teal-deep);}
+.map-btn .map-icon{font-size:18px;line-height:1;}
+.map-section{margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid var(--paper-dim);}
+.map-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+.map-section h4{font-family:'Fraunces',serif;font-size:15px;color:var(--teal-deep);margin:0 0 8px;}
+.map-city-list{font-size:12.5px;color:#4a4438;background:var(--paper);border-radius:5px;padding:8px 12px;margin-bottom:10px;}
+.map-km-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;}
+#mapDayAssignArea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:4px;padding:8px 10px;font-family:'JetBrains Mono',monospace;font-size:12.5px;background:var(--paper);box-sizing:border-box;margin-bottom:8px;}
+.map-open-btn-lg{display:block;width:100%;margin-top:14px;padding:14px 18px;font-size:15px;font-weight:700;border-radius:7px;}
+
+.file-menu-btn{width:46px;height:46px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.25);border-radius:6px;color:var(--white);font-size:20px;cursor:pointer;flex-shrink:0;}
+.file-menu-btn:hover{background:rgba(255,255,255,.16);}
+.file-menu-overlay{position:fixed;inset:0;background:rgba(10,20,20,.35);z-index:1150;display:none;}
+.file-menu-overlay.open{display:block;}
+.file-menu-panel{position:fixed;top:0;left:0;bottom:0;width:270px;max-width:85vw;background:var(--teal-deep);box-shadow:4px 0 24px rgba(0,0,0,.35);transform:translateX(-100%);transition:transform .2s ease;z-index:1151;padding:18px 0;}
+.file-menu-overlay.open .file-menu-panel{transform:translateX(0);}
+.file-menu-header{padding:8px 22px 16px;font-family:'Fraunces',serif;font-size:19px;color:var(--white);border-bottom:1px solid rgba(255,255,255,.15);margin-bottom:8px;position:relative;}
+.file-menu-close{position:absolute;top:0;right:14px;background:none;border:none;color:rgba(255,255,255,.7);font-size:18px;cursor:pointer;padding:4px;}
+.file-menu-close:hover{color:var(--white);}
+.file-menu-item{display:flex;align-items:center;gap:14px;padding:14px 22px;font-family:'Inter',sans-serif;font-size:14.5px;color:var(--white);cursor:pointer;border:none;background:none;width:100%;text-align:left;}
+.file-menu-item:hover{background:rgba(255,255,255,.09);}
+.file-menu-item .fmi-icon{font-size:17px;width:20px;text-align:center;flex-shrink:0;}
+.file-menu-sep{height:1px;background:rgba(255,255,255,.15);margin:10px 22px;}
 
 .rate-badge{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.22);border-radius:6px;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--white);min-width:230px;}
 .rate-badge-row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:5px;color:#cfe3df;}
@@ -184,7 +216,18 @@ table.size-table tr.price-row td.col-min-group{background:var(--gold);color:var(
 .toast.show{opacity:1;}
 
 .modal-overlay{position:fixed;inset:0;background:rgba(10,20,20,.45);display:flex;align-items:center;justify-content:center;z-index:1100;padding:20px;}
-.modal-card{background:var(--white);border-radius:6px;padding:24px 26px;max-width:420px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,.3);}
+.modal-card{background:var(--white);border-radius:6px;padding:24px 26px;max-width:420px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,.3);position:relative;}
+.modal-close-x{position:absolute;top:12px;right:14px;background:none;border:none;font-size:18px;line-height:1;color:#9a927a;cursor:pointer;padding:4px;border-radius:4px;}
+.modal-close-x:hover{color:var(--red);background:var(--paper-dim);}
+.modal-card.wide{max-width:680px;max-height:86vh;overflow-y:auto;}
+.rm-tiers{width:100%;border-collapse:collapse;margin:10px 0 18px;font-size:13px;}
+.rm-tiers th{background:var(--teal-deep);color:var(--white);padding:8px 10px;font-size:11px;text-transform:uppercase;letter-spacing:.4px;text-align:left;}
+.rm-tiers td{padding:8px 10px;border-bottom:1px solid var(--paper-dim);}
+.rm-tiers tr.rm-current td{background:var(--gold-dim);font-weight:700;}
+.rm-section h4{font-family:'Fraunces',serif;font-size:15px;color:var(--teal-deep);margin:18px 0 6px;}
+.rm-section ul{margin:0 0 4px;padding-left:20px;}
+.rm-section li{margin-bottom:6px;font-size:13px;line-height:1.5;}
+.rm-note{font-size:12px;color:#7a7360;margin-top:4px;}
 .modal-title{font-family:'Fraunces',serif;font-size:19px;margin:0 0 8px 0;color:var(--teal-deep);}
 .modal-message{font-size:13.5px;color:#4a4438;margin-bottom:20px;line-height:1.55;}
 .modal-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
@@ -197,17 +240,19 @@ footer{text-align:center;color:#8a8368;font-size:12px;margin-top:40px;}
 <header>
   <div class="wrap">
     <div class="brand-row">
+      <button type="button" class="file-menu-btn" id="fileMenuBtn" title="Меню">☰</button>
       <div class="logo-badge"><img src="data:image/jpeg;base64,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" alt="Rich Tour"></div>
       <div>
         <h1>Прорахунок вартості туру</h1>
         <p>Розрахунок вартості туру по маршрутах з урахуванням оплачуваних та безкоштовних місць</p>
-        <div class="storage-note" id="storageNote">База міст, вартостей парковок та екскурсоводів — спільна хмарна база (Supabase), доступна з будь-якого пристрою.</div>
+        <div class="storage-note" id="storageNote"></div>
       </div>
     </div>
     <div class="header-right">
+      <button type="button" class="map-btn" id="mapModalBtn" title="Планування маршруту в Google Maps"><span class="map-icon">🗺️</span>MAP</button>
       <div class="stamp">ГРУПОВІ ТУРИ · КАЛЬКУЛЯЦІЯ</div>
       <div class="rate-badge" id="rateBadge">
-        <div class="rate-badge-row"><span>Курс НБУ (EUR)</span><strong id="nbuRateValue">51.08 ₴</strong></div>
+        <div class="rate-badge-row"><span>Курс НБУ (EUR)</span><strong id="nbuRateValue">…</strong></div>
         <div class="rate-badge-row">
           <span>Надбавка
             <span class="unit-toggle">
@@ -217,8 +262,8 @@ footer{text-align:center;color:#8a8368;font-size:12px;margin-top:40px;}
           </span>
           <span id="rateMarkupFieldWrap"><input type="text" inputmode="decimal" id="rateMarkupInput" value="3">%</span>
         </div>
-        <div class="rate-badge-row"><span>Робочий курс</span><strong id="workingRateValue">52.61 ₴</strong></div>
-        <div class="rate-badge-date" id="rateDateText">станом на 30.07.2026</div>
+        <div class="rate-badge-row"><span>Робочий курс</span><strong id="workingRateValue">—</strong></div>
+        <div class="rate-badge-date" id="rateDateText"></div>
         <button type="button" class="mini-btn ghost" id="rateRefreshBtn">↻ Оновити курс</button>
       </div>
     </div>
@@ -226,267 +271,31 @@ footer{text-align:center;color:#8a8368;font-size:12px;margin-top:40px;}
 </header>
 
 <div class="wrap">
-  <div class="tabbar" id="tabbar"><div class="tab active" data-id="1"><input type="text" value="Маршрут 1" data-id="1" class="tabname"><span class="dirty-dot" data-dirty-id="1" title="Є незбережені зміни" style="display:none"></span><span class="rm" data-id="1">✕</span></div><button class="addtab">+ Маршрут</button></div>
+  <div class="tabbar" id="tabbar"></div>
   <div class="save-bar">
     <button class="mini-btn" id="saveRouteBtn">💾 Зберегти маршрут</button>
-    <button class="mini-btn ghost" id="toggleSavedBtn">📚 База маршрутів (<span id="savedCount">8</span>)</button>
+    <button class="mini-btn ghost" id="toggleSavedBtn">📚 База маршрутів (<span id="savedCount">0</span>)</button>
   </div>
   <div id="savedPanel"></div>
-  <div id="routeBody">
-    
-    <div id="editableArea" class="">
-    <div class="card">
-      <h2>Маршрут 1</h2>
-      <div class="sub">Маршрут по днях</div>
-      
-    <div class="meta-row">
-      <div class="field"><label>К-ть днів</label><input type="text" inputmode="numeric" id="daysInput" value="0"></div>
-      <div class="field"><label>К-ть нічних переїздів</label><input type="text" disabled="" id="nightTransfersDisplay" value="0"></div>
-    </div>
-    <div class="sub" style="margin-top:14px;">Короткий опис кожного дня (місто) — в кінці кожного дня, крім дня приїзду додому, оберіть готель або нічний переїзд.</div>
-    <div id="dayRows"><div style="font-size:12.5px;color:#9a927a;padding:6px 0;">Вкажіть к-ть днів, щоб розписати маршрут.</div></div>
-    <div class="sub" style="margin-top:20px;">Візуалізація маршруту</div>
-    <div id="dayTimeline" class="day-timeline-wrap"><div style="font-size:12.5px;color:#9a927a;">Візуалізація зʼявиться після додавання днів.</div></div>
-  
-    </div>
+  <div id="routeBody"></div>
+</div>
 
-    <div class="card">
-      <h2>Дорога</h2>
-      <div class="sub">Кілометраж маршруту та вартість за кілометр</div>
-      <div class="meta-row">
-        <div class="field"><label>Кілометраж (км)</label><input type="text" inputmode="decimal" id="roadKm" value="0"></div>
-        <div class="field"><label>Вартість 1 км (€/км)</label><input type="text" inputmode="decimal" id="roadPrice" value="0"></div>
-        <div class="field"><label>Разом дорога</label><input type="text" disabled="" id="roadTotalDisplay" value="€0.00" style="font-weight:700;color:var(--teal-deep);"></div>
-      </div>
+<div class="file-menu-overlay" id="fileMenuOverlay">
+  <div class="file-menu-panel">
+    <div class="file-menu-header">Файл
+      <button type="button" class="file-menu-close" id="fileMenuCloseX" aria-label="Закрити меню">✕</button>
     </div>
-
-    <div class="card">
-      <h2>Готелі</h2>
-      <div class="sub">Додайте готелі по маршруту — країна, вартість на учасника та сітітакс на учасника (за замовчуванням 0).</div>
-      
-    <div class="sub" style="margin-top:0;">Кількість готелів формується автоматично за к-стю ночей «Готель» у плані по днях. Можна донастроїти вручну.</div>
-    <table class="items">
-      <thead><tr><th>Готель</th><th style="width:160px;">Країна</th><th style="width:120px;">Вартість/особу €</th><th style="width:120px;">Сітітакс/особу €</th><th style="width:30px;"></th></tr></thead>
-      <tbody id="hotelsRows"><tr><td colspan="5" style="color:#9a927a;font-size:12.5px;">Готелів ще не додано</td></tr></tbody>
-      <tfoot><tr><td class="grp-total">Разом на учасника (готелі)</td><td></td><td></td><td class="grp-total" id="hotelsTotal" style="text-align:right;">€0.00</td><td></td></tr></tfoot>
-    </table>
-    <button class="add-row" id="hotelsAddRow">+ додати готель</button>
-  
-    </div>
-
-    <div class="two-col">
-      <div class="card">
-        <h2>Парковки</h2>
-        <div class="sub">Оберіть міста по маршруту — вартість підсумовується. Нові міста додаються в спільну базу.</div>
-        
-    <div style="font-size:12px;color:#9a927a;margin-bottom:8px;">У плані по днях ще немає розпізнаних країн — показано всі країни Європи. Впишіть міста в «Маршрут по днях», і список звузиться автоматично.</div>
-    <div class="picker-row">
-      <div class="field"><label>Країна</label><select id="parkingCountrySel"><option value="Австрія" selected="">Австрія</option><option value="Албанія">Албанія</option><option value="Андорра">Андорра</option><option value="Бельгія">Бельгія</option><option value="Білорусь">Білорусь</option><option value="Болгарія">Болгарія</option><option value="Боснія і Герцеговина">Боснія і Герцеговина</option><option value="Ватикан">Ватикан</option><option value="Велика Британія">Велика Британія</option><option value="Угорщина">Угорщина</option><option value="Німеччина">Німеччина</option><option value="Греція">Греція</option><option value="Данія">Данія</option><option value="Естонія">Естонія</option><option value="Ірландія">Ірландія</option><option value="Ісландія">Ісландія</option><option value="Іспанія">Іспанія</option><option value="Італія">Італія</option><option value="Латвія">Латвія</option><option value="Литва">Литва</option><option value="Ліхтенштейн">Ліхтенштейн</option><option value="Люксембург">Люксембург</option><option value="Мальта">Мальта</option><option value="Молдова">Молдова</option><option value="Монако">Монако</option><option value="Нідерланди">Нідерланди</option><option value="Норвегія">Норвегія</option><option value="Північна Македонія">Північна Македонія</option><option value="Польща">Польща</option><option value="Португалія">Португалія</option><option value="Румунія">Румунія</option><option value="Сан-Марино">Сан-Марино</option><option value="Сербія">Сербія</option><option value="Словаччина">Словаччина</option><option value="Словенія">Словенія</option><option value="Україна">Україна</option><option value="Фінляндія">Фінляндія</option><option value="Франція">Франція</option><option value="Хорватія">Хорватія</option><option value="Чехія">Чехія</option><option value="Чорногорія">Чорногорія</option><option value="Швейцарія">Швейцарія</option><option value="Швеція">Швеція</option><option value="Азербайджан">Азербайджан</option><option value="Вірменія">Вірменія</option><option value="Грузія">Грузія</option><option value="Туреччина">Туреччина</option><option value="Кіпр">Кіпр</option><option value="Ізраїль">Ізраїль</option><option value="Йорданія">Йорданія</option><option value="Ліван">Ліван</option><option value="ОАЕ">ОАЕ</option><option value="Саудівська Аравія">Саудівська Аравія</option><option value="Катар">Катар</option><option value="Бахрейн">Бахрейн</option><option value="Кувейт">Кувейт</option><option value="Оман">Оман</option><option value="Казахстан">Казахстан</option><option value="Узбекистан">Узбекистан</option><option value="Киргизстан">Киргизстан</option><option value="Таджикистан">Таджикистан</option><option value="Туркменістан">Туркменістан</option><option value="Індія">Індія</option><option value="Шрі-Ланка">Шрі-Ланка</option><option value="Непал">Непал</option><option value="Мальдіви">Мальдіви</option><option value="Таїланд">Таїланд</option><option value="В&#39;єтнам">В'єтнам</option><option value="Камбоджа">Камбоджа</option><option value="Лаос">Лаос</option><option value="М&#39;янма">М'янма</option><option value="Малайзія">Малайзія</option><option value="Сінгапур">Сінгапур</option><option value="Індонезія">Індонезія</option><option value="Філіппіни">Філіппіни</option><option value="Китай">Китай</option><option value="Монголія">Монголія</option><option value="Японія">Японія</option><option value="Південна Корея">Південна Корея</option><option value="Північна Корея">Північна Корея</option><option value="Єгипет">Єгипет</option><option value="Марокко">Марокко</option><option value="Туніс">Туніс</option><option value="Алжир">Алжир</option><option value="Кенія">Кенія</option><option value="Танзанія">Танзанія</option><option value="ПАР">ПАР</option><option value="Намібія">Намібія</option><option value="Маврикій">Маврикій</option><option value="Сейшели">Сейшели</option><option value="Ефіопія">Ефіопія</option><option value="Нігерія">Нігерія</option><option value="Гана">Гана</option><option value="Замбія">Замбія</option><option value="Зімбабве">Зімбабве</option><option value="США">США</option><option value="Канада">Канада</option><option value="Мексика">Мексика</option><option value="Куба">Куба</option><option value="Домінікана">Домінікана</option><option value="Ямайка">Ямайка</option><option value="Коста-Рика">Коста-Рика</option><option value="Панама">Панама</option><option value="Бразилія">Бразилія</option><option value="Аргентина">Аргентина</option><option value="Чилі">Чилі</option><option value="Перу">Перу</option><option value="Колумбія">Колумбія</option><option value="Еквадор">Еквадор</option><option value="Уругвай">Уругвай</option><option value="Болівія">Болівія</option><option value="Венесуела">Венесуела</option><option value="Австралія">Австралія</option><option value="Нова Зеландія">Нова Зеландія</option><option value="Фіджі">Фіджі</option></select></div>
-    </div>
-    <div class="city-list" id="parkingCityList"><div class="city-chip-option ">
-      <span class="city-label" data-city="Відень" data-mode="parking">Відень</span>
-      <span class="cost-display">€80.00</span><button type="button" class="edit-pencil" data-type="parking" data-city="Відень" title="Виправити вартість парковки">✎</button>
-    </div><div class="city-chip-option ">
-      <span class="city-label" data-city="Зальцбург" data-mode="parking">Зальцбург</span>
-      <span class="cost-display">€90.00</span><button type="button" class="edit-pencil" data-type="parking" data-city="Зальцбург" title="Виправити вартість парковки">✎</button>
-    </div></div>
-    <div class="add-city-form">
-      <input type="text" class="name-inp" id="parkingNewCity" placeholder="Нове місто">
-      <input type="text" inputmode="decimal" class="cost-inp" id="parkingNewCost" placeholder="€">
-      <button class="mini-btn" id="parkingAddCityBtn">+ додати місто в «Австрія»</button>
-    </div>
-    <div class="add-city-msg" id="parkingAddMsg" style="display:none;color:var(--red);font-size:12px;margin-top:6px;"></div>
-    <div class="selected-strip"><strong style="font-size:12px;color:#7a7360;">Обрано для маршруту:</strong><br><span id="parkingSelectedStrip"><span style="font-size:12.5px;color:#9a927a;">Ще нічого не обрано</span></span></div>
-    <div class="subtotal-line"><span>Разом парковки</span><span id="parkingTotalValue">€0.00</span></div>
-  
-      </div>
-      <div class="card">
-        <h2>Екскурсоводи</h2>
-        <div class="sub">Оберіть міста, де потрібен екскурсовод — це оплата за проведення екскурсії (фіксована сума за місто, збережена в базі).</div>
-        
-    <div style="font-size:12px;color:#9a927a;margin-bottom:8px;">У плані по днях ще немає розпізнаних країн — показано всі країни Європи. Впишіть міста в «Маршрут по днях», і список звузиться автоматично.</div>
-    <div class="picker-row">
-      <div class="field"><label>Країна</label><select id="excursionCountrySel"><option value="Австрія" selected="">Австрія</option><option value="Албанія">Албанія</option><option value="Андорра">Андорра</option><option value="Бельгія">Бельгія</option><option value="Білорусь">Білорусь</option><option value="Болгарія">Болгарія</option><option value="Боснія і Герцеговина">Боснія і Герцеговина</option><option value="Ватикан">Ватикан</option><option value="Велика Британія">Велика Британія</option><option value="Угорщина">Угорщина</option><option value="Німеччина">Німеччина</option><option value="Греція">Греція</option><option value="Данія">Данія</option><option value="Естонія">Естонія</option><option value="Ірландія">Ірландія</option><option value="Ісландія">Ісландія</option><option value="Іспанія">Іспанія</option><option value="Італія">Італія</option><option value="Латвія">Латвія</option><option value="Литва">Литва</option><option value="Ліхтенштейн">Ліхтенштейн</option><option value="Люксембург">Люксембург</option><option value="Мальта">Мальта</option><option value="Молдова">Молдова</option><option value="Монако">Монако</option><option value="Нідерланди">Нідерланди</option><option value="Норвегія">Норвегія</option><option value="Північна Македонія">Північна Македонія</option><option value="Польща">Польща</option><option value="Португалія">Португалія</option><option value="Румунія">Румунія</option><option value="Сан-Марино">Сан-Марино</option><option value="Сербія">Сербія</option><option value="Словаччина">Словаччина</option><option value="Словенія">Словенія</option><option value="Україна">Україна</option><option value="Фінляндія">Фінляндія</option><option value="Франція">Франція</option><option value="Хорватія">Хорватія</option><option value="Чехія">Чехія</option><option value="Чорногорія">Чорногорія</option><option value="Швейцарія">Швейцарія</option><option value="Швеція">Швеція</option><option value="Азербайджан">Азербайджан</option><option value="Вірменія">Вірменія</option><option value="Грузія">Грузія</option><option value="Туреччина">Туреччина</option><option value="Кіпр">Кіпр</option><option value="Ізраїль">Ізраїль</option><option value="Йорданія">Йорданія</option><option value="Ліван">Ліван</option><option value="ОАЕ">ОАЕ</option><option value="Саудівська Аравія">Саудівська Аравія</option><option value="Катар">Катар</option><option value="Бахрейн">Бахрейн</option><option value="Кувейт">Кувейт</option><option value="Оман">Оман</option><option value="Казахстан">Казахстан</option><option value="Узбекистан">Узбекистан</option><option value="Киргизстан">Киргизстан</option><option value="Таджикистан">Таджикистан</option><option value="Туркменістан">Туркменістан</option><option value="Індія">Індія</option><option value="Шрі-Ланка">Шрі-Ланка</option><option value="Непал">Непал</option><option value="Мальдіви">Мальдіви</option><option value="Таїланд">Таїланд</option><option value="В&#39;єтнам">В'єтнам</option><option value="Камбоджа">Камбоджа</option><option value="Лаос">Лаос</option><option value="М&#39;янма">М'янма</option><option value="Малайзія">Малайзія</option><option value="Сінгапур">Сінгапур</option><option value="Індонезія">Індонезія</option><option value="Філіппіни">Філіппіни</option><option value="Китай">Китай</option><option value="Монголія">Монголія</option><option value="Японія">Японія</option><option value="Південна Корея">Південна Корея</option><option value="Північна Корея">Північна Корея</option><option value="Єгипет">Єгипет</option><option value="Марокко">Марокко</option><option value="Туніс">Туніс</option><option value="Алжир">Алжир</option><option value="Кенія">Кенія</option><option value="Танзанія">Танзанія</option><option value="ПАР">ПАР</option><option value="Намібія">Намібія</option><option value="Маврикій">Маврикій</option><option value="Сейшели">Сейшели</option><option value="Ефіопія">Ефіопія</option><option value="Нігерія">Нігерія</option><option value="Гана">Гана</option><option value="Замбія">Замбія</option><option value="Зімбабве">Зімбабве</option><option value="США">США</option><option value="Канада">Канада</option><option value="Мексика">Мексика</option><option value="Куба">Куба</option><option value="Домінікана">Домінікана</option><option value="Ямайка">Ямайка</option><option value="Коста-Рика">Коста-Рика</option><option value="Панама">Панама</option><option value="Бразилія">Бразилія</option><option value="Аргентина">Аргентина</option><option value="Чилі">Чилі</option><option value="Перу">Перу</option><option value="Колумбія">Колумбія</option><option value="Еквадор">Еквадор</option><option value="Уругвай">Уругвай</option><option value="Болівія">Болівія</option><option value="Венесуела">Венесуела</option><option value="Австралія">Австралія</option><option value="Нова Зеландія">Нова Зеландія</option><option value="Фіджі">Фіджі</option></select></div>
-    </div>
-    <div class="city-list" id="excursionCityList"><div class="city-chip-option ">
-      <span class="city-label" data-city="Відень" data-mode="excursion">Відень</span>
-      <span class="cost-display">€160.00</span><button type="button" class="edit-pencil" data-type="excursion" data-city="Відень" title="Виправити вартість екскурсовода">✎</button>
-    </div><div class="city-chip-option ">
-      <span class="city-label" data-city="Зальцбург" data-mode="excursion">Зальцбург</span>
-      <span class="cost-display">€160.00</span><button type="button" class="edit-pencil" data-type="excursion" data-city="Зальцбург" title="Виправити вартість екскурсовода">✎</button>
-    </div></div>
-    <div class="add-city-form">
-      <input type="text" class="name-inp" id="excursionNewCity" placeholder="Нове місто">
-      <input type="text" inputmode="decimal" class="cost-inp" id="excursionNewCost" placeholder="€">
-      <button class="mini-btn" id="excursionAddCityBtn">+ додати місто в «Австрія»</button>
-    </div>
-    <div class="add-city-msg" id="excursionAddMsg" style="display:none;color:var(--red);font-size:12px;margin-top:6px;"></div>
-    <div class="selected-strip"><strong style="font-size:12px;color:#7a7360;">Екскурсоводи по маршруту:</strong><br><span id="excursionSelectedStrip"><span style="font-size:12.5px;color:#9a927a;">Ще не обрано жодного екскурсовода</span></span></div>
-    <div class="subtotal-line"><span>Разом екскурсоводи</span><span id="excursionTotalValue">€0.00</span></div>
-  
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>Додаткові витрати</h2>
-      <div class="sub">Супровід рахується автоматично (ставка × к-ть днів туру). Для решти пунктів вкажіть, чи це витрата на всю групу, чи на кожного учасника.</div>
-      <div class="escort-block">
-        <div class="field"><label>Супровід, €/доба</label>
-          <select id="escortRateSel"><option value="0" selected="">Без супроводу</option><option value="40">40 €/доба</option><option value="50">50 €/доба</option><option value="75">75 €/доба</option><option value="100">100 €/доба</option></select>
-        </div>
-        <div class="field"><label>К-ть днів туру</label><input type="text" disabled="" id="escortDaysDisplay" value="0"></div>
-        <div class="field"><label>Разом супровід</label><input type="text" disabled="" id="escortTotalDisplay" value="€0.00" style="font-weight:700;color:var(--teal-deep);"></div>
-      </div>
-      
-    <div class="sub" style="margin-top:0;">Позначка «✓» — витрата включається в розрахунок. Без позначки пункт лишається доступним, але не додається до вартості (доплата за бажанням).</div>
-    <table class="items">
-      <thead><tr><th style="width:34px;"></th><th>Стаття витрат</th><th style="width:110px;">€ EUR</th><th style="width:110px;">Тип</th><th style="width:30px;"></th></tr></thead>
-      <tbody id="additionalRows">
-    <tr class="">
-      <td><input type="checkbox" class="itenabled" data-i="0" checked="" title="Включити в розрахунок"></td>
-      <td><input type="text" value="KPI" data-i="0" class="itname"></td>
-      <td><input type="text" inputmode="decimal" value="0" data-i="0" class="itcost"></td>
-      <td><select class="itscope" data-i="0">
-        <option value="group" selected="">на групу</option>
-        <option value="person">на учасника</option>
-      </select></td>
-      <td><button class="del-btn" data-i="0">✕</button></td>
-    </tr>
-    <tr class="item-disabled">
-      <td><input type="checkbox" class="itenabled" data-i="1" title="Включити в розрахунок"></td>
-      <td><input type="text" value="Страховка" data-i="1" class="itname"></td>
-      <td><input type="text" inputmode="decimal" value="0" data-i="1" class="itcost"></td>
-      <td><select class="itscope" data-i="1">
-        <option value="group">на групу</option>
-        <option value="person" selected="">на учасника</option>
-      </select></td>
-      <td><button class="del-btn" data-i="1">✕</button></td>
-    </tr>
-    <tr class="item-disabled">
-      <td><input type="checkbox" class="itenabled" data-i="2" title="Включити в розрахунок"></td>
-      <td><input type="text" value="Навушники" data-i="2" class="itname"></td>
-      <td><input type="text" inputmode="decimal" value="0" data-i="2" class="itcost"></td>
-      <td><select class="itscope" data-i="2">
-        <option value="group">на групу</option>
-        <option value="person" selected="">на учасника</option>
-      </select></td>
-      <td><button class="del-btn" data-i="2">✕</button></td>
-    </tr>
-    <tr class="item-disabled">
-      <td><input type="checkbox" class="itenabled" data-i="3" title="Включити в розрахунок"></td>
-      <td><input type="text" value="Проживання Стафу" data-i="3" class="itname"></td>
-      <td><input type="text" inputmode="decimal" value="0" data-i="3" class="itcost"></td>
-      <td><select class="itscope" data-i="3">
-        <option value="group" selected="">на групу</option>
-        <option value="person">на учасника</option>
-      </select></td>
-      <td><button class="del-btn" data-i="3">✕</button></td>
-    </tr></tbody>
-      <tfoot>
-        <tr><td></td><td class="grp-total">Разом на групу</td><td class="grp-total" id="additionalGroupTotal" style="text-align:right;">€0.00</td><td></td><td></td></tr>
-        <tr><td></td><td class="grp-total">Разом на учасника</td><td class="grp-total" id="additionalPersonTotal" style="text-align:right;">€0.00</td><td></td><td></td></tr>
-      </tfoot>
-    </table>
-    <button class="add-row" id="additionalAddRow">+ додати пункт</button>
-  
-    </div>
-
-    <div class="card">
-      <h2>Підсумкова вартість</h2>
-      <div class="sub">Собівартість і ціна туру на особу для різних розмірів групи</div>
-      <div id="resultsContainer">
-    <table class="breakdown">
-      <tbody><tr><td>Групові витрати (дорога + парковки + екскурсоводи + супровід + додаткові на групу) — всього</td><td>€0.00</td></tr>
-      <tr><td>&nbsp;&nbsp;у т.ч. дорога</td><td>€0.00</td></tr>
-      <tr><td>&nbsp;&nbsp;у т.ч. парковки</td><td>€0.00</td></tr>
-      <tr><td>&nbsp;&nbsp;у т.ч. екскурсоводи</td><td>€0.00</td></tr>
-      <tr><td>&nbsp;&nbsp;у т.ч. супровід</td><td>€0.00</td></tr>
-      <tr><td>&nbsp;&nbsp;у т.ч. додаткові витрати на групу</td><td>€0.00</td></tr>
-      <tr class="sep"><td>Витрати на учасника (готелі без сітітаксу + додаткові «на учасника») — на 1 людину</td><td>€0.00</td></tr>
-      <tr><td>&nbsp;&nbsp;у т.ч. готелі (вартість проживання, без сітітаксу)</td><td>€0.00</td></tr>
-    </tbody></table>
-
-    <div class="meta-row" style="margin-top:20px;">
-      <div class="field"><label>Комісія оператора, €/особу</label><input type="text" inputmode="decimal" id="profitInput" value="0"></div>
-      <div class="field">
-        <label>Комісія агента, €/особу
-          <span class="unit-toggle">
-            <button type="button" class="unit-btn" data-agencymode="fixed" style="background:var(--teal);color:var(--white);border-color:var(--teal-deep);">€</button>
-            <button type="button" class="unit-btn" data-agencymode="percent" style="">%</button>
-          </span>
-        </label>
-        <input type="text" inputmode="decimal" id="agencyInput" value="0">
-      </div>
-    </div>
-    
-
-    <div class="sub" style="margin-top:22px;">Обов'язковий платіж (сітітакс)</div>
-    <div class="meta-row">
-      <div class="field"><label>Ставка, €/день на учасника</label><input type="text" inputmode="decimal" id="cityTaxRateInput" value="4,98"></div>
-      <div class="field"><label>Разом за тур (днів × ставка)</label><input type="text" disabled="" value="€0.00"></div>
-      <div class="field"><label>Реальний сітітакс (з розділу «Готелі»)</label><input type="text" disabled="" value="€0.00"></div>
-      <div class="field"><label>Ховається в базовій ціні</label><input type="text" disabled="" value="€0.00"></div>
-    </div>
-    <div class="sub" style="margin-top:-8px;">Обов'язковий платіж = 0 дн. × 4,98 € = €0.00. Із базової ціни в таблицях нижче віднімається різниця з реальним сітітаксом (€0.00), тож підсумкова ціна на особу лишається незмінною — база просто виглядає нижчою, а платіж покриває різницю.</div>
-
-    <div class="sub" style="margin-top:22px;">Ціна на особу для звичайної групи (без безкоштовних місць)</div>
-    <div class="size-table-wrap" id="standardSizeTableWrap">
-    <table class="size-table">
-      <thead><tr><th>Розмір групи</th><th>30 чол</th><th>35 чол</th><th class="col-min-group">40 чол</th><th>45 чол</th><th>50 чол</th><th>55 чол</th><th>60 чол</th></tr></thead>
-      <tbody>
-        <tr><td>Реальна ціна</td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td class="col-min-group">€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td></tr>
-        <tr><td>Ціна з корекцією</td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td class="col-min-group">€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td></tr>
-        <tr class="price-row"><td>В продаж: ціна з корекцією+обов'язковий платіж</td><td>€0.00+0.00</td><td>€0.00+0.00</td><td class="col-min-group">€0.00+0.00</td><td>€0.00+0.00</td><td>€0.00+0.00</td><td>€0.00+0.00</td><td>€0.00+0.00</td></tr>
-      </tbody>
-    </table>
-    <div class="sub" style="margin-top:6px;">Виділена колонка (40 чол) — мінімальна група, під яку орієнтуємось при продажу (система 15+1).</div>
-  </div>
-
-    <div class="sub" style="margin-top:26px;">Розрахунок за системою «безкоштовних місць»</div>
-    <div class="meta-row">
-      <div class="field"><label>Система</label>
-        <select id="systemTypeSel">
-          <option value="10+1">10+1</option>
-          <option value="12+1">12+1</option>
-          <option value="15+1" selected="">15+1</option>
-          <option value="custom">Довільна</option>
-        </select>
-      </div>
-      
-    </div>
-    <div class="size-table-wrap" id="systemSizeTableWrap">
-    <table class="size-table">
-      <thead><tr><th>Розмір групи</th><th>30 чол</th><th>35 чол</th><th class="col-min-group">40 чол</th><th>45 чол</th><th>50 чол</th><th>55 чол</th><th>60 чол</th></tr></thead>
-      <tbody>
-        <tr><td>Безкоштовних місць</td><td>2</td><td>2</td><td class="col-min-group">2</td><td>3</td><td>3</td><td>3</td><td>4</td></tr>
-        <tr><td>Реальна ціна</td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td class="col-min-group">€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td></tr>
-        <tr><td>Ціна з корекцією</td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td class="col-min-group">€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td><td>€0.00<span class="uah-amt">(₴0,00)</span></td></tr>
-        <tr class="price-row"><td>В продаж: ціна з корекцією+обов'язковий платіж</td><td>€0.00+0.00</td><td>€0.00+0.00</td><td class="col-min-group">€0.00+0.00</td><td>€0.00+0.00</td><td>€0.00+0.00</td><td>€0.00+0.00</td><td>€0.00+0.00</td></tr>
-      </tbody>
-    </table>
-    <div class="sub" style="margin-top:6px;">Виділена колонка (40 чол) — мінімальна група, під яку орієнтуємось при продажу (система 15+1).</div>
-  </div>
-  </div>
-    </div>
-    </div>
-
-    <div class="card">
-      <h2>Друк і надсилання</h2>
-      <div class="sub">Сформувати текстовий підсумок маршруту для друку або надсилання клієнту.</div>
-      <div class="share-row">
-        <button class="mini-btn" id="printRouteBtn">🖨️ Друк</button>
-        <button class="mini-btn ghost" id="emailShareBtn">✉️ Email</button>
-        <button class="mini-btn ghost" id="viberShareBtn" title="Viber обмежує довжину посилання, тому надсилає скорочений підсумок">📱 Viber (короткий)</button>
-        <button class="mini-btn ghost" id="telegramShareBtn">✈️ Telegram</button>
-        <button class="mini-btn ghost" id="whatsappShareBtn">💬 WhatsApp</button>
-      </div>
-      <div style="font-size:11.5px;color:#9a927a;margin-top:8px;">Viber має жорсткий ліміт довжини посилання, тому туди йде скорочений варіант (план по днях + одна ціна для прикладу). Email, Telegram, WhatsApp і друк отримують повний підсумок з усіма таблицями цін.</div>
-    </div>
+    <button type="button" class="file-menu-item" id="fmNewRoute"><span class="fmi-icon">📄</span> Новий маршрут</button>
+    <button type="button" class="file-menu-item" id="fmSaveRoute"><span class="fmi-icon">💾</span> Зберегти маршрут</button>
+    <button type="button" class="file-menu-item" id="fmSaveAsRoute"><span class="fmi-icon">🗂️</span> Зберегти як...</button>
+    <div class="file-menu-sep"></div>
+    <button type="button" class="file-menu-item" id="fmCloseRoute"><span class="fmi-icon">✕</span> Закрити маршрут</button>
   </div>
 </div>
 
 <div class="modal-overlay" id="appModalOverlay" style="display:none;">
   <div class="modal-card">
+    <button type="button" class="modal-close-x" id="appModalCloseX" aria-label="Закрити">✕</button>
     <div class="modal-title" id="appModalTitle"></div>
     <div class="modal-message" id="appModalMessage"></div>
     <div class="modal-actions" id="appModalActions"></div>
@@ -612,7 +421,7 @@ const EUROPE_CITIES = [
   {city:"Сан-Хосе",country:"Коста-Рика"},
   {city:"Ріо-де-Жанейро",country:"Бразилія"},{city:"Сан-Паулу",country:"Бразилія"},
   {city:"Буенос-Айрес",country:"Аргентина"},{city:"Ліма",country:"Перу"},{city:"Богота",country:"Колумбія"},
-  {city:"Санток'яго",country:"Чилі"},
+  {city:"Сантьяго",country:"Чилі"},
   {city:"Делі",country:"Індія"},{city:"Мумбаї",country:"Індія"},{city:"Гоа",country:"Індія"},{city:"Джайпур",country:"Індія"},
   {city:"Коломбо",country:"Шрі-Ланка"},{city:"Мале",country:"Мальдіви"},
   {city:"Бангкок",country:"Таїланд"},{city:"Пхукет",country:"Таїланд"},{city:"Паттайя",country:"Таїланд"},{city:"Чіангмай",country:"Таїланд"},
@@ -940,6 +749,8 @@ function showModal({title, message, buttons}){
   const overlay = document.getElementById('appModalOverlay');
   document.getElementById('appModalTitle').textContent = title;
   document.getElementById('appModalMessage').textContent = message;
+  const card = overlay.querySelector('.modal-card');
+  if(card) card.classList.remove('wide');
   const actions = document.getElementById('appModalActions');
   actions.innerHTML = '';
   buttons.forEach(b=>{
@@ -954,8 +765,268 @@ function showModal({title, message, buttons}){
 }
 function hideModal(){
   const overlay = document.getElementById('appModalOverlay');
-  if(overlay) overlay.style.display = 'none';
+  if(overlay){
+    overlay.style.display = 'none';
+    const card = overlay.querySelector('.modal-card');
+    if(card) card.classList.remove('wide');
+  }
 }
+
+/* ---------- REVENUE MANAGEMENT ADVISOR ---------- */
+// Рахує 3 цінові транші (ранній продаж / стандарт / останні місця) від поточної ціни
+// (для обраного повзунком розміру групи), плюс мінімальну розумну ціну (маржинальна
+// собівартість + буфер) і скільки місць за стандартною ціною треба продати до беззбитковості.
+function rmComputeTiers(route){
+  const r = computeRoute(route);
+  const mf = mandatoryFeeInfo(route, r);
+  const hgs = Math.min(65, Math.max(25, Math.floor(route.headlineGroupSize)||MIN_GROUP_SIZE));
+  const core = priceForCounts(r.groupTotal, r.personTotal, hgs, 0, route.profit, route.agency);
+  const standard = withMandatoryFee(core, mf).total;
+  const marginal = r.personTotal + r.cityTaxTotal;
+  const floorPrice = Math.ceil((marginal+15)/5)*5;
+  let earlyBird = roundToStep(standard*0.90, 5);
+  if(earlyBird < floorPrice) earlyBird = floorPrice;
+  const lastMinute = roundToStep(standard*1.12, 5);
+  const fixed = r.groupTotal;
+  const seatsToBreakEven = standard>marginal ? Math.ceil(fixed/(standard-marginal)) : null;
+  return {hgs, standard, marginal, floorPrice, earlyBird, lastMinute, fixed, seatsToBreakEven};
+}
+
+// Динамічна комісія на допродаж останніх місць: якщо продано близько до цілі (hgs) і лишилось
+// мало місць — вигідніше підняти комісію агенту на решту, ніж лишити місце порожнім (порожнє
+// місце коштує повну маржинальну різницю standard-marginal, а не тільки суму надбавки комісії).
+function rmComputeLastSeatsBoost(route, t){
+  const sold = Array.isArray(route.sales) ? route.sales.length : 0;
+  const unsold = Math.max(0, t.hgs - sold);
+  const ref = agencyCostReference(route);
+  const currentPct = tieredAgencyPercent(ref);
+  const threshold = Math.max(5, Math.round(t.hgs*0.15));
+  const active = sold>0 && unsold>0 && unsold<=threshold;
+  const boostPct = Math.min(currentPct+8, 30);
+  const boostCommission = Math.max(25, roundToStep(t.standard*boostPct/100, 5));
+  const maxSensibleCommission = Math.max(0, t.standard - t.marginal - 5); // лишає хоч трохи маржі
+  return {sold, unsold, currentPct, threshold, active, boostPct, boostCommission: Math.min(boostCommission, roundToStep(Math.max(maxSensibleCommission,25),5))};
+}
+
+// Платні місця в автобусі (вибір хороших місць) — майже чистий прибуток: жодних додаткових
+// витрат на маршрут це не додає, лише перерозподіляє місця в салоні.
+function rmComputeSeatUpsell(t){
+  const rate = 10; // типова ставка, яку бачимо в реальних заявках OneBox
+  const uptakeShare = 0.3; // орієнтовна частка тих, хто погоджується доплатити за місце
+  const estIncome = roundToStep(rate*t.hgs*uptakeShare, 5);
+  return {rate, uptakeShare, estIncome};
+}
+
+function rmModalHtml(route){
+  const t = rmComputeTiers(route);
+  const boost = rmComputeLastSeatsBoost(route, t);
+  const seatUpsell = rmComputeSeatUpsell(t);
+  return `
+    <table class="rm-tiers">
+      <thead><tr><th>Транш</th><th>Коли застосовувати</th><th>Ціна €</th></tr></thead>
+      <tbody>
+        <tr><td>🟢 Ранній продаж (early bird)</td><td>Перші ~30% місць — мета не заробити більше, а швидко зібрати підтверджену групу і зняти ризик відміни</td><td>${fmt(t.earlyBird)}</td></tr>
+        <tr class="rm-current"><td>🟡 Стандарт</td><td>Основний продаж, поточний розмір групи (${t.hgs} чол)</td><td>${fmt(t.standard)}</td></tr>
+        <tr><td>🔴 Останні місця</td><td>Останні ~15% місць перед виїздом — попит підтверджений, ризик оператора мінімальний</td><td>${fmt(t.lastMinute)}</td></tr>
+      </tbody>
+    </table>
+    <div class="rm-note">Мінімальна розумна ціна (нижче — кожне продане місце в збиток): <strong>${fmt(t.floorPrice)}</strong> (маржинальна собівартість ${fmt(t.marginal)} + буфер). ${t.seatsToBreakEven!=null ? `За стандартною ціною беззбитковість настає приблизно на <strong>${t.seatsToBreakEven}-му</strong> проданому місці.` : ''}</div>
+
+    <div class="rm-section">
+      <h4>Якщо продажі зупинилися на переході між траншами</h4>
+      <ul>
+        <li><strong>Перевірте, чи це ціна, а не збіг обставин.</strong> Порівняйте з попередніми подібними турами (той самий сезон, маршрут) — чи це стабільний патерн, чи разовий випадок (тур випав на будні, малий інтервал з моменту переходу тощо).</li>
+        <li><strong>Пом'якшіть перехід — вставте проміжний транш.</strong> Різкий стрибок ціни (наприклад одразу +11%) завжди помітніший психологічно, ніж поступовий; спробуйте проміжну сходинку (+5%) між early bird і стандартом.</li>
+        <li><strong>Прив'яжіть перехід до часу, а не тільки до кількості місць.</strong> Якщо ринок реагує саме на факт зміни ціни, а не на реальний дефіцит — розтягніть early bird трохи довше за календарем.</li>
+        <li><strong>Не відкочуйте ціну назад — дайте бонус замість знижки.</strong> Повернення до early-bird ціни привчає клієнтів чекати знижок наступного разу. Натомість — безкоштовний вибір місця в автобусі, невеликий бонус: б'є по маржі менше, ніж пряма знижка.</li>
+        <li><strong>Перевірте канал, а не тільки ціну.</strong> Early bird часто продають «теплі» контакти агентів. Коли ціна переходить у стандарт, а продажі падають — можливо, просто закінчився пул гарячих клієнтів, і B2C-канал ще не підключений належно на цьому етапі.</li>
+        <li><strong>Встановіть чіткий тригер для дії</strong>, а не чекайте до останніх місць: якщо через N днів після переходу на стандарт продано менше X місць — застосуйте механізм підвищеної комісії агентам (нижче), не чекаючи, поки лишиться зовсім мало місць.</li>
+      </ul>
+    </div>
+
+    <div class="rm-section">
+      <h4>Підвищена комісія на допродаж останніх місць</h4>
+      ${boost.active ? `
+      <ul>
+        <li>Продано <strong>${boost.sold} з ${t.hgs}</strong> — лишилось <strong>${boost.unsold}</strong>, це вже в зоні «допродажу». Стандартна комісія зараз ${boost.currentPct}%.</li>
+        <li>Має сенс тимчасово підняти комісію агентам саме на решту місць до <strong>${boost.boostPct}%</strong> (≈${fmt(boost.boostCommission)}/особу) — порожнє місце коштує вам повну маржинальну різницю (${fmt(t.standard-t.marginal)}), тож навіть підвищена комісія майже завжди вигідніша за порожнє крісло.</li>
+        <li>Пропонуйте це точково — агентам, які вже показали активність по цьому туру, а не всім одразу, щоб не знецінювати комісію на місця, які й так продадуться.</li>
+      </ul>` : `
+      <div class="rm-note">Зараз ще рано: ${boost.sold ? `продано ${boost.sold} з ${t.hgs}, лишилось ${boost.unsold}` : 'у розділі «Продажі» ще немає внесених місць'} — поріг для підвищеної комісії настає, коли лишається ≈${boost.threshold} місць або менше. Порада зʼявиться автоматично, коли наблизитесь до дедлайну.</div>`}
+    </div>
+
+    <div class="rm-section">
+      <h4>Платні місця в автобусі (вибір крісла)</h4>
+      <ul>
+        <li>Доплата за хороше місце (передні ряди, біля дверей, поруч з родиною) — типово €${fmt(seatUpsell.rate).replace('€','')}/особу. Це майже 100% чистий прибуток: жодних додаткових витрат на маршрут не з'являється, тільки перерозподіл місць у салоні.</li>
+        <li>При ${t.hgs} учасниках і орієнтовно ${Math.round(seatUpsell.uptakeShare*100)}% охочих доплатити — це приблизно <strong>${fmt(seatUpsell.estIncome)}</strong> додаткового доходу з туру, які не закладені в основну ціну.</li>
+        <li>Пропонуйте це як окрему опцію вже ПІСЛЯ підтвердження заявки (не в основній ціні) — так менше людей відмовляється від туру через здорожчання, а ті, хто хоче конкретне місце, платять за нього окремо.</li>
+      </ul>
+    </div>
+
+    <div class="rm-section">
+      <h4>B2B — продаж через агентів</h4>
+      <ul>
+        <li>Давайте агентам ту саму базову ціну, що й собі — різницю формуйте через % комісії, а не через окремий «оптовий» прайс. Так агент сам вирішує свою кінцеву ціну клієнту, і ви не конкуруєте з власними партнерами напряму.</li>
+        <li>На ранньому транші стимулюйте агентів вищим % комісії саме за групові заявки (2+ місця в одній заявці) — вони дають найбільшу впевненість у виїзді.</li>
+        <li>Найактивнішим агентам відкривайте early-bird ціни на 3-5 днів раніше, ніж вона стає публічною — це утримує партнерів і прискорює наповнення групи.</li>
+      </ul>
+      <h4>B2C — прямий продаж</h4>
+      <ul>
+        <li>При прямому продажу агентська комісія нікуди не йде — це ваш додатковий прибуток. Має сенс запропонувати клієнту трохи нижчу ціну, ніж він отримав би через агента: і конкурентна перевага, і маржа лишається вищою за рахунок обсягу.</li>
+        <li>Використовуйте дефіцит чесно, а не штучно: «залишилось N місць за поточною ціною» — саме коли наближаєтесь до порогу зміни транша.</li>
+        <li>Для останніх місць (після точки беззбитковості) — продаж майже завжди чистий прибуток, тому доречні короткі дедлайни через сайт/соцмережі, а не через агентів (довший цикл узгодження).</li>
+      </ul>
+      <h4>Специфіка автобусних турів</h4>
+      <ul>
+        <li>Озвучуйте клієнтам мінімальну гарантовану групу і дедлайн підтвердження — це прискорює ранній викуп місць (люди не хочуть лишитись без туру через відміну).</li>
+        <li>Простіше адмініструвати ціну траншами («перші 10 місць — €X, наступні 10 — €Y»), ніж плавною кривою — це стандарт для невеликих автобусних операторів.</li>
+        <li>Доплату за одномісне розміщення тримайте окремою надбавкою поза основною ціновою сіткою, щоб не спотворювати транші.</li>
+      </ul>
+    </div>
+  `;
+}
+
+function openRmModal(route){
+  const overlay = document.getElementById('appModalOverlay');
+  document.getElementById('appModalTitle').textContent = '🎯 Revenue Management — рекомендації по ціні';
+  document.getElementById('appModalMessage').innerHTML = rmModalHtml(route);
+  const card = overlay.querySelector('.modal-card');
+  if(card) card.classList.add('wide');
+  const actions = document.getElementById('appModalActions');
+  actions.innerHTML = '';
+  overlay.style.display = 'flex';
+}
+
+/* ---------- GOOGLE MAPS BRIDGE ---------- */
+// Немає власного вбудованого Google Maps (це вимагає платного API-ключа Google, який
+// небезпечно зашивати в статичний файл) — натомість місток: відкриваємо маршрут як посилання
+// в реальному Google Maps (без ключа), а довжину/міста повертаємо в калькулятор вручну.
+const MAP_KM_BUFFER = 200; // запас на маршрут (з'їзди, об'їзди, зворотний шлях і т.п.)
+
+function mapRouteCities(route){
+  return route.dayPlan.map(d=>(d.city||'').trim()).filter(Boolean);
+}
+
+function buildGoogleMapsUrl(cities){
+  return 'https://www.google.com/maps/dir/' + cities.map(c=>encodeURIComponent(c)).join('/');
+}
+
+// Безкоштовний спосіб показати маршрут прямо в iframe (без платного Maps Embed API-ключа) —
+// стара, але досі робоча схема директрій Google Maps. Це неофіційний метод: Google теоретично
+// може змінити/прибрати його в майбутньому, тоді лишиться кнопка «на весь екран» нижче.
+function buildGoogleMapsEmbedUrl(cities){
+  if(cities.length<2) return null;
+  const saddr = encodeURIComponent(cities[0]);
+  const daddr = cities.slice(1).map(c=>encodeURIComponent(c)).join('+to:');
+  return `https://maps.google.com/maps?saddr=${saddr}&daddr=${daddr}&output=embed`;
+}
+
+function mapModalHtml(route){
+  const cities = mapRouteCities(route);
+  const embedUrl = buildGoogleMapsEmbedUrl(cities);
+  return `
+    <div class="map-section">
+      <h4>1. Спланувати маршрут у Google Maps</h4>
+      <div class="rm-note" style="margin-top:0;">Відкриється нова вкладка з Google Maps — побудуйте там маршрут (додайте всі зупинки як завгодно), подивіться підсумкову довжину. Коли маршрут готовий — поверніться сюди і перенесіть його вниз.</div>
+      ${cities.length>=2 ? `
+        <div class="map-city-list" style="margin-top:10px;">Поточний маршрут у калькуляторі: ${cities.map(escapeHtml).join(' → ')}</div>
+        <iframe src="${embedUrl}" style="width:100%;height:300px;border:1px solid var(--line);border-radius:6px;margin-top:8px;" loading="lazy"></iframe>
+      ` : ''}
+      <button type="button" class="mini-btn map-open-btn-lg" id="mapOpenBtn">🗺️ ${cities.length>=2 ? 'Відкрити поточний маршрут у Google Maps' : 'Відкрити Google Maps (з нуля)'}</button>
+    </div>
+
+    <div class="map-section">
+      <h4>2. Перенести готовий маршрут сюди</h4>
+      <div class="rm-note" style="margin-top:0;margin-bottom:8px;">Скопіюйте зупинки з Google Maps і вставте тут по одному місту на рядок, у порядку виїзду.</div>
+      <textarea id="mapDayAssignArea" placeholder="Львів&#10;Зальцбург&#10;Цюрих&#10;..."></textarea>
+      <button type="button" class="mini-btn" id="mapAssignDaysBtn">Розподілити по днях</button>
+      <span id="mapAssignMsg" style="font-size:12px;color:#9a927a;margin-left:10px;"></span>
+    </div>
+
+    <div class="map-section">
+      <h4>3. Перенести довжину маршруту</h4>
+      <div class="map-km-row">
+        <div class="field"><label>Довжина за Google Maps, км</label><input type="text" inputmode="decimal" id="mapKmInput" value=""></div>
+        <div class="field"><label>Запас</label><input type="text" disabled value="+${MAP_KM_BUFFER} км"></div>
+        <div class="field"><label>Разом</label><input type="text" disabled id="mapKmTotalDisplay" value="—"></div>
+      </div>
+      <button type="button" class="mini-btn" id="mapWriteKmBtn" style="margin-top:10px;">Записати в «Кілометраж»</button>
+      <div class="rm-note" style="margin-top:8px;">Калькулятор не може автоматично зчитати відстань з Google Maps (їхній API платний і не зашивається в цей файл) — впишіть число, яке показала карта, вручну.</div>
+    </div>
+  `;
+}
+
+function openMapModal(route){
+  const overlay = document.getElementById('appModalOverlay');
+  document.getElementById('appModalTitle').textContent = '🗺️ Планування маршруту в Google Maps';
+  document.getElementById('appModalMessage').innerHTML = mapModalHtml(route);
+  const card = overlay.querySelector('.modal-card');
+  if(card) card.classList.add('wide');
+  document.getElementById('appModalActions').innerHTML = '';
+  overlay.style.display = 'flex';
+  wireMapModal(route);
+}
+
+function wireMapModal(route){
+  const openBtn = document.getElementById('mapOpenBtn');
+  if(openBtn) openBtn.addEventListener('click', ()=>{
+    const cities = mapRouteCities(route);
+    const url = cities.length>=2 ? buildGoogleMapsUrl(cities) : 'https://www.google.com/maps/dir/';
+    window.open(url, '_blank');
+  });
+  const kmInput = document.getElementById('mapKmInput');
+  const kmTotalDisplay = document.getElementById('mapKmTotalDisplay');
+  if(kmInput) kmInput.addEventListener('input', e=>{
+    const base = Number(e.target.value.replace(',','.'))||0;
+    if(kmTotalDisplay) kmTotalDisplay.value = base>0 ? fmt0km(base+MAP_KM_BUFFER) : '—';
+  });
+  const writeBtn = document.getElementById('mapWriteKmBtn');
+  if(writeBtn) writeBtn.addEventListener('click', ()=>{
+    const base = Number((kmInput ? kmInput.value : '').replace(',','.'))||0;
+    if(base<=0){ showToast('Спершу впишіть довжину за Google Maps.'); return; }
+    route.road.km = round2(base+MAP_KM_BUFFER);
+    hideModal();
+    renderRouteBody();
+    showToast(`Кілометраж записано: ${fmt0km(route.road.km)} км.`);
+  });
+  const assignBtn = document.getElementById('mapAssignDaysBtn');
+  if(assignBtn) assignBtn.addEventListener('click', ()=>{
+    const area = document.getElementById('mapDayAssignArea');
+    const msg = document.getElementById('mapAssignMsg');
+    const lines = (area ? area.value : '').split('\n').map(l=>l.trim()).filter(Boolean);
+    if(!lines.length){ if(msg){ msg.textContent = 'Спершу впишіть міста, по одному на рядок.'; msg.style.color = 'var(--red)'; } return; }
+    if(lines.length !== route.dayPlan.length){
+      showModal({
+        title: 'Скільки днів записати?',
+        message: `Знайдено ${lines.length} міст, а зараз у маршруті ${route.dayPlan.length} дн. Встановити днів = ${lines.length} і розписати «День 1» … «День ${lines.length}» за цим списком?`,
+        buttons: [
+          {label:`Так, ${lines.length} днів`, className:'mini-btn', onClick: ()=>{
+            setDayCount(route, lines.length);
+            lines.forEach((city,i)=>{ route.dayPlan[i].city = city; });
+            renderRouteBody();
+            showToast('Дні маршруту оновлено.');
+          }},
+          {label:'Ні, лишити поточну к-сть днів', className:'mini-btn ghost', onClick: ()=>{
+            lines.slice(0, route.dayPlan.length).forEach((city,i)=>{ route.dayPlan[i].city = city; });
+            renderRouteBody();
+            showToast('Міста оновлено в межах поточної к-сті днів.');
+          }},
+          {label:'Скасувати', className:'mini-btn ghost', onClick: ()=>{}},
+        ]
+      });
+      return;
+    }
+    lines.forEach((city,i)=>{ route.dayPlan[i].city = city; });
+    renderRouteBody();
+    showToast('Міста по днях оновлено.');
+  });
+}
+
+function fmt0km(n){
+  return n.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:1});
+}
+
 async function saveRoute(route){
   const computed = computeRoute(route);
   const price30core = priceForCounts(computed.groupTotal, computed.personTotal, 30, 0, route.profit, route.agency);
@@ -989,12 +1060,12 @@ async function saveRoute(route){
 function openSavedRoute(savedId){
   const entry = savedRoutes.find(s=>s.savedId===savedId);
   if(!entry) return;
-  const nr = newRoute(entry.name + ' (копія)');
+  const nr = newRoute(entry.name);
   Object.assign(nr, JSON.parse(JSON.stringify(entry.snapshot)));
-  nr.name = entry.name + ' (копія)';
+  nr.name = entry.name;
   nr.locked = true;
-  nr.savedId = null; // opening creates an independent copy — saving it won't overwrite the original
-  markRouteClean(nr); // freshly opened copy has no unsaved changes yet
+  nr.savedId = savedId; // лишаємо привʼязку до запису в базі — «Зберегти маршрут» оновлює його, а не створює копію
+  markRouteClean(nr); // свіжовідкритий маршрут поки без незбережених змін
   routes.push(nr);
   activeId = nr.id;
   savedPanelOpen = false;
@@ -1054,12 +1125,16 @@ function newRoute(name){
       {name:'Страховка', cost:0, scope:'person', enabled:false, autoSync:true},
       {name:'Навушники', cost:0, scope:'person', enabled:false},
       {name:'Проживання Стафу', cost:0, scope:'group', enabled:false},
+      {name:'Страховка КГ', cost:0, scope:'group', enabled:false},
+      {name:'Реклама', cost:0, scope:'group', enabled:false},
     ],
     profit: 0,
     agency: 0,
     agencyMode: 'fixed', // 'fixed' | 'percent'
     agencyPercent: 10,
     cityTaxDailyRate: 4.98, // обов'язковий платіж компанії, €/день на учасника (покриває сітітакс; різниця з реальним сітітаксом ховається в базовій ціні)
+    headlineGroupSize: 40, // розмір групи, обраний повзунком для великого підсумкового блоку ціни
+    sales: [], // фактично продані місця: {label, price, viaAgent, agentCommission} — для точки беззбитковості
     parkingCountryView: EURO_COUNTRIES[0],
     excursionCountryView: EURO_COUNTRIES[0],
     system: { type: '15+1', customPaying: 10, customFree: 1 },
@@ -1094,6 +1169,14 @@ function fmt(n){
 // Показує підсумок продажної ціни як "база+платіж" (наприклад 233,10+24,90), а не одним числом.
 function fmtSplitTotal(loweredBase, fee){
   return `${fmt(loweredBase)}+${fmt(fee).replace('€','')}`;
+}
+// Те саме, але з додаванням гривневого еквіваленту — для великого підсумкового блоку "ціна на особу".
+function fmtHeadlinePrice(loweredBase, fee){
+  const eurPart = fmtSplitTotal(loweredBase, fee);
+  const wr = workingRate();
+  if(wr==null) return eurPart;
+  const uah = round2((loweredBase+fee)*wr);
+  return `${eurPart}<span class="uah-amt">≈ ₴${uah.toLocaleString('uk-UA',{minimumFractionDigits:2,maximumFractionDigits:2})}</span>`;
 }
 function getRoute(id){ return routes.find(r=>r.id===id); }
 function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
@@ -1156,17 +1239,17 @@ function updateTabDirtyDot(){
 
 function removeRouteTab(id){
   routes = routes.filter(r=>r.id!==id);
-  if(activeId===id) activeId = routes[0].id;
+  if(!routes.length){
+    // Ніколи не лишаємо застосунок зовсім без вкладок — відкриваємо чистий новий маршрут.
+    routes.push(newRoute('Маршрут ' + uid));
+  }
+  if(activeId===id || !getRoute(activeId)) activeId = routes[0].id;
   renderAll();
 }
 
 function closeRouteTab(id){
   const route = getRoute(id);
   if(!route) return;
-  if(routes.length===1){
-    showToast('Не можна закрити останню вкладку.');
-    return;
-  }
   if(!routeIsDirty(route)){
     removeRouteTab(id);
     return;
@@ -1536,6 +1619,12 @@ function priceForCounts(groupTotal, personTotal, P, F, profit, agency){
 const GROUP_SIZE_OPTIONS = [30,35,40,45,50,55,60];
 const MIN_GROUP_SIZE = 40; // мінімальна група, під яку орієнтовно рахуємо ціну (за системою 15+1)
 
+// Знаходить найближчий до обраного повзунком розміру групи стовпчик серед фіксованих
+// GROUP_SIZE_OPTIONS — саме він підсвічується в таблицях нижче.
+function nearestGroupSizeOption(target){
+  return GROUP_SIZE_OPTIONS.reduce((best,cur)=>Math.abs(cur-target)<Math.abs(best-target)?cur:best, GROUP_SIZE_OPTIONS[0]);
+}
+
 function roundToStep(n, step){
   step = step||5;
   return Math.round(n/step)*step;
@@ -1583,7 +1672,8 @@ function standardSizeTable(route){
     const corePrice = priceForCounts(r.groupTotal, r.personTotal, size, 0, route.profit, route.agency);
     return {size, corePrice, ...withMandatoryFee(corePrice, mf)};
   });
-  const cls = size => size===MIN_GROUP_SIZE ? ' class="col-min-group"' : '';
+  const highlightSize = nearestGroupSizeOption(route.headlineGroupSize||MIN_GROUP_SIZE);
+  const cls = size => size===highlightSize ? ' class="col-min-group"' : '';
   return `
     <table class="size-table">
       <thead><tr><th>Розмір групи</th>${cells.map(c=>`<th${cls(c.size)}>${c.size} чол</th>`).join('')}</tr></thead>
@@ -1593,7 +1683,7 @@ function standardSizeTable(route){
         <tr class="price-row"><td>В продаж: ціна з корекцією+обов'язковий платіж</td>${cells.map(c=>`<td${cls(c.size)}>${fmtSplitTotal(c.loweredBase,c.fee)}</td>`).join('')}</tr>
       </tbody>
     </table>
-    <div class="sub" style="margin-top:6px;">Виділена колонка (${MIN_GROUP_SIZE} чол) — мінімальна група, під яку орієнтуємось при продажу (система 15+1).</div>
+    <div class="sub" style="margin-top:6px;">Виділена колонка (${highlightSize} чол) — синхронізовано з розміром групи, обраним повзунком у блоці ціни вище.</div>
   `;
 }
 
@@ -1601,7 +1691,7 @@ function systemSizeTable(route){
   const r = computeRoute(route);
   const mf = mandatoryFeeInfo(route, r);
   const s = route.system;
-  const cls = size => size===MIN_GROUP_SIZE ? ' class="col-min-group"' : '';
+  const cls = size => size===nearestGroupSizeOption(route.headlineGroupSize||MIN_GROUP_SIZE) ? ' class="col-min-group"' : '';
   if(s.type==='custom'){
     const P = Math.max(0, Number(s.customPaying)||0);
     const F = Math.max(0, Number(s.customFree)||0);
@@ -1620,6 +1710,7 @@ function systemSizeTable(route){
     const corePrice = priceForCounts(r.groupTotal, r.personTotal, size, F, route.profit, route.agency);
     return {size, F, corePrice, ...withMandatoryFee(corePrice, mf)};
   });
+  const highlightSize = nearestGroupSizeOption(route.headlineGroupSize||MIN_GROUP_SIZE);
   return `
     <table class="size-table">
       <thead><tr><th>Розмір групи</th>${cells.map(c=>`<th${cls(c.size)}>${c.size} чол</th>`).join('')}</tr></thead>
@@ -1630,7 +1721,7 @@ function systemSizeTable(route){
         <tr class="price-row"><td>В продаж: ціна з корекцією+обов'язковий платіж</td>${cells.map(c=>`<td${cls(c.size)}>${fmtSplitTotal(c.loweredBase,c.fee)}</td>`).join('')}</tr>
       </tbody>
     </table>
-    <div class="sub" style="margin-top:6px;">Виділена колонка (${MIN_GROUP_SIZE} чол) — мінімальна група, під яку орієнтуємось при продажу (система 15+1).</div>
+    <div class="sub" style="margin-top:6px;">Виділена колонка (${highlightSize} чол) — синхронізовано з розміром групи, обраним повзунком у блоці ціни вище.</div>
   `;
 }
 
@@ -1639,7 +1730,23 @@ function resultsCard(route){
   const mf = mandatoryFeeInfo(route, r);
   const s = route.system;
   if(route.agencyMode==='percent') applyAgencyPercent(route);
+  const hgs = Math.min(65, Math.max(25, Math.floor(route.headlineGroupSize)||MIN_GROUP_SIZE));
+  route.headlineGroupSize = hgs;
+  const headlineCore = priceForCounts(r.groupTotal, r.personTotal, hgs, 0, route.profit, route.agency);
+  const headlinePriced = withMandatoryFee(headlineCore, mf);
   return `
+    <div class="headline-price">
+      <div class="headline-label-row" style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+        <div class="headline-label">Ціна на особу (<span id="headlineSizeLabel">${hgs}</span> чол)</div>
+        <button type="button" class="mini-btn ghost" id="rmOpenBtn" style="color:var(--gold-dim);border-color:rgba(255,255,255,.35);font-size:11px;padding:4px 9px;flex-shrink:0;">🎯 RM</button>
+      </div>
+      <div class="headline-value" id="headlinePriceValue">${fmtHeadlinePrice(headlinePriced.loweredBase, headlinePriced.fee)}</div>
+      <div class="headline-slider-row">
+        <span class="headline-slider-end">25</span>
+        <input type="range" id="headlineSizeSlider" min="25" max="65" step="1" value="${hgs}">
+        <span class="headline-slider-end">65</span>
+      </div>
+    </div>
     <table class="breakdown">
       <tr><td>Групові витрати (дорога + парковки + екскурсоводи + супровід + додаткові на групу) — всього</td><td>${fmt(r.groupTotal)}</td></tr>
       <tr><td>&nbsp;&nbsp;у т.ч. дорога</td><td>${fmt(r.roadTotal)}</td></tr>
@@ -1696,6 +1803,245 @@ function resultsCard(route){
     </div>
     <div class="size-table-wrap" id="systemSizeTableWrap">${systemSizeTable(route)}</div>
   `;
+}
+
+/* ---------- ACTUAL SALES / BREAK-EVEN TRACKER ---------- */
+// Постійні витрати (не залежать від фактичної к-сті учасників) і змінні витрати на 1 реального
+// учасника (готель + реальний сітітакс) — на основі вже налаштованого маршруту.
+function salesCostBasis(route){
+  const r = computeRoute(route);
+  return {fixed: r.groupTotal, marginal: r.personTotal + r.cityTaxTotal};
+}
+
+// Наростаючим підсумком: для кожного фактично проданого місця (в порядку внесення) —
+// чиста виручка з нього, накопичений дохід, накопичена собівартість (постійні + n×змінні),
+// накопичений прибуток/збиток. Точка беззбитковості — перше місце, на якому прибуток >= 0.
+function computeSalesSummary(route){
+  const {fixed, marginal} = salesCostBasis(route);
+  let cumRevenue = 0;
+  let breakEvenIndex = null;
+  const rows = route.sales.map((s,i)=>{
+    const n = i+1;
+    const commission = s.viaAgent ? Number(s.agentCommission||0) : 0;
+    const net = Number(s.price||0) - commission;
+    cumRevenue += net;
+    const cumCost = fixed + n*marginal;
+    const profit = cumRevenue - cumCost;
+    if(breakEvenIndex===null && profit>=0) breakEvenIndex = n;
+    return {net, cumRevenue, cumCost, profit};
+  });
+  return {rows, fixed, marginal, breakEvenIndex, count: route.sales.length};
+}
+
+function salesRowHtml(s, i){
+  return `
+    <tr class="salesRow" data-i="${i}">
+      <td style="font-family:'JetBrains Mono',monospace;color:#7a7360;">${i+1}</td>
+      <td><input type="text" class="salesLabel" data-i="${i}" value="${escapeHtml(s.label||'')}" placeholder="#"></td>
+      <td><input type="text" inputmode="decimal" class="salesPrice" data-i="${i}" value="${String(s.price).replace('.',',')}"></td>
+      <td><input type="text" class="salesTourSer" data-i="${i}" value="${escapeHtml(s.tourSer||'')}" placeholder="Тур-Сер"></td>
+      <td style="text-align:center;"><input type="checkbox" class="salesViaAgent itenabled" data-i="${i}" ${s.viaAgent?'checked':''} title="Продано через агента"></td>
+      <td><input type="text" inputmode="decimal" class="salesCommission" data-i="${i}" value="${String(s.agentCommission).replace('.',',')}" ${s.viaAgent?'':'disabled'}></td>
+      <td id="salesRowCum-${i}" class="grp-total" style="text-align:right;"></td>
+      <td><button class="del-btn salesDelBtn" data-i="${i}">✕</button></td>
+    </tr>`;
+}
+
+function salesSummaryHtml(route, summary){
+  const {fixed, marginal, breakEvenIndex, count, rows} = summary;
+  const lastProfit = rows.length ? rows[rows.length-1].profit : -fixed;
+  const statusLine = breakEvenIndex
+    ? `<span style="color:var(--teal-deep);font-weight:700;">Тур вийшов у беззбитковість на місці №${breakEvenIndex}</span> з ${count} проданих — усе, що продано після нього, це чистий прибуток.`
+    : (count
+        ? `<span style="color:var(--red);font-weight:700;">Беззбитковість ще не досягнута</span> — не вистачає ${fmt(-lastProfit)} доходу понад уже зібране.`
+        : `Ще немає жодного проданого місця.`);
+  return `
+    <table class="breakdown">
+      <tr><td>Постійні витрати туру (не залежать від к-сті учасників)</td><td>${fmt(fixed)}</td></tr>
+      <tr><td>Змінні витрати на 1 реального учасника (готель + сітітакс)</td><td>${fmt(marginal)}</td></tr>
+      <tr class="sep"><td>Продано місць</td><td>${count}</td></tr>
+      <tr><td>Зібрано чистого доходу (після агентських)</td><td>${fmt(rows.length?rows[rows.length-1].cumRevenue:0)}</td></tr>
+      <tr><td>Собівартість на ${count} чол</td><td>${fmt(fixed+count*marginal)}</td></tr>
+      <tr class="total"><td>Поточний прибуток / збиток</td><td>${fmt(lastProfit)}</td></tr>
+    </table>
+    <div class="sub" style="margin-top:12px;">${statusLine}</div>
+  `;
+}
+
+function salesSection(route){
+  const summary = computeSalesSummary(route);
+  const rows = route.sales.map((s,i)=>salesRowHtml(s,i)).join('') || `<tr><td colspan="8" style="color:#9a927a;font-size:12.5px;">Ще не додано жодного проданого місця</td></tr>`;
+  return `
+    <div class="sub" style="margin-top:0;">Імпорт з OneBox: у процесі туру натисніть «Сформувати Загальний документ» (.xls/.xlsx) і завантажте файл сюди.</div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <input type="file" id="oneboxFileInput" accept=".xls,.xlsx,.csv,.htm,.html" style="font-size:12.5px;">
+      <span id="oneboxImportMsg" style="font-size:12px;color:#9a927a;"></span>
+    </div>
+    <table class="items" style="margin-top:18px;">
+      <thead><tr><th style="width:30px;">№</th><th style="width:90px;">№ заявки</th><th style="width:110px;">Ціна €</th><th style="width:100px;">Тур-Сер</th><th style="width:70px;">Агент?</th><th style="width:110px;">Комісія агента €</th><th style="width:150px;">Наростаючий прибуток €</th><th style="width:30px;"></th></tr></thead>
+      <tbody id="salesRows">${rows}</tbody>
+    </table>
+    <button class="add-row" id="salesAddRow">+ додати продане місце</button>
+    <div id="salesSummaryBox" style="margin-top:16px;">${salesSummaryHtml(route, summary)}</div>
+  `;
+}
+
+// Розбирає масив-масивів (рядки з клітинками) з файлу «Загальний документ» OneBox:
+// шукає рядок заголовків за «номер заявки», потім колонки «тариф», «тур.збір», «комісія»,
+// «до сплати». Ціна на людину = До сплати + Комісія (реконструює повну суму до вирахування
+// комісії агента) — якщо «До сплати» відсутнє, підстраховується сумою Тариф+Тур.збір.
+function parseOneBoxAOA(grid){
+  if(!grid || !grid.length) return {rows:[], error:'Порожній файл.'};
+  let headerIdx = -1, header = null;
+  for(let i=0;i<Math.min(grid.length,6);i++){
+    const low = (grid[i]||[]).map(c=>String(c==null?'':c).toLowerCase());
+    if(low.some(c=>c.includes('номер заявки'))){ headerIdx=i; header=low; break; }
+  }
+  if(headerIdx===-1){
+    return {rows:[], error:'Не знайшов рядок заголовків («Номер заявки») — переконайтесь, що це файл «Загальний документ» з OneBox.'};
+  }
+  const findCol = (...names) => header.findIndex(h=>names.some(n=>h.includes(n)));
+  const idxApp = findCol('номер заявки');
+  const idxTariff = findCol('тариф');
+  const idxTourFee = findCol('тур.збір','тур збір');
+  const idxCommission = findCol('комісія');
+  const idxDoSplaty = findCol('до сплати');
+  const num = s => { const n = Number(String(s==null?'':s).replace(',','.').replace(/[^\d.\-]/g,'')); return isFinite(n) ? n : null; };
+  const rows = [];
+  for(let i=headerIdx+1;i<grid.length;i++){
+    const cells = grid[i]||[];
+    if(!cells.length) continue;
+    const appNum = idxApp>=0 ? String(cells[idxApp]==null?'':cells[idxApp]).trim().replace(/^#/,'') : '';
+    const tariff = idxTariff>=0 ? num(cells[idxTariff]) : null;
+    if(!appNum || tariff===null) continue;
+    const tourfee = idxTourFee>=0 ? (num(cells[idxTourFee])||0) : 0;
+    const commission = idxCommission>=0 ? (num(cells[idxCommission])||0) : 0;
+    const dosplaty = idxDoSplaty>=0 ? num(cells[idxDoSplaty]) : null;
+    const gross = dosplaty!==null ? round2(dosplaty+commission) : round2(tariff+tourfee);
+    rows.push({label: appNum, price: gross, tourSer:'', viaAgent: commission>0, agentCommission: commission});
+  }
+  return {rows, error: rows.length ? null : 'Не вдалось розпізнати жодного рядка з тарифом у файлі.'};
+}
+
+// OneBox видає ".xls", який насправді є HTML-таблицею (не бінарний Excel) — розбираємо як HTML.
+function parseOneBoxHtml(htmlText){
+  const doc = new DOMParser().parseFromString(htmlText, 'text/html');
+  const table = doc.querySelector('table');
+  if(!table) return {rows:[], error:'У файлі не знайдено таблицю.'};
+  const grid = Array.from(table.querySelectorAll('tr')).map(tr=>
+    Array.from(tr.querySelectorAll('td,th')).map(td=>td.textContent.replace(/\s+/g,' ').trim())
+  );
+  return parseOneBoxAOA(grid);
+}
+
+// Підвантажує SheetJS з CDN лише якщо реально трапиться бінарний .xlsx (на випадок, якщо
+// OneBox колись почне віддавати справжній Excel, а не HTML під розширенням .xls).
+let sheetJsLoadPromise = null;
+function ensureSheetJsLoaded(){
+  if(window.XLSX) return Promise.resolve();
+  if(sheetJsLoadPromise) return sheetJsLoadPromise;
+  sheetJsLoadPromise = new Promise((resolve,reject)=>{
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    s.onload = ()=>resolve();
+    s.onerror = ()=>reject(new Error('не вдалось завантажити бібліотеку для читання xlsx'));
+    document.head.appendChild(s);
+  });
+  return sheetJsLoadPromise;
+}
+
+async function handleOneBoxFile(file){
+  const buf = await file.arrayBuffer();
+  const head = new Uint8Array(buf.slice(0,2));
+  const isZip = head[0]===0x50 && head[1]===0x4B; // "PK" підпис — справжній бінарний .xlsx
+  if(isZip){
+    await ensureSheetJsLoaded();
+    const wb = XLSX.read(buf, {type:'array'});
+    const sheet = wb.Sheets[wb.SheetNames[0]];
+    const aoa = XLSX.utils.sheet_to_json(sheet, {header:1, defval:''});
+    return parseOneBoxAOA(aoa);
+  }
+  const text = new TextDecoder('utf-8').decode(buf);
+  if(/<table/i.test(text)){
+    return parseOneBoxHtml(text);
+  }
+  // резервний варіант: звичайний CSV/TSV текст
+  const lines = text.split(/\r?\n/).filter(l=>l.trim().length>0);
+  const sep = lines[0] && lines[0].includes('\t') ? '\t' : ',';
+  const grid = lines.map(l=>l.split(sep));
+  return parseOneBoxAOA(grid);
+}
+
+function refreshSalesComputed(route){
+  const summary = computeSalesSummary(route);
+  summary.rows.forEach((row,i)=>{
+    const el = document.getElementById(`salesRowCum-${i}`);
+    if(el){
+      el.textContent = fmt(row.profit);
+      el.style.color = row.profit>=0 ? 'var(--teal-deep)' : 'var(--red)';
+    }
+    const tr = document.querySelector(`.salesRow[data-i="${i}"]`);
+    if(tr) tr.style.background = (summary.breakEvenIndex!==null && i+1===summary.breakEvenIndex) ? 'var(--gold-dim)' : '';
+  });
+  const summaryEl = document.getElementById('salesSummaryBox');
+  if(summaryEl) summaryEl.innerHTML = salesSummaryHtml(route, summary);
+  updateTabDirtyDot();
+}
+
+function wireSalesRowEvents(route){
+  const fileInput = document.getElementById('oneboxFileInput');
+  if(fileInput) fileInput.addEventListener('change', async e=>{
+    const file = e.target.files[0];
+    const msg = document.getElementById('oneboxImportMsg');
+    if(!file) return;
+    if(msg){ msg.textContent = 'Обробляю файл...'; msg.style.color = '#9a927a'; }
+    try{
+      const {rows, error} = await handleOneBoxFile(file);
+      if(error){
+        if(msg){ msg.textContent = error; msg.style.color = 'var(--red)'; }
+        return;
+      }
+      rows.forEach(r=>route.sales.push(r));
+      if(msg){ msg.textContent = `Додано ${rows.length} рядків.`; msg.style.color = 'var(--teal-deep)'; }
+      renderRouteBody();
+    }catch(err){
+      if(msg){ msg.textContent = 'Помилка обробки файлу: '+err.message; msg.style.color = 'var(--red)'; }
+    }
+  });
+  document.querySelectorAll('.salesLabel').forEach(inp=>inp.addEventListener('input', e=>{
+    route.sales[Number(e.target.dataset.i)].label = e.target.value;
+  }));
+  document.querySelectorAll('.salesPrice').forEach(inp=>inp.addEventListener('input', e=>{
+    route.sales[Number(e.target.dataset.i)].price = Number(e.target.value.replace(',','.'))||0;
+    refreshSalesComputed(route);
+  }));
+  document.querySelectorAll('.salesTourSer').forEach(inp=>inp.addEventListener('input', e=>{
+    route.sales[Number(e.target.dataset.i)].tourSer = e.target.value;
+  }));
+  document.querySelectorAll('.salesViaAgent').forEach(cb=>cb.addEventListener('change', e=>{
+    const i = Number(e.target.dataset.i);
+    route.sales[i].viaAgent = e.target.checked;
+    if(e.target.checked && !route.sales[i].agentCommission) route.sales[i].agentCommission = route.agency;
+    const commInp = document.querySelector(`.salesCommission[data-i="${i}"]`);
+    if(commInp){
+      commInp.disabled = !e.target.checked;
+      commInp.value = String(route.sales[i].agentCommission).replace('.',',');
+    }
+    refreshSalesComputed(route);
+  }));
+  document.querySelectorAll('.salesCommission').forEach(inp=>inp.addEventListener('input', e=>{
+    route.sales[Number(e.target.dataset.i)].agentCommission = Number(e.target.value.replace(',','.'))||0;
+    refreshSalesComputed(route);
+  }));
+  document.querySelectorAll('.salesDelBtn').forEach(btn=>btn.addEventListener('click', e=>{
+    route.sales.splice(Number(e.target.dataset.i),1);
+    renderRouteBody();
+  }));
+  const addBtn = document.getElementById('salesAddRow');
+  if(addBtn) addBtn.addEventListener('click', ()=>{
+    route.sales.push({label:'', price: 0, tourSer:'', viaAgent:false, agentCommission: route.agency});
+    renderRouteBody();
+  });
 }
 
 /* ---------- BASE (BREAK-EVEN) GROUP OF FIXED SIZE ---------- */
@@ -2037,6 +2383,12 @@ function renderRouteBody(){
       <div class="sub">Собівартість і ціна туру на особу для різних розмірів групи</div>
       <div id="resultsContainer">${resultsCard(route)}</div>
     </div>
+
+    <div class="card">
+      <h2>Продажі / Точка беззбитковості</h2>
+      <div class="sub">Вносьте фактично продані місця по мірі надходження оплат (ціна, чи через агента). Наростаючим підсумком побачите, на якому місці тур вийшов у беззбитковість — незалежно від того, на яку к-сть людей рахувалась ціна на продаж.</div>
+      <div id="salesContainer">${salesSection(route)}</div>
+    </div>
     </div>
 
     <div class="card">
@@ -2227,6 +2579,8 @@ function wireEvents(route){
 
   wireResultsEvents(route);
   wireBaseGroupEvents(route);
+  wireSalesRowEvents(route);
+  refreshSalesComputed(route);
 
   const unlockBtn = document.getElementById('unlockBtn');
   if(unlockBtn) unlockBtn.addEventListener('click', ()=>{
@@ -2388,6 +2742,14 @@ function updateSizeTables(route){
   if(std) std.innerHTML = standardSizeTable(route);
   const sys = document.getElementById('systemSizeTableWrap');
   if(sys) sys.innerHTML = systemSizeTable(route);
+  const headline = document.getElementById('headlinePriceValue');
+  if(headline){
+    const r = computeRoute(route);
+    const mf = mandatoryFeeInfo(route, r);
+    const headlineCore = priceForCounts(r.groupTotal, r.personTotal, route.headlineGroupSize||MIN_GROUP_SIZE, 0, route.profit, route.agency);
+    const headlinePriced = withMandatoryFee(headlineCore, mf);
+    headline.innerHTML = fmtHeadlinePrice(headlinePriced.loweredBase, headlinePriced.fee);
+  }
   updateTabDirtyDot();
 }
 
@@ -2455,10 +2817,28 @@ function refreshResults(){
   const container = document.getElementById('resultsContainer');
   if(container) container.innerHTML = resultsCard(route);
   wireResultsEvents(route);
+  refreshSalesComputed(route);
   updateTabDirtyDot();
 }
 
 function wireResultsEvents(route){
+  const rmBtn = document.getElementById('rmOpenBtn');
+  if(rmBtn) rmBtn.addEventListener('click', ()=>openRmModal(route));
+  const headlineSlider = document.getElementById('headlineSizeSlider');
+  if(headlineSlider) headlineSlider.addEventListener('input', e=>{
+    route.headlineGroupSize = Number(e.target.value)||MIN_GROUP_SIZE;
+    const label = document.getElementById('headlineSizeLabel');
+    if(label) label.textContent = route.headlineGroupSize;
+    const valueEl = document.getElementById('headlinePriceValue');
+    if(valueEl){
+      const r = computeRoute(route);
+      const mf = mandatoryFeeInfo(route, r);
+      const core = priceForCounts(r.groupTotal, r.personTotal, route.headlineGroupSize, 0, route.profit, route.agency);
+      const priced = withMandatoryFee(core, mf);
+      valueEl.innerHTML = fmtHeadlinePrice(priced.loweredBase, priced.fee);
+    }
+    updateTabDirtyDot();
+  });
   const profitInp = document.getElementById('profitInput');
   if(profitInp) profitInp.addEventListener('input', e=>{
     route.profit = Number(e.target.value.replace(',','.'))||0;
@@ -2656,10 +3036,56 @@ async function init(){
       document.querySelectorAll('.city-suggest').forEach(s=>s.innerHTML='');
     }
   });
+
+  const modalCloseX = document.getElementById('appModalCloseX');
+  if(modalCloseX) modalCloseX.addEventListener('click', ()=>hideModal());
+  const modalOverlayEl = document.getElementById('appModalOverlay');
+  if(modalOverlayEl) modalOverlayEl.addEventListener('mousedown', e=>{
+    if(e.target === modalOverlayEl) hideModal();
+  });
+
+  const mapBtn = document.getElementById('mapModalBtn');
+  if(mapBtn) mapBtn.addEventListener('click', ()=>openMapModal(getRoute(activeId)));
+
+  const fileMenuOverlay = document.getElementById('fileMenuOverlay');
+  const openFileMenu = ()=>{ if(fileMenuOverlay) fileMenuOverlay.classList.add('open'); };
+  const closeFileMenu = ()=>{ if(fileMenuOverlay) fileMenuOverlay.classList.remove('open'); };
+  const fileMenuBtn = document.getElementById('fileMenuBtn');
+  if(fileMenuBtn) fileMenuBtn.addEventListener('click', openFileMenu);
+  const fileMenuCloseX = document.getElementById('fileMenuCloseX');
+  if(fileMenuCloseX) fileMenuCloseX.addEventListener('click', closeFileMenu);
+  if(fileMenuOverlay) fileMenuOverlay.addEventListener('mousedown', e=>{
+    if(e.target === fileMenuOverlay) closeFileMenu();
+  });
+  const fmNewRoute = document.getElementById('fmNewRoute');
+  if(fmNewRoute) fmNewRoute.addEventListener('click', ()=>{
+    closeFileMenu();
+    const nr = newRoute('Маршрут ' + uid);
+    routes.push(nr); activeId = nr.id; renderAll();
+  });
+  const fmSaveRoute = document.getElementById('fmSaveRoute');
+  if(fmSaveRoute) fmSaveRoute.addEventListener('click', ()=>{
+    closeFileMenu();
+    saveRoute(getRoute(activeId));
+  });
+  const fmSaveAsRoute = document.getElementById('fmSaveAsRoute');
+  if(fmSaveAsRoute) fmSaveAsRoute.addEventListener('click', async ()=>{
+    closeFileMenu();
+    const route = getRoute(activeId);
+    const newName = window.prompt('Зберегти як (нова назва маршруту):', route.name + ' (копія)');
+    if(!newName) return;
+    route.name = newName;
+    route.savedId = null; // від'єднуємо від старого запису в базі — це створить новий, окремий запис
+    await saveRoute(route);
+  });
+  const fmCloseRoute = document.getElementById('fmCloseRoute');
+  if(fmCloseRoute) fmCloseRoute.addEventListener('click', ()=>{
+    closeFileMenu();
+    closeRouteTab(activeId);
+  });
 }
 init();
 </script>
 
-
-
-</body></html>
+</body>
+</html>
