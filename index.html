@@ -163,6 +163,12 @@ table.items input[type=number]:focus{outline:2px solid var(--teal);outline-offse
 .headline-slider-row input[type=range]{flex:1;accent-color:var(--gold);height:20px;cursor:pointer;}
 .headline-slider-end{font-family:'JetBrains Mono',monospace;font-size:11px;color:#9fc2bc;}
 @media(max-width:520px){.headline-value{font-size:22px;}}
+.channel-scenarios-box{background:var(--paper);border:1px solid var(--paper-dim);border-left:4px solid var(--gold);border-radius:6px;padding:16px 20px;margin:18px 0 24px;}
+.channel-scenarios-title{font-family:'Fraunces',serif;font-size:15px;color:var(--teal-deep);margin-bottom:2px;}
+.channel-scenarios-sub{font-size:11.5px;color:#7a7360;margin-bottom:10px;}
+.channel-scenarios-row{display:flex;justify-content:space-between;gap:14px;padding:7px 0;border-bottom:1px solid var(--paper-dim);font-family:'JetBrains Mono',monospace;font-size:13.5px;color:var(--ink);}
+.channel-scenarios-row:last-child{border-bottom:none;}
+.channel-scenarios-row strong{color:var(--teal-deep);flex-shrink:0;}
 .breakdown td{padding:9px 6px;border-bottom:1px solid var(--paper-dim);}
 .breakdown td:first-child{font-family:'Inter',sans-serif;color:var(--ink);}
 .breakdown td:last-child{text-align:right;}
@@ -290,7 +296,6 @@ footer{text-align:center;color:#8a8368;font-size:12px;margin-top:40px;}
     <button class="mini-btn" id="saveRouteBtn">💾 Зберегти маршрут</button>
     <button class="mini-btn ghost" id="toggleSavedBtn">📚 База маршрутів (<span id="savedCount">0</span>)</button>
   </div>
-  <div id="savedPanel"></div>
   <div id="routeBody"></div>
 </div>
 
@@ -710,7 +715,6 @@ let routes = [];
 let activeId = null;
 let uid = 1;
 let savedRoutes = [];
-let savedPanelOpen = false;
 
 async function loadSavedRoutes(){
   try{
@@ -784,6 +788,7 @@ function hideModal(){
     const card = overlay.querySelector('.modal-card');
     if(card) card.classList.remove('wide');
   }
+  savedRoutesModalOpen = false;
 }
 
 /* ---------- REVENUE MANAGEMENT ADVISOR ---------- */
@@ -812,8 +817,7 @@ function rmComputeTiers(route){
 function rmComputeLastSeatsBoost(route, t){
   const sold = Array.isArray(route.sales) ? route.sales.length : 0;
   const unsold = Math.max(0, t.hgs - sold);
-  const ref = agencyCostReference(route);
-  const currentPct = tieredAgencyPercent(ref);
+  const currentPct = Number(route.agencyPercent)||10;
   const threshold = Math.max(5, Math.round(t.hgs*0.15));
   const active = sold>0 && unsold>0 && unsold<=threshold;
   const boostPct = Math.min(currentPct+8, 30);
@@ -1064,7 +1068,7 @@ async function saveRoute(route){
   if(ok) markRouteClean(route);
   await loadSavedRoutes();
   renderSavedBar();
-  if(savedPanelOpen) renderSavedPanel();
+  refreshSavedRoutesModalIfOpen();
   renderTabs();
   showToast(ok
     ? `Маршрут «${route.name}» збережено`
@@ -1082,23 +1086,23 @@ function openSavedRoute(savedId){
   markRouteClean(nr); // свіжовідкритий маршрут поки без незбережених змін
   routes.push(nr);
   activeId = nr.id;
-  savedPanelOpen = false;
-  renderSavedPanel();
+  hideModal();
   renderAll();
 }
 async function deleteSavedRoute(savedId){
   try{ await sbDelete('saved_routes', `saved_id=eq.${savedId}`); }catch(e){ /* silent */ }
   savedRoutes = savedRoutes.filter(s=>s.savedId!==savedId);
   renderSavedBar();
-  renderSavedPanel();
+  refreshSavedRoutesModalIfOpen();
 }
 function renderSavedBar(){
   const c = document.getElementById('savedCount');
   if(c) c.textContent = savedRoutes.length;
 }
-function renderSavedPanel(){
-  const panel = document.getElementById('savedPanel');
-  if(!savedPanelOpen){ panel.innerHTML=''; return; }
+
+let savedRoutesModalOpen = false;
+
+function savedRoutesModalHtml(){
   const rows = savedRoutes.map(s=>`
     <tr>
       <td>${escapeHtml(s.name)}</td>
@@ -1110,37 +1114,58 @@ function renderSavedPanel(){
         <button class="btn-del" data-del="${s.savedId}">Видалити</button>
       </div></td>
     </tr>`).join('');
-  panel.innerHTML = `
-    <div class="saved-panel">
-      <h2 style="font-family:'Fraunces',serif;font-size:18px;margin:0 0 10px 0;color:var(--teal-deep);">База прорахованих маршрутів</h2>
-      ${savedRoutes.length ? `
-      <table class="saved-table">
-        <thead><tr><th>Маршрут</th><th>Збережено</th><th>Днів</th><th>Ціна/особу (${MIN_GROUP_SIZE} чол)</th><th></th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-      <button class="mini-btn ghost" id="migratePrice30Btn" style="margin-top:12px;font-size:11.5px;">🔄 Перерахувати ціни в базі під стандарт (${MIN_GROUP_SIZE} чол)</button>
-      ` : `<div class="saved-empty">Ще немає збережених маршрутів. Натисніть «💾 Зберегти маршрут», щоб додати поточний до бази.</div>`}
-    </div>
-  `;
-  panel.querySelectorAll('[data-open]').forEach(btn=>btn.addEventListener('click', e=>openSavedRoute(e.target.dataset.open)));
-  panel.querySelectorAll('[data-del]').forEach(btn=>btn.addEventListener('click', e=>deleteSavedRoute(e.target.dataset.del)));
-  const migrateBtn = document.getElementById('migratePrice30Btn');
-  if(migrateBtn) migrateBtn.addEventListener('click', ()=>{
+  return savedRoutes.length ? `
+    <table class="saved-table">
+      <thead><tr><th>Маршрут</th><th>Збережено</th><th>Днів</th><th>Ціна/особу (${MIN_GROUP_SIZE} чол)</th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <button class="mini-btn ghost" id="refreshAllPricesBtn" style="margin-top:12px;font-size:11.5px;">🔄 Оновити ціни всіх маршрутів під поточну формулу</button>
+    <div class="rm-note" style="margin-top:6px;">Перераховує тільки цю колонку (за поточною логікою калькулятора) і записує в базу. Сам маршрут — готелі, дорога, продажі тощо — не змінюється.</div>
+  ` : `<div class="saved-empty">Ще немає збережених маршрутів. Натисніть «💾 Зберегти маршрут», щоб додати поточний до бази.</div>`;
+}
+
+function wireSavedRoutesModal(){
+  const msg = document.getElementById('appModalMessage');
+  msg.querySelectorAll('[data-open]').forEach(btn=>btn.addEventListener('click', e=>openSavedRoute(e.target.dataset.open)));
+  msg.querySelectorAll('[data-del]').forEach(btn=>btn.addEventListener('click', e=>deleteSavedRoute(e.target.dataset.del)));
+  const refreshBtn = document.getElementById('refreshAllPricesBtn');
+  if(refreshBtn) refreshBtn.addEventListener('click', ()=>{
     showModal({
-      title: 'Перерахувати ціни в базі?',
-      message: `Це перерахує «Ціна/особу» для всіх ${savedRoutes.length} збережених маршрутів під новий стандарт (${MIN_GROUP_SIZE} чол) і запише в базу. Сам маршрут (готелі, дорога, ціни тощо) не змінюється — тільки це число для порівняння в списку.`,
+      title: 'Оновити ціни всіх маршрутів?',
+      message: `Перерахує «Ціна/особу» для всіх ${savedRoutes.length} збережених маршрутів за поточною формулою калькулятора (${MIN_GROUP_SIZE} чол) і запише в базу. Сам маршрут (готелі, дорога, продажі тощо) не змінюється — тільки це число для порівняння в списку.`,
       buttons: [
-        {label:'Так, перерахувати', className:'mini-btn', onClick: ()=>migratePrice30ToStandard()},
-        {label:'Скасувати', className:'mini-btn ghost', onClick: ()=>{}},
+        {label:'Так, оновити', className:'mini-btn', onClick: async ()=>{ await refreshAllSavedPrices(); openSavedRoutesModal(); }},
+        {label:'Скасувати', className:'mini-btn ghost', onClick: ()=>{ openSavedRoutesModal(); }},
       ]
     });
   });
 }
 
-// Одноразова міграція: старі записи мали "Ціна/особу" пораховану на 30 чол — приводимо до
-// нового стандарту (MIN_GROUP_SIZE=40), щоб числа в базі співпадали з тим, що показує
-// відкритий калькулятор за замовчуванням. Сам знімок маршруту (snapshot) не чіпається.
-async function migratePrice30ToStandard(){
+function openSavedRoutesModal(){
+  savedRoutesModalOpen = true;
+  const overlay = document.getElementById('appModalOverlay');
+  document.getElementById('appModalTitle').textContent = '📚 База прорахованих маршрутів';
+  document.getElementById('appModalMessage').innerHTML = savedRoutesModalHtml();
+  const card = overlay.querySelector('.modal-card');
+  if(card) card.classList.add('wide');
+  document.getElementById('appModalActions').innerHTML = '';
+  overlay.style.display = 'flex';
+  wireSavedRoutesModal();
+}
+
+// Оновлює вміст модального вікна бази маршрутів «на місці», якщо воно зараз відкрите —
+// щоб збереження/видалення одразу відображались, не закриваючи вікно користувачу.
+function refreshSavedRoutesModalIfOpen(){
+  if(!savedRoutesModalOpen) return;
+  document.getElementById('appModalMessage').innerHTML = savedRoutesModalHtml();
+  wireSavedRoutesModal();
+}
+
+// Постійний інструмент (не одноразова міграція): перераховує "Ціна/особу" для всіх записів
+// бази за ПОТОЧНОЮ логікою калькулятора (formulas можуть змінюватись з часом — ця кнопка
+// завжди підтягує старі записи під те, як рахує калькулятор зараз). Сам snapshot не чіпається,
+// тільки відображувана ціна для порівняння в списку.
+async function refreshAllSavedPrices(){
   showToast(`Перераховую ${savedRoutes.length} маршрутів...`, 4000);
   let updated = 0, failed = 0;
   for(const entry of savedRoutes){
@@ -1154,8 +1179,8 @@ async function migratePrice30ToStandard(){
     }catch(e){ failed++; }
   }
   await loadSavedRoutes();
-  renderSavedPanel();
   renderSavedBar();
+  refreshSavedRoutesModalIfOpen();
   showToast(failed ? `Оновлено ${updated}, помилок: ${failed}.` : `Оновлено всі ${updated} маршрутів.`, 3500);
 }
 
@@ -1695,19 +1720,11 @@ function agencyCostReference(route){
   return withMandatoryFee(corePrice, mf).total;
 }
 
-// Щаблі комісії агента: до 300€ — 15%, 300–400€ — 13%, від 400€ — 12%.
-function tieredAgencyPercent(price){
-  if(price < 300) return 15;
-  if(price < 400) return 13;
-  return 12;
-}
-
-// Автоматична комісія агента: % за щаблем від ціни туру, мінімум 25 €/особу.
-// Ручна корекція (наприклад, під конкретний запит клієнта) — перемикач у режим "€".
+// Комісія агента: % від ціни туру, за замовчуванням 10% — редагується вручну під конкретний
+// тур/агента. Сума завжди округлюється до найближчих 5 €, мінімум 25 €/особу.
 function applyAgencyPercent(route){
   const ref = agencyCostReference(route);
-  const pct = tieredAgencyPercent(ref);
-  route.agencyPercent = pct;
+  const pct = Number(route.agencyPercent)||0;
   const raw = ref*pct/100;
   route.agency = Math.max(25, roundToStep(raw,5));
 }
@@ -1780,6 +1797,46 @@ function systemSizeTable(route){
   `;
 }
 
+// Прибуток туру (для обраного повзунком розміру групи) залежно від каналу продажу.
+// "Стандартна" ціна вже включає слот під комісію агента (priceForCounts додає route.agency
+// в саму ціну) — тож при продажу через агента ця частка йде ЗОВНІ (комісія), а при прямому
+// продажу лишається в компанії. Витрати (постійні + маржинальні на людину) від каналу не залежать.
+function computeChannelScenarios(route){
+  const r = computeRoute(route);
+  const mf = mandatoryFeeInfo(route, r);
+  const hgs = Math.min(65, Math.max(25, Math.floor(route.headlineGroupSize)||MIN_GROUP_SIZE));
+  const core = priceForCounts(r.groupTotal, r.personTotal, hgs, 0, route.profit, route.agency);
+  const standard = withMandatoryFee(core, mf).total;
+  const marginal = r.personTotal + r.cityTaxTotal;
+  const totalCost = r.groupTotal + hgs*marginal;
+  const netAgent = standard - Number(route.agency||0); // отримано з місця, проданого через агента
+  const netDirect = standard; // отримано з місця, проданого напряму (комісія лишається у компанії)
+  const agentHalf = Math.round(hgs/2);
+  const directHalf = hgs - agentHalf;
+  const revenueAllAgency = hgs*netAgent;
+  const revenueHalfHalf = agentHalf*netAgent + directHalf*netDirect;
+  const revenueAllDirect = hgs*netDirect;
+  return {
+    hgs, totalCost, agentHalf, directHalf,
+    allAgency: {revenue: revenueAllAgency, profit: revenueAllAgency-totalCost},
+    halfHalf: {revenue: revenueHalfHalf, profit: revenueHalfHalf-totalCost},
+    allDirect: {revenue: revenueAllDirect, profit: revenueAllDirect-totalCost},
+  };
+}
+
+function channelScenariosHtml(route){
+  const c = computeChannelScenarios(route);
+  return `
+    <div class="channel-scenarios-box">
+      <div class="channel-scenarios-title">Прибуток туру (${c.hgs} чол) залежно від каналу продажу</div>
+      <div class="channel-scenarios-sub">Різниця між отриманими і витраченими коштами</div>
+      <div class="channel-scenarios-row"><span>Уся група через агенції (100%)</span><strong>${fmt(c.allAgency.profit)}</strong></div>
+      <div class="channel-scenarios-row"><span>50% агенції (${c.agentHalf} чол) / 50% прямі туристи (${c.directHalf} чол)</span><strong>${fmt(c.halfHalf.profit)}</strong></div>
+      <div class="channel-scenarios-row"><span>Уся група напряму туристам (100%)</span><strong>${fmt(c.allDirect.profit)}</strong></div>
+    </div>
+  `;
+}
+
 function resultsCard(route){
   const r = computeRoute(route);
   const mf = mandatoryFeeInfo(route, r);
@@ -1802,6 +1859,7 @@ function resultsCard(route){
         <span class="headline-slider-end">65</span>
       </div>
     </div>
+    <div id="channelScenariosWrap">${channelScenariosHtml(route)}</div>
     <table class="breakdown">
       <tr><td>Групові витрати (дорога + парковки + екскурсоводи + супровід + додаткові на групу) — всього</td><td>${fmt(r.groupTotal)}</td></tr>
       <tr><td>&nbsp;&nbsp;у т.ч. дорога</td><td>${fmt(r.roadTotal)}</td></tr>
@@ -1823,11 +1881,11 @@ function resultsCard(route){
           </span>
         </label>
         ${route.agencyMode==='percent'
-          ? `<input type="text" disabled id="agencyPercentInput" value="${route.agencyPercent}%"/>`
+          ? `<input type="text" inputmode="decimal" id="agencyPercentInput" value="${String(route.agencyPercent).replace('.',',')}"/>%`
           : `<input type="text" inputmode="decimal" id="agencyInput" value="${String(route.agency).replace('.',',')}"/>`}
       </div>
     </div>
-    ${route.agencyMode==='percent' ? `<div class="sub" id="agencyPercentNote" style="margin-top:-8px;">= ${fmt(route.agency)} /особу (${route.agencyPercent}% від ціни ${fmt(agencyCostReference(route))}, мін. 25 €). Щаблі: до 300€ — 15%, 300–400€ — 13%, від 400€ — 12%. Для корекції під конкретний запит клієнта перемкніть на «€» і впишіть суму вручну.</div>` : ''}
+    ${route.agencyMode==='percent' ? `<div class="sub" id="agencyPercentNote" style="margin-top:-8px;">= ${fmt(route.agency)} /особу (${route.agencyPercent}% від ціни ${fmt(agencyCostReference(route))}, округлено до найближчих 5 €, мінімум 25 €). За замовчуванням 10% — впишіть свій % під конкретного агента чи запит.</div>` : ''}
 
     <div class="sub" style="margin-top:22px;display:flex;align-items:center;gap:10px;justify-content:space-between;">
       <span>Обов'язковий платіж (сітітакс)</span>
@@ -2822,6 +2880,8 @@ function updateSizeTables(route){
     const headlinePriced = withMandatoryFee(headlineCore, mf);
     headline.innerHTML = fmtHeadlinePrice(headlinePriced.loweredBase, headlinePriced.fee);
   }
+  const scenariosWrap = document.getElementById('channelScenariosWrap');
+  if(scenariosWrap) scenariosWrap.innerHTML = channelScenariosHtml(route);
   updateTabDirtyDot();
 }
 
@@ -2909,6 +2969,8 @@ function wireResultsEvents(route){
       const priced = withMandatoryFee(core, mf);
       valueEl.innerHTML = fmtHeadlinePrice(priced.loweredBase, priced.fee);
     }
+    const scenariosWrap = document.getElementById('channelScenariosWrap');
+    if(scenariosWrap) scenariosWrap.innerHTML = channelScenariosHtml(route);
     updateTabDirtyDot();
   });
   const profitInp = document.getElementById('profitInput');
@@ -2917,10 +2979,16 @@ function wireResultsEvents(route){
     if(route.agencyMode==='percent'){
       applyAgencyPercent(route);
       const note = document.getElementById('agencyPercentNote');
-      if(note) note.textContent = `= ${fmt(route.agency)} /особу (${route.agencyPercent}% від ціни ${fmt(agencyCostReference(route))}, мін. 25 €). Щаблі: до 300€ — 15%, 300–400€ — 13%, від 400€ — 12%. Для корекції під конкретний запит клієнта перемкніть на «€» і впишіть суму вручну.`;
-      const pctDisp = document.getElementById('agencyPercentInput');
-      if(pctDisp) pctDisp.value = route.agencyPercent+'%';
+      if(note) note.textContent = `= ${fmt(route.agency)} /особу (${route.agencyPercent}% від ціни ${fmt(agencyCostReference(route))}, округлено до найближчих 5 €, мінімум 25 €). За замовчуванням 10% — впишіть свій % під конкретного агента чи запит.`;
     }
+    updateSizeTables(route);
+  });
+  const agencyPercentInp = document.getElementById('agencyPercentInput');
+  if(agencyPercentInp) agencyPercentInp.addEventListener('input', e=>{
+    route.agencyPercent = Number(e.target.value.replace(',','.'))||0;
+    applyAgencyPercent(route);
+    const note = document.getElementById('agencyPercentNote');
+    if(note) note.textContent = `= ${fmt(route.agency)} /особу (${route.agencyPercent}% від ціни ${fmt(agencyCostReference(route))}, округлено до найближчих 5 €, мінімум 25 €). За замовчуванням 10% — впишіть свій % під конкретного агента чи запит.`;
     updateSizeTables(route);
   });
   const agencyInp = document.getElementById('agencyInput');
@@ -3067,8 +3135,7 @@ async function init(){
     saveRoute(getRoute(activeId));
   });
   document.getElementById('toggleSavedBtn').addEventListener('click', ()=>{
-    savedPanelOpen = !savedPanelOpen;
-    renderSavedPanel();
+    openSavedRoutesModal();
   });
   const rateRefreshBtn = document.getElementById('rateRefreshBtn');
   if(rateRefreshBtn) rateRefreshBtn.addEventListener('click', ()=>{
