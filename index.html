@@ -47,11 +47,12 @@ header p{margin:6px 0 0 0;color:#cfe3df;font-size:14px;letter-spacing:.3px;}
 .saved-panel{background:var(--white);border:1px solid var(--line);border-radius:4px;margin-top:14px;padding:18px 20px;}
 
 details.collapsible-block{margin-top:22px;}
-details.collapsible-block summary{cursor:pointer;font-family:'Inter',sans-serif;font-size:12.5px;color:#6b6455;list-style:none;display:flex;align-items:center;gap:7px;user-select:none;}
+details.collapsible-block summary{cursor:pointer;font-family:'Fraunces',serif;font-size:15.5px;font-weight:600;color:var(--teal-deep);list-style:none;display:flex;align-items:center;gap:9px;user-select:none;background:var(--gold-dim);border:1px solid var(--gold);padding:11px 16px;border-radius:6px;}
+details.collapsible-block summary:hover{background:var(--gold);}
 details.collapsible-block summary::-webkit-details-marker{display:none;}
-details.collapsible-block summary::before{content:'▸';font-size:11px;color:var(--gold);transition:transform .15s ease;flex-shrink:0;}
+details.collapsible-block summary::before{content:'▸';font-size:14px;color:var(--teal-deep);transition:transform .15s ease;flex-shrink:0;}
 details.collapsible-block[open] > summary::before{transform:rotate(90deg);}
-details.collapsible-block .collapsible-body{margin-top:12px;}
+details.collapsible-block .collapsible-body{margin-top:14px;}
 
 details.card-collapsible summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;user-select:none;}
 details.card-collapsible summary::-webkit-details-marker{display:none;}
@@ -195,9 +196,6 @@ table.size-table td.col-min-group{background:#fbf1d6;box-shadow:inset 0 0 0 2px 
 table.size-table tr.price-row td.col-min-group{background:var(--gold);color:var(--teal-deep);}
 
 .header-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px;}
-.map-btn{width:52px;height:52px;background:var(--teal);border:1.5px solid var(--gold-dim);border-radius:8px;color:var(--white);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;box-shadow:0 3px 10px rgba(0,0,0,.2);flex-shrink:0;}
-.map-btn:hover{background:var(--teal-deep);}
-.map-btn .map-icon{font-size:18px;line-height:1;}
 .map-section{margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid var(--paper-dim);}
 .map-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
 .map-section h4{font-family:'Fraunces',serif;font-size:15px;color:var(--teal-deep);margin:0 0 8px;}
@@ -269,7 +267,6 @@ footer{text-align:center;color:#8a8368;font-size:12px;margin-top:40px;}
       </div>
     </div>
     <div class="header-right">
-      <button type="button" class="map-btn" id="mapModalBtn" title="Планування маршруту в Google Maps"><span class="map-icon">🗺️</span>MAP</button>
       <div class="stamp">ГРУПОВІ ТУРИ · КАЛЬКУЛЯЦІЯ</div>
       <div class="rate-badge" id="rateBadge">
         <div class="rate-badge-row"><span>Курс НБУ (EUR)</span><strong id="nbuRateValue">…</strong></div>
@@ -798,7 +795,7 @@ function hideModal(){
 function rmComputeTiers(route){
   const r = computeRoute(route);
   const mf = mandatoryFeeInfo(route, r);
-  const hgs = Math.min(65, Math.max(25, Math.floor(route.headlineGroupSize)||MIN_GROUP_SIZE));
+  const hgs = Math.min(80, Math.max(25, Math.floor(route.headlineGroupSize)||MIN_GROUP_SIZE));
   const core = priceForCounts(r.groupTotal, r.personTotal, hgs, 0, route.profit, route.agency);
   const standard = withMandatoryFee(core, mf).total;
   const marginal = r.personTotal + r.cityTaxTotal;
@@ -1696,7 +1693,7 @@ function priceForCounts(groupTotal, personTotal, P, F, profit, agency){
   return base + Number(profit||0) + Number(agency||0);
 }
 
-const GROUP_SIZE_OPTIONS = [30,35,40,45,50,55,60];
+const GROUP_SIZE_OPTIONS = [30,35,40,45,50,55,60,65,70,75,80];
 const MIN_GROUP_SIZE = 40; // мінімальна група, під яку орієнтовно рахуємо ціну (за системою 15+1)
 
 // Знаходить найближчий до обраного повзунком розміру групи стовпчик серед фіксованих
@@ -1804,7 +1801,7 @@ function systemSizeTable(route){
 function computeChannelScenarios(route){
   const r = computeRoute(route);
   const mf = mandatoryFeeInfo(route, r);
-  const hgs = Math.min(65, Math.max(25, Math.floor(route.headlineGroupSize)||MIN_GROUP_SIZE));
+  const hgs = Math.min(80, Math.max(25, Math.floor(route.headlineGroupSize)||MIN_GROUP_SIZE));
   const core = priceForCounts(r.groupTotal, r.personTotal, hgs, 0, route.profit, route.agency);
   const standard = withMandatoryFee(core, mf).total;
   const marginal = r.personTotal + r.cityTaxTotal;
@@ -1842,7 +1839,7 @@ function resultsCard(route){
   const mf = mandatoryFeeInfo(route, r);
   const s = route.system;
   if(route.agencyMode==='percent') applyAgencyPercent(route);
-  const hgs = Math.min(65, Math.max(25, Math.floor(route.headlineGroupSize)||MIN_GROUP_SIZE));
+  const hgs = Math.min(80, Math.max(25, Math.floor(route.headlineGroupSize)||MIN_GROUP_SIZE));
   route.headlineGroupSize = hgs;
   const headlineCore = priceForCounts(r.groupTotal, r.personTotal, hgs, 0, route.profit, route.agency);
   const headlinePriced = withMandatoryFee(headlineCore, mf);
@@ -1855,8 +1852,8 @@ function resultsCard(route){
       <div class="headline-value" id="headlinePriceValue">${fmtHeadlinePrice(headlinePriced.loweredBase, headlinePriced.fee)}</div>
       <div class="headline-slider-row">
         <span class="headline-slider-end">25</span>
-        <input type="range" id="headlineSizeSlider" min="25" max="65" step="1" value="${hgs}">
-        <span class="headline-slider-end">65</span>
+        <input type="range" id="headlineSizeSlider" min="25" max="80" step="1" value="${hgs}">
+        <span class="headline-slider-end">80</span>
       </div>
     </div>
     <div id="channelScenariosWrap">${channelScenariosHtml(route)}</div>
@@ -1909,7 +1906,7 @@ function resultsCard(route){
     <div class="size-table-wrap" id="standardSizeTableWrap">${standardSizeTable(route)}</div>
 
     <details class="collapsible-block">
-      <summary>Розрахунок за системою «безкоштовних місць»</summary>
+      <summary>🎟️ Розрахунок за системою «безкоштовних місць»</summary>
       <div class="collapsible-body">
         <div class="meta-row">
           <div class="field"><label>Система</label>
@@ -2352,7 +2349,7 @@ function buildRouteSummaryText(route){
   GROUP_SIZE_OPTIONS.forEach(size=>{
     const corePrice = priceForCounts(r.groupTotal, r.personTotal, size, 0, route.profit, route.agency);
     const priced = withMandatoryFee(corePrice, mf);
-    lines.push(`  ${size} чол: ${fmt(priced.total)} (реальна ${fmt(corePrice)}, з корекцією ${fmt(priced.loweredBase)}, обов'язк. платіж ${fmt(priced.fee)})`);
+    lines.push(`  ${size} чол: В продаж ${fmtSplitTotal(priced.loweredBase,priced.fee)} (реальна ${fmt(corePrice)}, з корекцією ${fmt(priced.loweredBase)}, обов'язк. платіж ${fmt(priced.fee)})`);
   });
   const {unit, free} = systemRatio(route);
   if(route.system.type!=='custom'){
@@ -2362,7 +2359,7 @@ function buildRouteSummaryText(route){
       const F = unit>0 ? Math.floor(size/unit)*free : 0;
       const corePrice = priceForCounts(r.groupTotal, r.personTotal, size, F, route.profit, route.agency);
       const priced = withMandatoryFee(corePrice, mf);
-      lines.push(`  ${size} чол (${F} безкошт.): ${fmt(priced.total)}`);
+      lines.push(`  ${size} чол (${F} безкошт.): В продаж ${fmtSplitTotal(priced.loweredBase,priced.fee)}`);
     });
   } else {
     const P = Math.max(0,Number(route.system.customPaying)||0);
@@ -2370,7 +2367,7 @@ function buildRouteSummaryText(route){
     const corePrice = priceForCounts(r.groupTotal, r.personTotal, P, F, route.profit, route.agency);
     const priced = withMandatoryFee(corePrice, mf);
     lines.push('');
-    lines.push(`Ціна на особу (довільна система, ${P} оплачуваних + ${F} безкоштовних): ${fmt(priced.total)}`);
+    lines.push(`Ціна на особу (довільна система, ${P} оплачуваних + ${F} безкоштовних): В продаж ${fmtSplitTotal(priced.loweredBase,priced.fee)}`);
   }
   const included = includedItemsList(route);
   if(included.length){
@@ -2394,7 +2391,7 @@ function buildRouteSummaryShort(route){
   const midSize = GROUP_SIZE_OPTIONS[Math.floor(GROUP_SIZE_OPTIONS.length/2)];
   const corePrice = priceForCounts(r.groupTotal, r.personTotal, midSize, 0, route.profit, route.agency);
   const priced = withMandatoryFee(corePrice, mf);
-  lines.push(`Ціна/особу (${midSize} чол): ${fmt(priced.total)}`);
+  lines.push(`Ціна/особу (${midSize} чол): В продаж ${fmtSplitTotal(priced.loweredBase,priced.fee)}`);
   return lines.join('\n');
 }
 
@@ -3187,9 +3184,6 @@ async function init(){
   if(modalOverlayEl) modalOverlayEl.addEventListener('mousedown', e=>{
     if(e.target === modalOverlayEl) hideModal();
   });
-
-  const mapBtn = document.getElementById('mapModalBtn');
-  if(mapBtn) mapBtn.addEventListener('click', ()=>openMapModal(getRoute(activeId)));
 
   const fileMenuOverlay = document.getElementById('fileMenuOverlay');
   const openFileMenu = ()=>{ if(fileMenuOverlay) fileMenuOverlay.classList.add('open'); };
